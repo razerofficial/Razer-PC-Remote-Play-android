@@ -1,6 +1,6 @@
 # Razer PC Remote Play for Android 
  
-[Razer PC Remote Play for Android](https://www.razer.com/remote-play-mobile-client) is an open source client for Razer PC Remote Play and [Razer Cortex](https://www.razer.com/cortex). 
+[Razer PC Remote Play for Android](https://www.razer.com/gaming-software/razer-pc-remote-play) is an open source client for Razer PC Remote Play and [Razer Cortex](https://www.razer.com/cortex). 
  
 THE ULTIMATE PC-TO-MOBILE STREAMING PLATFORM 
 The power of your gaming rig now fits in your pocket. Stream your favorite games using your PC, launch them directly from your mobile device, and take your immersion to the next level with the sharpest, smoothest visuals. 
