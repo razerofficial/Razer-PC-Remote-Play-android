@@ -8,6 +8,7 @@
     android:clipToPadding="false">
 
     <ImageView
+        android:importantForAccessibility="no"
         android:id="@+id/scrollIndicatorUp"
         android:layout_width="match_parent"
         android:layout_height="1dp"
@@ -51,6 +52,7 @@
     </androidx.core.widget.NestedScrollView>
 
     <ImageView
+        android:importantForAccessibility="no"
         android:id="@+id/scrollIndicatorDown"
         android:layout_width="match_parent"
         android:layout_height="1dp"

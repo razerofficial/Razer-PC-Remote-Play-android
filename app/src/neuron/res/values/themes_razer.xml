@@ -1,13 +1,13 @@
 <resources>
-    <style name="AppTheme.DynamicColors" parent="Theme.Material3.DynamicColors.Dark">
-        <item name="android:statusBarColor">?attr/colorSurface</item>
+    <style name="BaseTheme.Razer" parent="Theme.Material3.Dark.NoActionBar"/>
+
+    <style name="AppTheme.Razer" parent="BaseTheme.Razer">
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-    </style>
-    <style name="AppTheme.DynamicColors.WindowBackground.Black" parent="AppTheme.DynamicColors">
-        <item name="android:windowBackground">@color/rn_black</item>
-    </style>
-    <style name="AppTheme" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="android:popupMenuStyle">@style/RnTheme.PopupMenu</item>
+        <item name="android:textAppearanceSmallPopupMenu">@style/RnTheme.PopupMenu.Small.TextAppearance</item>
+        <item name="android:itemTextAppearance">@style/RnTheme.PopupMenu.IconMenu.Item</item>
         <item name="colorPrimary">@color/md_theme_primary</item>
         <item name="colorOnPrimary">@color/md_theme_onPrimary</item>
         <item name="colorPrimaryContainer">@color/md_theme_primaryContainer</item>
@@ -55,4 +55,25 @@
         <item name="colorSurfaceContainerHigh">@color/md_theme_surfaceContainerHigh</item>
         <item name="colorSurfaceContainerHighest">@color/md_theme_surfaceContainerHighest</item>
     </style>
+
+    <style name="AppTheme.Razer.Splash" parent="AppTheme.Razer">
+        <item name="android:windowBackground">@color/rn_razer_green</item> <!--splash is always green-->
+        <item name="android:statusBarColor">@color/rn_razer_green</item>
+        <item name="android:navigationBarColor">@color/rn_razer_green</item> <!--splash is always green-->
+        <item name="android:windowActivityTransitions">false</item>
+    </style>
+    <style name="AppTheme.Razer.Game" parent="AppTheme.Razer.Splash">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowBackground">@color/rn_black</item> <!--game is always black-->
+        <item name="android:windowActivityTransitions">false</item>
+    </style>
+    <style name="AppTheme.Razer.Settings" parent="AppTheme.Razer.Splash">
+        <item name="android:statusBarColor">?attr/colorSurface</item>
+        <item name="android:navigationBarColor">?attr/colorSurface</item>
+        <item name="android:windowTranslucentNavigation">false</item>
+        <item name="android:windowActivityTransitions">true</item>
+        <item name="android:windowBackground">?attr/colorSurface</item>
+    </style>
+
 </resources>

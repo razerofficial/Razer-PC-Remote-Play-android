@@ -70,11 +70,10 @@
     <string name="rn_all_computers">Todos os computadores</string>
     <string name="rn_settings_computers">Computadores</string>
     <string name="rn_add">Adicionar</string>
-    <string name="rn_hint_input_pc_ip_address">Insira o endereço IP do PC</string>
+    <string name="rn_hint_input_pc_ip_address">Endereço IP</string>
     <string name="rn_discovery_state_pc_online">Disponível</string>
     <string name="rn_pair">Emparelhar</string>
     <string name="rn_paired_computers">Computadores emparelhados</string>
-    <string name="rn_manual_pairing_loading_content">Verifique se o &hostlabel; está em execução na mesma rede.</string>
     <string name="rn_nexus_content_provider_permission_name">Emparelhando</string>
     <string name="rn_pin_code_subtitle">Código PIN:</string>
     <string name="rn_pin_code_title">Entre no PC de streaming\n%1$s</string>
@@ -144,7 +143,18 @@
     <string name="rn_add_computer_manually">Adicionar o PC manualmente</string>
     <string name="rn_remote_play_settings_localized">Juego en remoto en PC</string>
     <string name="rn_setting_neuron_video_settings">Configurações de vídeo</string>
-    <string name="rn_pairing_hint">Verifique se o &hostlabel; está em execução na mesma rede.</string>
+    <string name="rn_pairing_hint">Certifique-se de que o &hostlabel; esteja em execução.</string>
+    <string name="rn_setting_neuron_video_format_title">Codec de vídeo</string>
+    <string name="rn_setting_neuron_video_format_subtitle">Especifique o codec de vídeo usado para transmissão.</string>
+    <string name="rn_video_format_auto">Automático</string>
+    <string name="rn_prompt_quit_existing_session_title">Sessão de transmissão em andamento</string>
+    <string name="rn_prompt_quit_existing_session_msg"><![CDATA[<b>%1$s</b> já está transmitindo em <b>%2$s</b>. Deseja substituir a sessão atual? Todos os dados não salvos serão perdidos.]]></string>
+    <string name="rn_replace">Substituir</string>
+    <string name="rn_reconnecting_to_x">Reconectando a %1$s \u2026</string>
+    <string name="rn_tap_to_cancel">Toque para cancelar</string>
+    <string name="rn_overlay_title">Teclas do PC</string>
+    <string name="rn_warning_missing_address">Endereço IP ausente.</string>
+    <string name="rn_warning_missing_port">Porta ausente.</string>
 
     <!-- Failed to start error message, part 1  -->
     <string name="failed_to_start_msg_with_param">Falha ao iniciar %1$s.</string>
@@ -169,6 +179,14 @@
     <string name="conn_error_code_5032">Falha ao inicializar a captura/codificação de vídeo. Há um display conectado e ligado?</string>
     <string name="conn_error_code_5033">Nenhum aplicativo em execução para retomar.</string>
     <string name="conn_error_code_5034">Todas as sessões devem ser desconectadas antes de sair.</string>
+    <string name="conn_error_code_5037">O PC host não conseguiu iniciar o codificador de vídeo. Certifique-se de que seus drivers de GPU e CPU estão atualizados.</string>
+    <string name="conn_error_code_5038">O codificador de vídeo falhou ao iniciar. Tente um codec de vídeo diferente ou reinicie o PC host.</string>
+    <string name="conn_error_code_5039"><![CDATA[Nenhum monitor foi encontrado conectado ao seu PC. Certifique-se de que o monitor está ligado ou altere o modo de exibição para <b>Apenas telefone</b>.]]></string>
+    <string name="conn_error_code_5040">O Razer Virtual Display não foi carregado corretamente. Reinicie seu PC host.</string>
 
     <string name="open_source_notice">Nota do software de código aberto</string>
+
+    <string name="rn_fallback_display_mode_and_video_res_msg"><![CDATA[<br/><br/>As configurações de <b>Modo de Exibição</b> foram revertidas para <b>Duplicar a Tela do PC</b> e 720p, por favor, tente novamente mais tarde.]]></string>
+    <string name="rn_fallback_video_res_msg"><![CDATA[<br/><br/>A resolução do vídeo foi alterada para 720p, por favor, tente novamente mais tarde.]]></string>
+    <string name="rn_hint_input_pc_port">Porta</string>
 </resources>

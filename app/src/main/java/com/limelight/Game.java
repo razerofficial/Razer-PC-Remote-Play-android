@@ -186,6 +186,7 @@ public class Game extends ComponentActivity implements SurfaceHolder.Callback,
     public static final String EXTRA_APP_HDR = "HDR";
     public static final String EXTRA_SERVER_CERT = "ServerCert";
     public static final String EXTRA_HOST_ACTIVE_DISPLAY_MODE = "HostActiveDisplayMode";
+    public static final String EXTRA_IS_REPLACE_SESSION = "IsReplaceSession";
 
     protected boolean isFullscreenLayout = true;
 
@@ -328,7 +329,7 @@ public class Game extends ComponentActivity implements SurfaceHolder.Callback,
         String uniqueId = Game.this.getIntent().getStringExtra(EXTRA_UNIQUEID);
         boolean appSupportsHdr = Game.this.getIntent().getBooleanExtra(EXTRA_APP_HDR, false);
         byte[] derCertData = Game.this.getIntent().getByteArrayExtra(EXTRA_SERVER_CERT);
-
+        boolean isReplaceSession = Game.this.getIntent().getBooleanExtra(EXTRA_IS_REPLACE_SESSION, false);
         app = new NvApp(appName != null ? appName : "app", appId, appSupportsHdr);
 
         X509Certificate serverCert = null;
@@ -386,6 +387,7 @@ public class Game extends ComponentActivity implements SurfaceHolder.Callback,
         LimeLog.info("new MediaCodecDecoderRenderer with prefConfig("+prefConfig.hashCode()+") "+prefConfig.width + "x"+prefConfig.height);
         decoderRenderer = new MediaCodecDecoderRenderer(
                 this,
+                this.getWindowManager(),
                 prefConfig,
                 new CrashListener() {
                     @Override
@@ -489,13 +491,16 @@ public class Game extends ComponentActivity implements SurfaceHolder.Callback,
                 .setColorSpace(decoderRenderer.getPreferredColorSpace())
                 .setColorRange(decoderRenderer.getPreferredColorRange())
                 .setPersistGamepadsAfterDisconnect(!prefConfig.multiController)
+                .setReplaceSession(isReplaceSession)
                 .build();
 
 
         // Initialize the connection
         conn = new NvConnection(getApplicationContext(),
                 new ComputerDetails.AddressTuple(host, port),
-                httpsPort, uniqueId, config,
+                httpsPort, uniqueId,
+                config,
+                prefConfig,
                 PlatformBinding.getCryptoProvider(this), serverCert);
         controllerHandler = new ControllerHandler(this, conn, this, prefConfig);
         keyboardTranslator = new KeyboardTranslator();
@@ -2357,8 +2362,14 @@ public class Game extends ComponentActivity implements SurfaceHolder.Callback,
                                     else {
                                         errorCodeString = Integer.toString(errorCode);
                                     }
-                                    message = getResources().getString(R.string.conn_terminated_msg) + "\n\n" +
-                                            getResources().getString(R.string.error_code_prefix) + " " + errorCodeString;
+                                    if(errorCode == -1 || errorCode == 0) {
+                                        errorCodeString = null;
+                                    }
+                                    message = getResources().getString(R.string.conn_terminated_msg) + "\n\n";
+                                    if(errorCodeString != null) {
+                                        message += (getResources().getString(R.string.error_code_prefix) + " " + errorCodeString);
+                                    }
+                                    message = message.trim();
                                     break;
                             }
                         }
@@ -2370,7 +2381,7 @@ public class Game extends ComponentActivity implements SurfaceHolder.Callback,
                         }
 
                         if(!handleUngracefulTermination(getResources().getString(R.string.conn_terminated_title),
-                                message)) {
+                                message, errorCode)) {
                             Dialog.displayDialog(Game.this, getResources().getString(R.string.conn_terminated_title),
                                     message, true);
                         }
@@ -2389,8 +2400,8 @@ public class Game extends ComponentActivity implements SurfaceHolder.Callback,
      * @param message
      * @return
      */
-    protected Boolean handleUngracefulTermination(@Nonnull String title, @Nullable String message) {
-        LimeLog.warning("handleUngracefulTermination: title: "+title+", message: "+message);
+    protected Boolean handleUngracefulTermination(@Nonnull String title, @Nullable String message, int errorCode) {
+        LimeLog.warning("handleUngracefulTermination: title: "+title+", message: "+message + ", errorCode: "+errorCode);
         return false;
     }
 
@@ -2464,7 +2475,7 @@ public class Game extends ComponentActivity implements SurfaceHolder.Callback,
         // Report this shortcut being used (off the main thread to prevent ANRs)
         ComputerDetails computer = new ComputerDetails();
         computer.name = pcName;
-        computer.uuid = Game.this.getIntent().getStringExtra(EXTRA_PC_UUID);
+        computer.uuid = this.getIntent().getStringExtra(EXTRA_PC_UUID);
         ShortcutHelper shortcutHelper = new ShortcutHelper(this);
         shortcutHelper.reportComputerShortcutUsed(computer);
         if (appName != null) {

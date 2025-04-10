@@ -22,6 +22,7 @@
         android:paddingHorizontal="@dimen/margin_2x">
 
         <ImageView
+            android:importantForAccessibility="no"
             android:id="@+id/iv_computer_icon"
             android:layout_width="71dp"
             android:layout_height="64dp"

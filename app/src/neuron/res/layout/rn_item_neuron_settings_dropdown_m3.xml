@@ -4,10 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:focusable="false"
+    android:addStatesFromChildren="true"
     style="@style/RnSettingsItem">
 
     <ImageView
+        android:importantForAccessibility="no"
         android:id="@+id/iv_action_icon"
         android:layout_width="24dp"
         android:layout_height="24dp"
@@ -51,7 +52,7 @@
 
 
     <FrameLayout
-        android:focusable="false"
+        android:addStatesFromChildren="true"
         android:background="@drawable/transparent_selector"
         android:id="@+id/layout_dropdown_menu"
         android:layout_marginStart="@dimen/m3_sys_item_switch_margin_start"
@@ -61,22 +62,11 @@
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_width="@dimen/m3_default_dropdown_menu_width"
         android:layout_height="wrap_content">
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/til_dropdown_menu"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+
+        <com.razer.neuron.common.DropdownButtonView
+            android:id="@+id/ddbv_dropdown_menu"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <AutoCompleteTextView
-                android:singleLine="true"
-                android:ellipsize="end"
-                android:id="@+id/actv_dropdown_menu"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="none"
-                app:simpleItems="@array/fps_values" />
-
-        </com.google.android.material.textfield.TextInputLayout>
+            android:layout_height="wrap_content"/>
     </FrameLayout>
 
 

@@ -16,6 +16,68 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
+
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:visibility="gone"
+                android:layout_marginVertical="@dimen/margin_4x"
+                android:layout_marginEnd="@dimen/margin_4x"
+                app:singleSelection="true"
+                app:selectionRequired="true"
+                android:orientation="horizontal"
+                android:layout_marginStart="@dimen/margin_6x"
+                android:id="@+id/toggleButtons"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <Button
+                    android:layout_weight="1"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:id="@+id/btn_toggle_left"
+                    app:icon="@drawable/ic_tick_22dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingVertical="0dp"
+                    app:iconPadding="@dimen/margin_4x"
+                    android:text="Left"
+                    />
+
+                <Button
+                    app:icon="@drawable/ic_tick_22dp"
+                    android:layout_weight="1"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:id="@+id/btn_toggle_right"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Right"
+                    />
+            </com.google.android.material.button.MaterialButtonToggleGroup>
+
+            <TextView
+                android:id="@+id/tv_dev_info"
+                android:paddingStart="@dimen/m3_sys_item_padding_start"
+                android:paddingEnd="@dimen/m3_sys_item_padding_end"
+                android:textSize="8dp"
+                tools:text="@string/placeholder_paragraph"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:paddingStart="@dimen/margin_4x"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <com.google.android.material.button.MaterialButton
+                    android:visibility="gone"
+                    android:layout_marginEnd="@dimen/margin_4x"
+                    android:id="@+id/btn_test_action1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+                <com.google.android.material.button.MaterialButton
+                    android:visibility="gone"
+                    android:layout_marginEnd="@dimen/margin_4x"
+                    android:id="@+id/btn_test_action2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
             <include
                 android:id="@+id/row_export_last_session_stats"
                 layout="@layout/rn_item_neuron_settings_action"
@@ -34,7 +96,11 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-
+            <include
+                android:id="@+id/row_export_customer_support_logs"
+                layout="@layout/rn_item_neuron_settings_action"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
         </LinearLayout>
 

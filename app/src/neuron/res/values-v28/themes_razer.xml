@@ -1,0 +1,9 @@
+<resources>
+    <style name="BaseTheme.Razer" parent="Theme.Material3.Dark.NoActionBar">
+        <!-- see RnApp.setStatusBarIcons -->
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:statusBarColor">@color/rn_black</item>
+    </style>
+
+
+</resources>

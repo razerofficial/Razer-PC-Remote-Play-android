@@ -7,6 +7,7 @@ import com.limelight.binding.PlatformBinding
 import com.limelight.nvstream.http.ComputerDetails
 import com.limelight.nvstream.http.ComputerDetails.AddressTuple
 import com.limelight.nvstream.http.NvHTTP
+import com.razer.neuron.common.debugToast
 import okio.IOException
 import timber.log.Timber
 import java.util.concurrent.CompletableFuture
@@ -72,4 +73,32 @@ private fun ComputerDetails.pollForUpdatedComputerDetails(context : Context, ipA
         Timber.v("pollForUpdatedComputerDetails: state=$state, currentGame=$currentGame")
     }
     return http.getComputerDetails(serverInfoXml)
+}
+
+fun ComputerDetails.getRazerHostVersionInt() = razerHostVersion?.versionToLong()
+
+/**
+ * After 1.1.0.0, the host will support auto restart
+ *
+ * NEUR-159
+ */
+fun ComputerDetails.isAutoRestartSupported() = if(BuildConfig.DEBUG) {
+    // TODO: please remove
+    debugToast("Assuming host will auto restart")
+    true
+} else {
+    (getRazerHostVersionInt() ?: 0) >= ("1.1.0.0".versionToLong() ?: Long.MAX_VALUE)
+}
+
+/**
+ * Convert version code like 9.999.9.99 to 009_999_009_099
+ */
+fun String.versionToLong(maxDigitsPerPart : IntArray = intArrayOf(3, 3, 3, 3)) : Long? {
+    require(maxDigitsPerPart.size <= 4)
+    val buffer = StringBuilder()
+    this.split(".").take(4).forEachIndexed { index, part ->
+        val maxDigits = maxDigitsPerPart.getOrNull(index) ?: 3
+        buffer.append(("0".repeat(maxDigits) + part).takeLast(maxDigits))
+    }
+    return buffer.toString().toLongOrNull()
 }

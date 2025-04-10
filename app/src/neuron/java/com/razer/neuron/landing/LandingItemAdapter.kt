@@ -95,8 +95,8 @@ class LandingItemAdapter :
 
     private fun hasComputerList() = (0 until itemCount).any { getItemViewType(it) == TYPE_COMPUTER_LIST }
 
-    fun submitList(list: List<LandingItem>, recyclerView: RecyclerView) {
-        super.submitList(list)
+    fun submitList(list: List<LandingItem>, recyclerView: RecyclerView, commitCallback: Runnable) {
+        super.submitList(list, commitCallback)
         recyclerView.preserveFocusAfterLayout = hasComputerList()
     }
 

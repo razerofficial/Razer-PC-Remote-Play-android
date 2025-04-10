@@ -87,11 +87,6 @@ class RnManualPairingViewModel
             }
             emitState(ManualPairingState.ShowLoading(tag))
             val manualIp = AddressTuple(ip, port)
-            if (!isIpClassAtoCSameAsDevice(manualIp)) {
-                emitState(ManualPairingState.Error(RnAddHostException("The ip class is not the same as device IP: $userInput")))
-                emitState(ManualPairingState.HideLoading(tag))
-                return@launch
-            }
             val details = ComputerDetails().apply { manualAddress = manualIp }
             val success = onComputerAdd.invoke(details)
             if (success) {

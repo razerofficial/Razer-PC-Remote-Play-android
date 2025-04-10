@@ -4,35 +4,52 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:background="?attr/colorSurface">
+    tools:background="#000000">
 
-    <LinearLayout
-        app:layout_constraintWidth_max="320dp"
+
+    <ScrollView
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/margin_14x"
-        android:layout_marginEnd="@dimen/margin_24x"
-        android:orientation="vertical"
+        android:clipChildren="false"
+        android:clipToPadding="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/mid_line"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <include
-            android:id="@+id/mock_permission_dialog"
-            layout="@layout/rn_mock_permission_dialog"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content">
 
-        <TextView
-            style="@style/RnOobeTextOnBackground"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin_3x"
-            android:text="@string/rn_permission_explanation"
-            android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
+            <View
+                app:layout_constraintWidth_percent="0.7"
+                app:layout_constraintDimensionRatio="289:156"
+                android:id="@+id/mock_system_permission_dialog"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@drawable/mock_system_permission_dialog"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:elevation="20dp"
+                android:outlineProvider="bounds"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-    </LinearLayout>
+            <TextView
+                style="@style/RnOobeTextOnBackground"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_4x"
+                android:text="@string/rn_permission_explanation"
+                android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                app:layout_constraintEnd_toEndOf="@+id/mock_system_permission_dialog"
+                app:layout_constraintStart_toStartOf="@+id/mock_system_permission_dialog"
+                app:layout_constraintTop_toBottomOf="@+id/mock_system_permission_dialog" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </ScrollView>
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/mid_line"
@@ -52,44 +69,42 @@
 
         <TextView
             android:id="@+id/tv_permission_summary_title"
+            style="@style/RnOobeTextOnBackground"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:autoSizeMinTextSize="16sp"
+            android:layout_marginStart="18dp"
             android:layout_marginEnd="42dp"
+            android:layout_marginBottom="@dimen/margin_3x"
+            android:autoSizeMinTextSize="16sp"
             android:autoSizeTextType="uniform"
             android:ellipsize="end"
             android:maxLines="2"
-            android:layout_marginBottom="@dimen/margin_3x"
-            android:layout_marginStart="18dp"
-            android:fontFamily="@string/sans_serif_bold"
             android:text="@string/rn_permission_summary_title"
-            android:textColor="@color/oobe_permission_text"
-            android:textSize="@dimen/m3_sys_item_title_textsize"
-            android:textStyle="bold"
+            android:textAppearance="@style/TextAppearance.Material3.Item.Title"
+            app:layout_constraintBottom_toTopOf="@+id/nsv_permissions"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toTopOf="@+id/nsv_permissions" />
+            app:layout_constraintStart_toStartOf="parent" />
 
         <androidx.core.widget.NestedScrollView
             android:id="@+id/nsv_permissions"
-            android:background="@drawable/transparent_selector"
             android:layout_width="match_parent"
-            app:layout_constraintHeight_max="216dp"
+            android:layout_height="0dp"
+            android:background="@drawable/transparent_selector"
             android:fadingEdge="vertical"
             android:fadingEdgeLength="10dp"
             android:requiresFadingEdge="vertical"
-            android:layout_height="0dp"
-            app:layout_constraintVertical_bias="0.6"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_max="216dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent">
+            app:layout_constraintVertical_bias="0.6">
 
             <LinearLayout
                 android:id="@+id/permission_views_container"
-                android:background="@drawable/transparent_selector"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@drawable/transparent_selector"
                 android:orientation="vertical"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent">
@@ -102,23 +117,23 @@
                 <com.razer.neuron.oobe.OobePermissionView
                     android:id="@+id/permission_view_1"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content" />
 
                 <com.razer.neuron.oobe.OobePermissionView
                     android:id="@+id/permission_view_2"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content" />
 
                 <com.razer.neuron.oobe.OobePermissionView
                     android:id="@+id/permission_view_3"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content" />
 
 
                 <com.razer.neuron.oobe.OobePermissionView
                     android:id="@+id/permission_view_4"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content" />
 
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>

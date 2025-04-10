@@ -22,6 +22,8 @@ enum class DisplayModeOption(
             PhoneOnlyDisplay
         }
 
+        val safest = DisplayModeOption.DuplicateDisplay
+
         fun findByDisplayModeName(@DisplayModeName displayModeName: String): DisplayModeOption? {
             return DisplayModeOption.entries.firstOrNull { it.displayModeName == displayModeName }
                 ?: if (displayModeName == VIRTUAL_DISPLAY) PhoneOnlyDisplay else null

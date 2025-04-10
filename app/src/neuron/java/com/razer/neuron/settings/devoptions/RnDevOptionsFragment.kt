@@ -3,6 +3,8 @@ package com.razer.neuron.settings.devoptions
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.SharedPreferences
+import android.media.MediaCodecInfo
+import android.media.MediaCodecList
 import android.os.Bundle
 import android.os.Environment
 import android.preference.PreferenceManager
@@ -11,20 +13,26 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.app.ShareCompat
 import androidx.core.content.FileProvider
+import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.textfield.MaterialAutoCompleteTextView
+import com.google.android.material.button.MaterialButton
 import com.limelight.R
+import com.limelight.binding.video.MediaCodecDecoderRenderer
 import com.limelight.databinding.RnFragmentDevOptionsBinding
-import timber.log.Timber
+import com.razer.neuron.common.CustomerSupportHelper
+import com.razer.neuron.common.debugToast
 import com.razer.neuron.common.toast
-
 import com.razer.neuron.di.IoDispatcher
+import com.razer.neuron.extensions.defaultJsonPrettyPrint
 import com.razer.neuron.extensions.gone
+import com.razer.neuron.extensions.prefConfig
 import com.razer.neuron.extensions.setEnabledWithAlpha
-import com.razer.neuron.extensions.setNumberDropDown
 import com.razer.neuron.extensions.visible
+import com.razer.neuron.game.RnGameError
+import com.razer.neuron.game.helpers.transformToStreamError
 import com.razer.neuron.model.SessionStats
+import com.razer.neuron.model.VideoFormatMetaData
 import com.razer.neuron.nexus.NexusContentProvider
 import com.razer.neuron.pref.RemotePlaySettingsPref
 import com.razer.neuron.utils.now
@@ -35,6 +43,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
+import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
 import java.util.Date
@@ -55,7 +64,8 @@ class RnDevOptionsFragment : Fragment(), DevOptionsHelper {
 
     @Inject
     @IoDispatcher
-    lateinit var ioDispatcher : CoroutineDispatcher
+    lateinit var ioDispatcher: CoroutineDispatcher
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -66,6 +76,68 @@ class RnDevOptionsFragment : Fragment(), DevOptionsHelper {
         return binding.root
     }
 
+    private fun setupToggleButtons() {
+        fun MaterialButton.updateIcon() {
+            if(isSelected || isChecked) {
+                setIconResource(R.drawable.ic_tick_22dp)
+            } else {
+                icon = null
+            }
+        }
+        val allToggleButtons = binding.toggleButtons.children.filterIsInstance(MaterialButton::class.java).toList()
+        if(allToggleButtons.isEmpty()) {
+            debugToast("need button in toggleButtons")
+            return
+        }
+        allToggleButtons.forEach {
+            it.updateIcon()
+            it.addOnCheckedChangeListener { button, _ ->
+                button.updateIcon()
+            }
+        }
+    }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setupToggleButtons()
+        setupTestActions()
+        binding.tvDevInfo.text = StringBuilder().apply {
+            val activity = activity ?: return@apply
+            var prefConfig = activity.prefConfig()
+            append("User selected video format: ${prefConfig.videoFormat}\n")
+            append("${"-".repeat(30)}\r\n")
+
+            val videoFormatMetaData = VideoFormatMetaData.create(activity, prefConfig = prefConfig)
+            append("${defaultJsonPrettyPrint.toJson(videoFormatMetaData)}\n")
+
+            append("${"-".repeat(30)}\r\n")
+            getSupportedVideoDecoders().forEach { codecInfo ->
+                val videoSupportedTypeString = codecInfo.supportedTypes.filter { it.startsWith("video/") }.joinToString()
+                val support = when {
+                    MediaCodecDecoderRenderer.isSoftwareOnly(codecInfo) -> "SW"
+                    MediaCodecDecoderRenderer.isHardwareAccelerated(codecInfo) -> "HW"
+                    else -> "?"
+                }
+                append("${codecInfo.name} ($support, $videoSupportedTypeString)\r\n")
+            }
+        }
+    }
+
+
+    private fun setupTestActions(){
+        with(binding.btnTestAction1) {
+            visible()
+            text = "Show error 5040"
+            setOnClickListener {
+                activity?.let {
+                    activity ->
+                    activity.startActivity(RnGameError.createHandleStreamErrorIntent(
+                        context = activity,
+                        streamError = resources.transformToStreamError("testing", 0, errorCode = 5040),
+                        gameIntent = activity.intent))
+                }
+            }
+        }
+    }
     override fun onResume() {
         super.onResume()
         lifecycleScope.launch {
@@ -73,7 +145,14 @@ class RnDevOptionsFragment : Fragment(), DevOptionsHelper {
             initExportCurrentSettings()
             reinitExportLastSessionStats()
             initSeparateScreenDisplay()
-            Timber.v("Nexus version code is ${NexusContentProvider.getBuildVersionCode(requireContext())}")
+            initAppLogcats()
+            Timber.v(
+                "Nexus version code is ${
+                    NexusContentProvider.getBuildVersionCode(
+                        requireContext()
+                    )
+                }"
+            )
         }
     }
 
@@ -130,7 +209,8 @@ class RnDevOptionsFragment : Fragment(), DevOptionsHelper {
 
     private fun initSeparateScreenDisplay() {
         with(binding.rowSeparateScreenDisplay) {
-            val isSeparateScreenDisplayEnabled = RemotePlaySettingsPref.isSeparateScreenDisplayEnabled
+            val isSeparateScreenDisplayEnabled =
+                RemotePlaySettingsPref.isSeparateScreenDisplayEnabled
             tvTitle.text = "Enable separate screen display"
             ivActionIcon.gone()
             tvSubtitle.gone()
@@ -138,10 +218,27 @@ class RnDevOptionsFragment : Fragment(), DevOptionsHelper {
             switchAction.isChecked = isSeparateScreenDisplayEnabled
             root.setOnClickListener {
                 switchAction.toggle()
-                RemotePlaySettingsPref.isSeparateScreenDisplayEnabled = !isSeparateScreenDisplayEnabled
+                RemotePlaySettingsPref.isSeparateScreenDisplayEnabled =
+                    !isSeparateScreenDisplayEnabled
             }
             switchAction.setOnCheckedChangeListener { _, isEnabled ->
                 RemotePlaySettingsPref.isSeparateScreenDisplayEnabled = isEnabled
+            }
+        }
+    }
+
+    private fun initAppLogcats() {
+        with(binding.rowExportCustomerSupportLogs) {
+            tvTitle.text = "Export ${getString(R.string.applabel)} logs"
+            ivActionIcon.gone()
+            tvSubtitle.gone()
+            switchLayout.gone()
+            root.setOnClickListener {
+                CustomerSupportHelper.getLogs()?.let {
+                    launchWithLoading {
+                        export(requireActivity(), it)
+                    }
+                }
             }
         }
     }
@@ -198,6 +295,20 @@ interface DevOptionsHelper {
         }
     }
 
+    /**
+     * NEUR-170
+     */
+    suspend fun export(activity: Activity, logs: String) {
+        val fileName =
+            "neuron_customer_support_logs_${now().toDateTimeString("yyyyMMdd_HHmmss")}.txt"
+
+        shareFile(activity, fileName = fileName, intentTitle = "Neuron settings") {
+            it.write(
+                requireNotNull(logs) { "Cannot serialize settings" }.toByteArray()
+            )
+        }
+    }
+
     private suspend fun shareFile(
         activity: Activity,
         /**
@@ -236,5 +347,11 @@ interface DevOptionsHelper {
         activity.startActivity(shareIntent)
     }
 
-
+    fun getSupportedVideoDecoders(): List<MediaCodecInfo> {
+        val codecList = MediaCodecList(MediaCodecList.REGULAR_CODECS)
+        return codecList.codecInfos
+            .filter { codecInfo ->
+                !codecInfo.isEncoder && codecInfo.supportedTypes.any { it.startsWith("video/") }
+            }
+    }
 }

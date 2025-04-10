@@ -33,8 +33,14 @@ object SharedConstants {
     // Settings
     const val REMOTE_PLAY_SETTINGS = "NeuronSettings"
 
-    // Metadata
-    const val META_DATA = "MetaData"
+    // neuron Metadata
+    const val NEURON_META_DATA = "MetaData"
+    const val VIDEO_FORMAT_JSON = "video_format_json"
+
+
+
+    // nexus Metadata
+    const val NEXUS_META_DATA = "MetaData"
     const val AIDL_VERSION = "aidl_version"
     const val IS_CONTROLLER_FOREGROUND_SERVICE_RUNNING = "is_controller_foreground_service_running"
     const val IS_CONTROLLER_SENSA_SUPPORTED = "is_controller_sensa_supported"
@@ -51,6 +57,7 @@ object SharedConstants {
     const val ENABLE_SOPS = PreferenceConfiguration.SOPS_PREF_STRING
     const val LIST_FPS = PreferenceConfiguration.FPS_PREF_STRING
     const val LIST_RESOLUTION = PreferenceConfiguration.RESOLUTION_PREF_STRING
+    const val VIDEO_FORMAT_PREF_STRING = PreferenceConfiguration.VIDEO_FORMAT_PREF_STRING
 
     const val DEFAULT_LIST_FPS = "60" // must match preferences.xml
     const val DEFAULT_LIST_RESOLUTION = "1280x720" // must match preferences.xml

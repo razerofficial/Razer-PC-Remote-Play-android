@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="auto_close_games_names" translatable="false">
+        <item>@string/auto_close_immediately</item>
+        <item>@string/auto_close_30s</item>
+        <item>@string/auto_close_5min</item>
+        <item>@string/auto_close_never</item>
+    </string-array>
+
+    <integer-array name="auto_close_games_values" translatable="false">
+        <item>0</item>
+        <item>30</item>
+        <item>300</item>
+        <item>-1</item>
+    </integer-array>
+</resources>

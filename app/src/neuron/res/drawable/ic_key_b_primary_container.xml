@@ -6,13 +6,13 @@
   <path
       android:pathData="M13,13m-13,0a13,13 0,1 1,26 0a13,13 0,1 1,-26 0"
       android:strokeWidth="1"
-      android:fillColor="?attr/colorOnPrimaryContainer"
+      android:fillColor="@color/m3_primary_container_button_foreground_color_selector"
       android:fillType="evenOdd"
       android:strokeColor="#00000000"/>
   <path
       android:pathData="M13.7266,18.2734C16.1328,18.2734 17.5938,17.0547 17.5938,15.0859L17.5938,15.0703C17.5938,13.5859 16.5156,12.4766 14.9297,12.3359L14.9297,12.2969C16.1406,12.1328 17.0547,11.0469 17.0547,9.8359L17.0547,9.8203C17.0547,8.1094 15.7344,7 13.6797,7L9,7L9,18.2734L13.7266,18.2734ZM12.8281,11.7656L11.0156,11.7656L11.0156,8.5703L13.1719,8.5703C14.3672,8.5703 15.0625,9.1172 15.0625,10.0938L15.0625,10.1094C15.0625,11.1719 14.2813,11.7656 12.8281,11.7656ZM13.2656,16.7031L11.0156,16.7031L11.0156,13.2266L13.1484,13.2266C14.7266,13.2266 15.5391,13.8203 15.5391,14.9531L15.5391,14.9688C15.5391,16.1016 14.7422,16.7031 13.2656,16.7031Z"
       android:strokeWidth="1"
-      android:fillColor="?attr/colorPrimaryContainer"
+      android:fillColor="@color/m3_primary_container_button_background_color_selector"
       android:fillType="nonZero"
       android:strokeColor="#00000000"/>
 </vector>

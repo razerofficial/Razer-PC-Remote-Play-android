@@ -1,0 +1,15 @@
+<resources>
+    <style name="RnOverlayItem">
+        <item name="android:foreground">?android:attr/selectableItemBackground</item>
+    </style>
+    <style name="RnOverlayCardView" parent="@style/Widget.MaterialComponents.CardView">
+        <item name="shapeAppearanceOverlay">@style/RnOverlayCardViewCorners</item>
+    </style>
+    <style name="RnOverlayCardViewCorners" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopRight">0dp</item>
+        <item name="cornerSizeTopLeft">0dp</item>
+        <item name="cornerSizeBottomRight">@dimen/margin_4x</item>
+        <item name="cornerSizeBottomLeft">@dimen/margin_4x</item>
+    </style>
+</resources>

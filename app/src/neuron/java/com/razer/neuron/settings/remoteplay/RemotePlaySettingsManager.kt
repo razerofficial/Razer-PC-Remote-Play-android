@@ -5,6 +5,9 @@ import android.content.SharedPreferences
 import android.util.Log
 import androidx.core.content.edit
 import com.limelight.preferences.PreferenceConfiguration
+import com.limelight.preferences.PreferenceConfiguration.FormatOption
+import com.razer.neuron.extensions.FormatOptionMeta
+import com.razer.neuron.extensions.getMeta
 import com.razer.neuron.extensions.putAny
 import com.razer.neuron.model.DisplayModeOption
 import com.razer.neuron.model.FramePacingOption
@@ -18,6 +21,8 @@ import com.razer.neuron.shared.SharedConstants.HOST_AUDIO
 import com.razer.neuron.shared.SharedConstants.REDUCE_REFRESH_RATE_PREF_STRING
 import com.razer.neuron.shared.SharedConstants.SEEKBAR_BITRATE_KBPS
 import com.razer.neuron.shared.SharedConstants.TOUCHSCREEN_TRACKPAD
+import com.razer.neuron.shared.SharedConstants.VIDEO_FORMAT_PREF_STRING
+import kotlin.math.max
 
 
 class RemotePlaySettingsManager(
@@ -41,11 +46,8 @@ class RemotePlaySettingsManager(
     }
 
     fun getBitrateSettings(): BitrateRateSettings {
-        val defaultValue = 30000
-        val min = 500
-        val max = 150000
-        val rate = moonlightPref.getInt(SEEKBAR_BITRATE_KBPS, defaultValue)
-        return BitrateRateSettings(min, max, rate)
+        val default = BitrateRateSettings.default
+        return default.copy(rate = moonlightPref.getInt(SEEKBAR_BITRATE_KBPS, default.rate))
     }
 
     fun getFramePacing(): FramePacingOption {
@@ -88,6 +90,12 @@ class RemotePlaySettingsManager(
 
     fun getAutoCloseGameCountDown() = RemotePlaySettingsPref.autoCloseGameCountDown
 
+    fun getVideoFormatOption(): FormatOption {
+        val prefValue = moonlightPref.getString(VIDEO_FORMAT_PREF_STRING, null)
+        return FormatOptionMeta.values().firstOrNull { it.prefValue == prefValue }?.formatOption ?: FormatOptionMeta.AUTO.formatOption
+    }
+
+
     fun setDisplayMode(displayMode: DisplayModeOption) {
         val previousDisplayMode = getDisplayMode()
         RemotePlaySettingsPref.displayMode = displayMode
@@ -96,7 +104,7 @@ class RemotePlaySettingsManager(
             setMuteHostPc(true)
         }
         if(previousDisplayMode != displayMode) {
-            RemotePlaySettingsPref.isUseDefaultResolution = false
+            RemotePlaySettingsPref.isUseFallbackResolution = false
         }
     }
 
@@ -145,6 +153,14 @@ class RemotePlaySettingsManager(
         RemotePlaySettingsPref.autoCloseGameCountDown = value
     }
 
+    fun setVideoFormatOption(formatOption: FormatOption) {
+        moonlightPref.edit()
+            .putString(VIDEO_FORMAT_PREF_STRING, formatOption.getMeta()?.prefValue ?: FormatOptionMeta.default.prefValue)
+            .apply()
+    }
+
+
+
     /**
      * NEUR-90
      *
@@ -153,7 +169,7 @@ class RemotePlaySettingsManager(
      */
     private fun applyPreset() = with(moonlightPref) {
         val keyValuePairs = listOf(
-            SEEKBAR_BITRATE_KBPS to 30000,
+            SEEKBAR_BITRATE_KBPS to BitrateRateSettings.default.rate,
             FRAME_PACING to "balanced", // this value is mapped to neuron's preferences.xml (and then arrays.xml)
             PreferenceConfiguration.STRETCH_PREF_STRING to false,
             PreferenceConfiguration.AUDIO_CONFIG_PREF_STRING to "2",// 2=STEREO, (also 51 and 71)  this value is mapped to neuron's preferences.xml (and then arrays.xml)
@@ -172,7 +188,7 @@ class RemotePlaySettingsManager(
             PreferenceConfiguration.ONSCREEN_CONTROLLER_PREF_STRING to false,
             PreferenceConfiguration.ENABLE_PIP_PREF_STRING to false,
             PreferenceConfiguration.DISABLE_TOASTS_PREF_STRING to false,
-            PreferenceConfiguration.VIDEO_FORMAT_PREF_STRING to "auto",  // this value is mapped to neuron's preferences.xml (and then arrays.xml)
+            PreferenceConfiguration.VIDEO_FORMAT_PREF_STRING to FormatOptionMeta.default.prefValue,
             PreferenceConfiguration.ENABLE_HDR_PREF_STRING to false,
             PreferenceConfiguration.FULL_RANGE_PREF_STRING to false,
             PreferenceConfiguration.ENABLE_PERF_OVERLAY_STRING to false,
@@ -193,4 +209,19 @@ data class BitrateRateSettings(
     val min : Int,
     val max : Int,
     val rate : Int
-)
+) {
+
+    companion object {
+        /**
+         * Taken from "seekbar_bitrate_kbps" in preferences.xml
+         *
+         * HOWEVER ...
+         *
+         * In moonlight it is 500 Mbps
+         * but in neuron it is 1000 Mbps
+         * https://razersw.atlassian.net/wiki/spaces/RTWWEAR/pages/2817163291/Neuron+Setting+2024-06-11+Android+iOS
+        */
+        val default = BitrateRateSettings(min = 1000, max = 150000, rate = 30000)
+        const val KEY_STEP = 1000 // 1000 mbps
+    }
+}

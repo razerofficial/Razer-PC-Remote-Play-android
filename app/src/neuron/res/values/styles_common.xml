@@ -1,26 +1,32 @@
 <resources>
 
-
-    <style name="RnButtonStyle" parent="Widget.Material3.Button" />
+=
 
     <style name="RnTextButtonStyle" parent="Widget.Material3.Button.TextButton" />
 
+    <style name="RnButtonStyle" parent="Widget.Material3.Button">
+        <item name="android:gravity">center|center_vertical</item>
+        <item name="android:textAppearance">@style/TextAppearance.Material3.LabelLarge</item>
+        <item name="android:paddingHorizontal">@dimen/margin_4x</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:textColor">@color/m3_primary_container_button_foreground_color_selector</item>
+        <item name="android:backgroundTint">@color/m3_primary_container_button_background_color_selector</item>
+    </style>
 
     <style name="RnButtonHintStyle" parent="Widget.Material3.Button">
         <item name="iconGravity">start</item>
         <item name="iconTint">@null</item>
         <item name="iconTintMode">multiply</item>
-        <item name="icon">@drawable/ic_key_a_primary_container</item>
+        <item name="icon">@null</item>
         <item name="android:focusable">false</item>
-        <item name="android:gravity">center|center_vertical</item>
-        <item name="android:text">@string/placeholder_short</item>
+        <item name="android:gravity">start|center_vertical</item>
         <item name="android:textAppearance">@style/TextAppearance.Material3.LabelLarge</item>
-        <item name="android:textAllCaps">true</item>
+        <item name="android:textAllCaps">false</item>
         <item name="android:paddingHorizontal">@dimen/margin_4x</item>
         <item name="iconPadding">@dimen/margin_2x</item>
         <item name="android:maxLines">1</item>
-        <item name="android:backgroundTint">?attr/colorPrimaryContainer</item>
-        <item name="android:textColor">?attr/colorOnPrimaryContainer</item>
+        <item name="android:textColor">@color/m3_primary_container_button_foreground_color_selector</item>
+        <item name="android:backgroundTint">@color/m3_primary_container_button_background_color_selector</item>
     </style>
 
     <style name="RnNavigationViewStyle" parent="Widget.Material3.NavigationView">
@@ -28,6 +34,9 @@
         <item name="itemVerticalPadding">@dimen/margin_4x</item>
         <item name="itemMaxLines">2</item>
         <item name="itemTextAppearanceActiveBoldEnabled">false</item>
+        <item name="itemTextColor">@color/rn_navigation_view_item_foreground_color</item>
+        <item name="itemIconTint">@color/rn_navigation_view_item_foreground_color</item>
+        <item name="android:background">@android:color/transparent</item>
     </style>
 
     <style name="RnTextInputLayout" parent="Widget.Material3.TextInputLayout.OutlinedBox"/>
@@ -76,4 +85,19 @@
     </style>
     <!--endregion-->
 
+
+
+
+    <!--region PopupMenu-->
+    <style name="RnTheme.PopupMenu.IconMenu.Item" parent="@android:style/TextAppearance.Widget.IconMenu.Item">
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="android:textSize">@dimen/m3_button_dropdown_text_size</item>
+    </style>
+    <style name="RnTheme.PopupMenu.Small.TextAppearance" parent="@android:style/TextAppearance.Widget.PopupMenu.Small">
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+    <style name="RnTheme.PopupMenu" parent="Widget.Material3.PopupMenu">
+        <item name="android:popupBackground">@drawable/bg_dropdown_button</item>
+    </style>
+    <!--endregion-->
 </resources>

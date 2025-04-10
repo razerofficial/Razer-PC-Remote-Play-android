@@ -1,0 +1,33 @@
+<resources>
+    <style name="BaseTheme.DynamicColors.Light" parent="Theme.Material3.DynamicColors.Light"/>
+
+    <style name="AppTheme.DynamicColors.Light" parent="BaseTheme.DynamicColors.Light">
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:popupMenuStyle">@style/RnTheme.PopupMenu</item>
+        <item name="android:textAppearanceSmallPopupMenu">@style/RnTheme.PopupMenu.Small.TextAppearance</item>
+        <item name="android:itemTextAppearance">@style/RnTheme.PopupMenu.IconMenu.Item</item>
+    </style>
+    <style name="AppTheme.DynamicColors.Light.Splash" parent="AppTheme.DynamicColors.Light">
+        <item name="android:windowBackground">@color/rn_razer_green</item> <!--splash is always green-->
+        <item name="android:statusBarColor">@color/rn_razer_green</item>
+        <item name="android:navigationBarColor">@color/rn_razer_green</item> <!--splash is always green-->
+        <item name="android:windowActivityTransitions">false</item>
+    </style>
+    <style name="AppTheme.DynamicColors.Light.Game" parent="AppTheme.DynamicColors.Light">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowBackground">@color/rn_black</item> <!--game is always black-->
+        <item name="android:windowActivityTransitions">false</item>
+    </style>
+    <style name="AppTheme.DynamicColors.Light.Settings" parent="AppTheme.DynamicColors.Light">
+        <item name="android:statusBarColor">?attr/colorSurface</item>
+        <item name="android:navigationBarColor">?attr/colorSurface</item>
+        <item name="android:windowTranslucentNavigation">false</item>
+        <item name="android:windowActivityTransitions">true</item>
+        <item name="android:windowBackground">?attr/colorSurface</item>
+    </style>
+
+
+</resources>

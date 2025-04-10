@@ -8,6 +8,7 @@
 
 
     <ImageView
+        android:importantForAccessibility="no"
         android:id="@+id/iv_splash_logo"
         android:layout_width="@dimen/splash_logo_width"
         android:layout_height="@dimen/splash_logo_height"

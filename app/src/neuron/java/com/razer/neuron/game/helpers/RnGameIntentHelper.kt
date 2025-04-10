@@ -9,6 +9,7 @@ import com.limelight.Game
 import com.limelight.RemotePlayConfig
 import com.razer.neuron.game.RnGame
 import com.limelight.nvstream.http.ComputerDetails
+import com.limelight.nvstream.http.ComputerDetails.AddressTuple
 import com.limelight.nvstream.http.NvApp
 import com.razer.neuron.RnApp
 import com.razer.neuron.common.logAndRecordException
@@ -89,6 +90,7 @@ interface RnGameIntentHelper {
             }
         }
         return Intent(context, RnGame::class.java).apply {
+            intent.flags != Intent.FLAG_ACTIVITY_NEW_TASK
             intent.extras?.let { putExtras(it) }
         }
     }
@@ -114,5 +116,14 @@ interface RnGameIntentHelper {
                 logAndRecordException(e)
             }
         }
+    }
+
+    fun updateIntentHostAndPort(intent: Intent, computerDetails: ComputerDetails) {
+        computerDetails.activeAddress?.let {
+            activeAddress ->
+            intent.putExtra(Game.EXTRA_HOST, activeAddress.address)
+            intent.putExtra(Game.EXTRA_PORT, activeAddress.port)
+        }
+        intent.putExtra(Game.EXTRA_HTTPS_PORT, computerDetails.httpsPort)
     }
 }

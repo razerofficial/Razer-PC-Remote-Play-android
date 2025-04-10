@@ -29,6 +29,7 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import com.limelight.LimeLog;
 import com.limelight.NeuronBridge;
+import com.limelight.binding.video.MediaCodecDecoderRenderer;
 import com.limelight.nvstream.av.audio.AudioRenderer;
 import com.limelight.nvstream.av.video.VideoDecoderRenderer;
 import com.limelight.nvstream.http.ComputerDetails;
@@ -40,6 +41,7 @@ import com.limelight.nvstream.http.NvHTTP;
 import com.limelight.nvstream.http.PairingManager;
 import com.limelight.nvstream.input.MouseButtonPacket;
 import com.limelight.nvstream.jni.MoonBridge;
+import com.limelight.preferences.PreferenceConfiguration;
 
 public class NvConnection {
     // Context parameters
@@ -50,13 +52,14 @@ public class NvConnection {
     private final boolean isMonkey;
     private final Context appContext;
     private boolean isStarting = false;
-    public NvConnection(Context appContext, ComputerDetails.AddressTuple host, int httpsPort, String uniqueId, StreamConfiguration config, LimelightCryptoProvider cryptoProvider, X509Certificate serverCert)
+    public NvConnection(Context appContext, ComputerDetails.AddressTuple host, int httpsPort, String uniqueId, StreamConfiguration config, PreferenceConfiguration prefConfig, LimelightCryptoProvider cryptoProvider, X509Certificate serverCert)
     {
         this.appContext = appContext;
         this.cryptoProvider = cryptoProvider;
         this.uniqueId = uniqueId;
 
         this.context = new ConnectionContext();
+        this.context.prefConfig = prefConfig;
         this.context.serverAddress = host;
         this.context.httpsPort = httpsPort;
         this.context.streamConfig = config;
@@ -234,7 +237,7 @@ public class NvConnection {
     @Nullable
     private NvHTTP startAppNvHTTP = null;
 
-    private boolean startApp() throws XmlPullParserException, IOException
+    private boolean startApp(final MediaCodecDecoderRenderer videoDecoderRenderer) throws XmlPullParserException, IOException
     {
         if(startAppNvHTTP != null) {
             startAppNvHTTP.close();
@@ -252,7 +255,6 @@ public class NvConnection {
 
         ComputerDetails details = h.getComputerDetails(serverInfo);
         context.computerDetails = details;
-        NeuronBridge.updateStreamConfiguration(context);
         context.isNvidiaServerSoftware = details.nvidiaServer;
 
         // May be missing for older servers
@@ -264,6 +266,8 @@ public class NvConnection {
         }
 
         context.serverCodecModeSupport = (int)h.getServerCodecModeSupport(serverInfo);
+
+        NeuronBridge.updateStreamConfiguration(context, videoDecoderRenderer);
 
         context.negotiatedHdr = (context.streamConfig.getSupportedVideoFormats() & MoonBridge.VIDEO_FORMAT_MASK_10BIT) != 0;
         if ((context.serverCodecModeSupport & 0x20200) == 0 && context.negotiatedHdr) {
@@ -400,7 +404,7 @@ public class NvConnection {
         return true;
     }
 
-    public void start(final AudioRenderer audioRenderer, final VideoDecoderRenderer videoDecoderRenderer, final NvConnectionListener connectionListener)
+    public void start(final AudioRenderer audioRenderer, final MediaCodecDecoderRenderer videoDecoderRenderer, final NvConnectionListener connectionListener)
     {
         isStarting = true;
         LimeLog.info("start: videoDecoderRenderer="+(videoDecoderRenderer.hashCode()));
@@ -422,7 +426,7 @@ public class NvConnection {
 
                 try {
                     LimeLog.info("start: startApp calling API");
-                    if (!startApp()) {
+                    if (!startApp(videoDecoderRenderer)) {
                         LimeLog.warning("start: failed at API");
                         context.connListener.stageFailed(appName, 0, 0);
                         return;

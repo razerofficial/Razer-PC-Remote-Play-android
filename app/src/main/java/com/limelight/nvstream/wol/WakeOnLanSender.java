@@ -32,6 +32,9 @@ public class WakeOnLanSender {
             try {
                 DatagramPacket dp = new DatagramPacket(payload, payload.length);
                 dp.setAddress(address);
+                if (isPortOutOfRange(port)) {
+                    continue;
+                }
                 dp.setPort(port);
                 sock.send(dp);
                 sentWolPacket = true;
@@ -46,7 +49,11 @@ public class WakeOnLanSender {
             try {
                 DatagramPacket dp = new DatagramPacket(payload, payload.length);
                 dp.setAddress(address);
-                dp.setPort((port - RemotePlayConfig.getDefault().getDefaultHttpPort()) + httpPort);
+                int finalPort = (port - RemotePlayConfig.getDefault().getDefaultHttpPort()) + httpPort;
+                if (isPortOutOfRange(finalPort)) {
+                    continue;
+                }
+                dp.setPort(finalPort);
                 sock.send(dp);
                 sentWolPacket = true;
             } catch (IOException e) {
@@ -59,7 +66,11 @@ public class WakeOnLanSender {
             throw lastException;
         }
     }
-    
+
+    private static boolean isPortOutOfRange(int port) {
+        return port < 1024 || port > 65535;
+    }
+
     public static void sendWolPacket(ComputerDetails computer) throws IOException {
         byte[] payload = createWolPayload(computer);
         IOException lastException = null;

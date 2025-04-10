@@ -33,6 +33,7 @@ import com.razer.neuron.main.RnMainActivity
 import com.razer.neuron.model.ButtonHint
 import com.razer.neuron.model.ControllerInput
 import com.razer.neuron.model.DisplayModeOption
+import com.razer.neuron.model.DynamicThemeActivity
 import com.razer.neuron.nexus.NexusPackageStatus
 import com.razer.neuron.nexus.SHARED_CONTENT_PROVIDER_DATA_ACCESS_PERMISSION
 import com.razer.neuron.utils.PermissionChecker
@@ -42,7 +43,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class RnOobeActivity : BaseControllerActivity(), RnLayoutOobePermissionsBindingHelper, ButtonHintsBarHelper,
-    RnLayoutOobeTosBindingHelper, RnLayoutOobeDisplayModesBindingHelper {
+    RnLayoutOobeTosBindingHelper, RnLayoutOobeDisplayModesBindingHelper, DynamicThemeActivity {
+    override fun getThemeId() = appThemeType.settingsThemeId
+
     companion object {
         fun startOobe(activity: Activity, intent: Intent? = null) {
             activity.startActivity(Intent(activity, RnOobeActivity::class.java).apply {
@@ -91,7 +94,7 @@ class RnOobeActivity : BaseControllerActivity(), RnLayoutOobePermissionsBindingH
         buttonHintsBar.visible() // always visible
     }
 
-    override fun dispatchKeyEvent(event: KeyEvent?): Boolean {
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         val controllerInput = ControllerInput.entries.firstOrNull { it.keyCode == event?.keyCode }
         return if (controllerInput != null) {
             viewModel.onControllerInput(controllerInput, event?.action == KeyEvent.ACTION_UP)
@@ -210,6 +213,7 @@ class RnOobeActivity : BaseControllerActivity(), RnLayoutOobePermissionsBindingH
 
         lifecycleScope.launch {
             viewModel.state.collect {
+                val buttonHints = it.buttonHints.toMutableSet()
                 when (it) {
                     is RnOobeModel.State.Tos -> it.handle()
                     is RnOobeModel.State.PermissionSummary -> it.handle()
@@ -222,12 +226,7 @@ class RnOobeActivity : BaseControllerActivity(), RnLayoutOobePermissionsBindingH
         }
     }
 
-
     override fun onButtonHintsBarButtonHintClicked(buttonHint: ButtonHint) {
-        viewModel.onButtonHintClicked(buttonHint)
-    }
-
-    override fun onPermissionButtonHintClicked(buttonHint: ButtonHint) {
         viewModel.onButtonHintClicked(buttonHint)
     }
 

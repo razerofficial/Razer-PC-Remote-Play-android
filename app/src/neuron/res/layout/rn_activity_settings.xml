@@ -6,25 +6,27 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/top_tool_bar"
-        android:background="@android:color/transparent"
-        android:touchscreenBlocksFocus="false"
-        android:layout_marginStart="@dimen/margin_2x"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/tool_bar_height"
-        app:titleTextAppearance="@style/TextAppearance.Material3.Item.Header"
-        app:layout_constraintTop_toTopOf="parent" />
 
-    <com.razer.neuron.settings.RnNavigationView
+
+    <com.razer.neuron.settings.RnNavigationView2
         android:id="@+id/nav_view"
-        android:layout_width="wrap_content"
+        android:layout_width="@dimen/m3_navigation_view_drawer_max_width"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@+id/top_tool_bar"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintWidth_max="@dimen/m3_navigation_view_drawer_max_width"
         style="@style/RnNavigationViewStyle" />
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/top_tool_bar"
+        style="@style/M3SettingsToolbar"
+        android:touchscreenBlocksFocus="false"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="@+id/nav_view"
+        app:layout_constraintStart_toStartOf="parent"
+        app:titleTextAppearance="@style/TextAppearance.Material3.Toolbar.Title"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fl_container"

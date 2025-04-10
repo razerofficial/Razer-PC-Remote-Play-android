@@ -11,11 +11,15 @@ import android.graphics.Point
 import android.graphics.Rect
 import android.hardware.input.InputManager
 import android.hardware.usb.UsbManager
+import android.media.MediaCodecInfo
+import android.media.MediaCodecInfo.CodecProfileLevel
+import android.net.ConnectivityManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.util.Size
+import android.view.Display
 import android.view.Display.HdrCapabilities
 import android.view.InputDevice
 import android.view.Window
@@ -24,7 +28,6 @@ import android.view.WindowManager
 import androidx.annotation.DrawableRes
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
-import com.razer.neuron.RnApp
 import com.razer.neuron.common.toast
 import com.razer.neuron.nexus.SHARED_CONTENT_PROVIDER_DATA_ACCESS_PERMISSION
 import com.razer.neuron.utils.API_LEVEL28
@@ -140,8 +143,8 @@ fun Context.getDisplayCutout(window: Window): List<Rect> {
         // Android 9 only
         // Insets can be null when the activity is recreated on screen rotation
         // https://stackoverflow.com/questions/61241255/windowinsets-getdisplaycutout-is-null-everywhere-except-within-onattachedtowindo
-        val insets: WindowInsets = window.decorView.rootWindowInsets
-        insets.displayCutout
+        val insets: WindowInsets? = window.decorView.rootWindowInsets
+        insets?.displayCutout
     }
     return cutout?.boundingRects ?: emptyList()
 }
@@ -209,5 +212,11 @@ fun InputDevice.isExternalGenericController() = if (
 } else {
     false
 }
+
+
+fun Context.connectivityManager() =
+    getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+
 
 

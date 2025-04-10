@@ -70,11 +70,10 @@
     <string name="rn_all_computers">Alle computere</string>
     <string name="rn_settings_computers">Computere</string>
     <string name="rn_add">Tilføj</string>
-    <string name="rn_hint_input_pc_ip_address">IP-adresse for input-PC</string>
+    <string name="rn_hint_input_pc_ip_address">IP-adresse</string>
     <string name="rn_discovery_state_pc_online">Tilgængeligt</string>
     <string name="rn_pair">Par</string>
     <string name="rn_paired_computers">Parrede computere</string>
-    <string name="rn_manual_pairing_loading_content">Sørg for, at &hostlabel; kører på det samme netværk.</string>
     <string name="rn_nexus_content_provider_permission_name">Parring</string>
     <string name="rn_pin_code_subtitle">PIN-kode:</string>
     <string name="rn_pin_code_title">Indtast på streaming-PC\'en\n%1$s</string>
@@ -144,7 +143,18 @@
     <string name="rn_add_computer_manually">Tilføj PC manuelt</string>
     <string name="rn_remote_play_settings_localized">PC Remote Play</string>
     <string name="rn_setting_neuron_video_settings">Videoindstillinger</string>
-    <string name="rn_pairing_hint">Sørg for, at &hostlabel; kører på det samme netværk.</string>
+    <string name="rn_pairing_hint">Sørg for, at &hostlabel; kører.</string>
+    <string name="rn_setting_neuron_video_format_title">Videokodec</string>
+    <string name="rn_setting_neuron_video_format_subtitle">Angiv den videokodec, der bruges til streaming.</string>
+    <string name="rn_video_format_auto">Automatisk</string>
+    <string name="rn_prompt_quit_existing_session_title">Streaming-session i gang</string>
+    <string name="rn_prompt_quit_existing_session_msg"><![CDATA[<b>%1$s</b> streamer allerede på <b>%2$s</b>, vil du erstatte den aktuelle session? Alle ikke-gemte data vil gå tabt.]]></string>
+    <string name="rn_replace">Erstat</string>
+    <string name="rn_reconnecting_to_x">Opretter forbindelse til %1$s \u2026</string>
+    <string name="rn_tap_to_cancel">Tryk for at annullere</string>
+    <string name="rn_overlay_title">PC-taster</string>
+    <string name="rn_warning_missing_address">Mangler IP-adresse.</string>
+    <string name="rn_warning_missing_port">Mangler port.</string>
 
     <!-- Failed to start error message, part 1  -->
     <string name="failed_to_start_msg_with_param">Kunne ikke starte %1$s.</string>
@@ -169,6 +179,14 @@
     <string name="conn_error_code_5032">Kunne ikke initialisere videoindfangning/kodning. Er en skærm tilsluttet og tændt?</string>
     <string name="conn_error_code_5033">Ingen kørende app, der kan genoptages.</string>
     <string name="conn_error_code_5034">Alle sessioner skal afbrydes, før du afslutter.</string>
+    <string name="conn_error_code_5037">Vært-PC\'en kunne ikke starte videoenkoderen. Sørg for, at dine GPU- og CPU-drivere er opdaterede.</string>
+    <string name="conn_error_code_5038">Videoenkoderen kunne ikke starte. Prøv en anden video-codec, eller genstart vært-PC\'en.</string>
+    <string name="conn_error_code_5039"><![CDATA[Der blev ikke fundet en skærm, der var tilsluttet din PC. Sørg for, at din skærm er tændt, eller skift visningstilstand til <b>Kun telefon</b>.]]></string>
+    <string name="conn_error_code_5040">Razer Virtual Display blev ikke indlæst korrekt. Genstart din vært-PC.</string>
 
     <string name="open_source_notice">Bemærkning om open source-software</string>
+
+    <string name="rn_fallback_display_mode_and_video_res_msg"><![CDATA[<br/><br/>Indstillingen <b>Visningstilstand</b> er blevet nulstillet til <b>Dupliker PC-skærm</b> og 720p, så prøv igen senere.]]></string>
+    <string name="rn_fallback_video_res_msg"><![CDATA[<br/><br/>Videoopløsningen er blevet ændret til 720p, så prøv igen senere.]]></string>
+    <string name="rn_hint_input_pc_port">Port</string>
 </resources>

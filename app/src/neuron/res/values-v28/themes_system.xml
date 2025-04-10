@@ -1,0 +1,8 @@
+<resources>
+    <style name="BaseTheme.DynamicColors.System" parent="Theme.Material3.DynamicColors.DayNight">
+        <!-- see RnApp.setStatusBarIcons -->
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:statusBarColor">@color/rn_black</item>
+    </style>
+
+</resources>

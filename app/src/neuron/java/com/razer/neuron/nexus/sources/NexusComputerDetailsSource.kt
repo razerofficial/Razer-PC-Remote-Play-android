@@ -147,6 +147,8 @@ class NexusComputerDetailsSource(val manager: ComputerDatabaseManager) : NexusCo
         private const val COL_RUNNING_GAME_ID = "running_game_id"
         private const val COL_ACTIVE_DISPLAY_MODE_JSON = "active_display_mode_json"
         private const val COL_MACHINE_IDENTIFIER = "machine_identifier"
+        private const val COL_SERVER_CODEC_MODE_SUPPORT = "server_codec_mode_support"
+        private const val COL_RAZER_HOST_VERSION = "cortex_host_version"
 
         override val allFields = mapOf(
             COL_UUID to String::class.java,
@@ -157,6 +159,8 @@ class NexusComputerDetailsSource(val manager: ComputerDatabaseManager) : NexusCo
             COL_RUNNING_GAME_ID to Int::class.java,
             COL_ACTIVE_DISPLAY_MODE_JSON to String::class.java,
             COL_MACHINE_IDENTIFIER to String::class.java,
+            COL_SERVER_CODEC_MODE_SUPPORT to Int::class.java,
+            COL_RAZER_HOST_VERSION to String::class.java,
         )
 
         override fun createList(cursor: Cursor): List<ComputerDetails> {
@@ -177,6 +181,8 @@ class NexusComputerDetailsSource(val manager: ComputerDatabaseManager) : NexusCo
                     runningGameId = c.getIntByColumnName(COL_RUNNING_GAME_ID) ?: 0
                     activeDisplayMode = c.getStringByColumnName(COL_ACTIVE_DISPLAY_MODE_JSON)?.let { DisplayMode.fromJson(it) }
                     machineIdentifier = c.getStringByColumnName(COL_MACHINE_IDENTIFIER)
+                    serverCodecModeSupport = c.getIntByColumnName(COL_SERVER_CODEC_MODE_SUPPORT) ?: 0
+                    razerHostVersion = c.getStringByColumnName(COL_RAZER_HOST_VERSION)
                 }
             }
         }
@@ -197,7 +203,9 @@ class NexusComputerDetailsSource(val manager: ComputerDatabaseManager) : NexusCo
                 COL_SERVER_CERT to obj.serverCert?.encoded?.convertToHex(false),
                 COL_RUNNING_GAME_ID to obj.runningGameId,
                 COL_ACTIVE_DISPLAY_MODE_JSON to obj.activeDisplayMode?.toJsonString(),
-                COL_MACHINE_IDENTIFIER to obj.machineIdentifier
+                COL_MACHINE_IDENTIFIER to obj.machineIdentifier,
+                COL_SERVER_CODEC_MODE_SUPPORT to obj.serverCodecModeSupport,
+                COL_RAZER_HOST_VERSION to obj.razerHostVersion
             )
         }
     }

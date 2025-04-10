@@ -7,30 +7,45 @@ import android.view.ViewGroup
 import android.widget.CompoundButton
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import com.google.android.material.textfield.MaterialAutoCompleteTextView
+import androidx.lifecycle.lifecycleScope
 import com.limelight.R
 import com.limelight.databinding.RnFragmentRemotePlayBinding
+import com.limelight.preferences.PreferenceConfiguration.FormatOption
+import com.razer.neuron.common.debugToast
+import com.razer.neuron.di.IoDispatcher
+import com.razer.neuron.extensions.FormatOptionMeta
+import com.razer.neuron.extensions.dpToPx
 import com.razer.neuron.extensions.getDisplayCutout
+import com.razer.neuron.extensions.getMeta
 import com.razer.neuron.extensions.gone
 import com.razer.neuron.extensions.isHdrSupported
-import com.razer.neuron.extensions.setNumberDropDown
 import com.razer.neuron.extensions.visible
 import com.razer.neuron.extensions.visibleIf
 import com.razer.neuron.model.DisplayModeOption
 import com.razer.neuron.model.FramePacingOption
 import com.razer.neuron.model.TouchScreenOption
+import com.razer.neuron.model.VideoFormatMetaData
 import com.razer.neuron.pref.RemotePlaySettingsPref
 import com.razer.neuron.utils.calculateVirtualDisplayMode
 import com.razer.neuron.utils.getDefaultDisplayRefreshRateHz
 import com.razer.neuron.utils.getStringExt
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.util.Locale
+import javax.inject.Inject
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
 
 @AndroidEntryPoint
 class RnRemotePlayFragment : Fragment() {
+
+    @Inject
+    @IoDispatcher
+    lateinit var ioDispatcher: CoroutineDispatcher
 
     private lateinit var binding: RnFragmentRemotePlayBinding
 
@@ -115,6 +130,7 @@ class RnRemotePlayFragment : Fragment() {
         setupMuteHostPc()
         setupTouchScreen()
         setupAutoCloseGameCountDown()
+        setupVideoFormat()
     }
 
     override fun onResume() {
@@ -245,30 +261,54 @@ class RnRemotePlayFragment : Fragment() {
         }
     }
 
+    /**
+     * Requirements
+     * 1. 20 level
+     * 2. Default (30mbps) must be one of the level
+     * 3. Maintain min of 1mbps and max 150mbps
+     *
+     * Since [BitrateRateSettings.min] is so small, we don't take it into account, so that we get a smooth discrete slider.
+     *
+     * Instead we will coerce before display and before setting it in [RnRemotePlayViewModel.setBitrateSettings]
+     */
     private fun setupVideoBitrate() {
-        val levels = 100f
-        fun BitrateRateSettings.range() = max - min
-        fun BitrateRateSettings.valueToBitrate(value: Float) = ((range() * (value / levels)) + min).roundToInt()
-        fun BitrateRateSettings.valueToText(value: Float) = valueToBitrate(value).toBitrateString()
-        fun BitrateRateSettings.bitrateToValue() = (((rate.toFloat()) - min)/range())*levels
+        val levels = 20f
+        fun BitrateRateSettings.coerceBitrateToString(bitrate : Int = rate) = "%.1f".format(bitrate.coerceIn(min, max) / 1000f, Locale.ENGLISH) + " Mbps"
+        fun BitrateRateSettings.range() = max // Don't use min
+        fun BitrateRateSettings.levelToBitrate(level: Float) = range() * (level / levels)
+        fun BitrateRateSettings.levelToCoerceString(level: Float) = coerceBitrateToString(levelToBitrate(level).roundToInt())
+        fun BitrateRateSettings.bitrateToLevel() = rate.toFloat()/range()*levels
         var currentSettings : BitrateRateSettings? = null
         viewModel.bitrateSettingsLiveData.observe(viewLifecycleOwner) { bitRateSettings ->
             currentSettings = bitRateSettings
+            Timber.v("setupVideoBitrate: bitRateSetting=$bitRateSettings")
+            binding.bitrateSlider.contentDescription = bitRateSettings.coerceBitrateToString()
             binding.bitrateSlider.valueFrom = 0f
             binding.bitrateSlider.valueTo = levels
-            binding.bitrateSlider.value = bitRateSettings.bitrateToValue()
-            binding.bitrateSlider.setLabelFormatter { value ->
-                bitRateSettings.valueToText(value)
+            binding.bitrateSlider.value = bitRateSettings.bitrateToLevel()
+            // we cannot use KEY_STEP directly since
+            // 1. min value is 500 (which is less than KEY_STEP)
+            // 2. Between max and min there are too many steps
+            binding.bitrateSlider.setLabelFormatter { level ->
+                bitRateSettings.levelToCoerceString(level)
             }
-            binding.tvBitrateValue.text = bitRateSettings.valueToText(bitRateSettings.bitrateToValue())
         }
-        binding.bitrateSlider.addOnChangeListener {
-                _ ,value, fromUser ->
+        binding.bitrateSlider.addOnChangeListener { _ ,level, fromUser ->
             if (fromUser) {
                 currentSettings?.let {
-                    viewModel.setBitrateSettings(it.valueToBitrate(value))
-                    binding.tvBitrateValue.text = it.valueToText(value)
+                    val bitrate = it.levelToBitrate(level).roundToInt()
+                    binding.bitrateSlider.contentDescription = it.levelToCoerceString(level)
+                    Timber.v("bitrateSlider:addOnChangeListener level=$level rate=${it.coerceBitrateToString(bitrate = bitrate)}")
+                    viewModel.setBitrateSettings(bitrate)
                 }
+            }
+        }
+        // This should be handled by the Android Material 3 package, can remove this logic when Google fix it.
+        binding.bitrateSlider.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                binding.bitrateSlider.thumbWidth = dpToPx(2f).toInt()
+            } else {
+                binding.bitrateSlider.thumbWidth = dpToPx(4f).toInt()
             }
         }
     }
@@ -362,9 +402,7 @@ class RnRemotePlayFragment : Fragment() {
         }
     }
 
-    private fun Int.toBitrateString(): String {
-        return "%.1f".format(toFloat() / 1000, Locale.ENGLISH) + " Mbps"
-    }
+
 
     private fun setupAutoCloseGameCountDown() {
         with(binding.rowAutoCloseGameCountdownDropdown) {
@@ -372,19 +410,108 @@ class RnRemotePlayFragment : Fragment() {
             tvSubtitle.text = getString(R.string.rn_setting_neuron_autoclose_countdown_subtitle)
             ivActionIcon.gone()
             layoutDropdownMenu.visible()
-            val actv = actvDropdownMenu as? MaterialAutoCompleteTextView ?: return@with
-            val setter = actv.setNumberDropDown(
-                names = resources.getStringArray(R.array.auto_close_games_names),
-                values = resources.getIntArray(R.array.auto_close_games_values).toTypedArray(),
-                initialValue = viewModel.autoCloseGameCountDownLiveData.value ?: error("Not init"),
-            ) {
-                value ->
-                viewModel.setAutoCloseGameCountDown(value)
-            }
 
+            val ddbv = ddbvDropdownMenu
+            val names = resources.getStringArray(R.array.auto_close_games_names)
+            val values = resources.getIntArray(R.array.auto_close_games_values).toTypedArray()
+            require(names.size == values.size) { "auto_close_games_names not match auto_close_games_values" }
+            ddbv.itemObjects = names.mapIndexed { index, s -> values[index] to s }
+
+            val initialValue = viewModel.autoCloseGameCountDownLiveData.value ?: error("Not init")
+
+            fun setter(value : Int) {
+                val selectedValue = values.minBy { abs(it - value) } // find the closet match (should equal to initialValue)
+                val selectedName = names[values.indexOf(selectedValue)]
+                ddbv.setSelectedItem(selectedValue, selectedName)
+            }
+            setter(initialValue)
+            ddbv.onItemClickedListener = {
+                value ->
+                if(value is Int) {
+                    viewModel.setAutoCloseGameCountDown(value)
+                    true
+                } else {
+                    debugToast("Value is not int")
+                    false
+                }
+            }
             viewModel.autoCloseGameCountDownLiveData.observe(viewLifecycleOwner) {
                 value ->
                 setter(value)
+            }
+            root.setOnClickListener {
+                ddbv.showMenu()
+            }
+        }
+    }
+
+    private fun setupVideoFormat() {
+        lifecycleScope.launch {
+            binding.rowVideoFormatDropdown.root.gone()
+            val videoFormatMetaData = withContext(ioDispatcher) { VideoFormatMetaData.create(requireContext()) }
+            setupVideoFormatDropdown(videoFormatMetaData)
+        }
+    }
+
+    /**
+     * 1. Hide video format dropdown first
+     * 2. Only show the [FormatOptionMeta]s that are supported (Based on [videoFormatMetaData])
+     * 3. If there is only 1 (excluding [FormatOptionMeta.AUTO]) format, then we select default [FormatOptionMeta.AUTO]
+     *    and hide the UI
+     * 4. Else show the UI for supported format
+     */
+    private fun setupVideoFormatDropdown(videoFormatMetaData : VideoFormatMetaData) {
+        fun FormatOptionMeta.isSupported() = when (this) {
+            FormatOptionMeta.AUTO -> true
+            FormatOptionMeta.AV1 -> videoFormatMetaData.isAV1Supported
+            FormatOptionMeta.HEVC -> videoFormatMetaData.isHevcSupported
+            FormatOptionMeta.H264 -> videoFormatMetaData.isAvcSupported
+        }
+        // keep hiding UI
+        binding.rowVideoFormatDropdown.root.gone()
+        val supportedFormats = FormatOptionMeta.displayOrder.filter { it.isSupported() }
+        if(supportedFormats.count { it != FormatOptionMeta.AUTO } == 1) {
+            // only 1 support format, just set it to default then
+            debugToast("Only 1 supported video format")
+            viewModel.setVideoFormatOption(FormatOptionMeta.default.formatOption)
+            return
+        }
+
+        // show UI
+        binding.rowVideoFormatDropdown.root.visible()
+        with(binding.rowVideoFormatDropdown) {
+            tvTitle.text = getString(R.string.rn_setting_neuron_video_format_title)
+            tvSubtitle.text = getString(R.string.rn_setting_neuron_video_format_subtitle)
+            ivActionIcon.gone()
+            layoutDropdownMenu.visible()
+            val ddbv = ddbvDropdownMenu
+            val names = supportedFormats.map { getString(it.displayText) }
+            val values = supportedFormats.map { it.formatOption }
+            ddbv.itemObjects = names.mapIndexed { index, s -> values[index] to s }
+            val savedValue = viewModel.videoFormatOptionLiveData.value?.takeIf { it.getMeta()?.isSupported() == true }
+            val initialValue = savedValue ?: run {
+                FormatOptionMeta.default.formatOption.also {
+                    viewModel.setVideoFormatOption(it)
+                }
+            }
+            fun setter(value : FormatOption) = ddbv.setSelectedItem(value, value.getMeta()?.let { getString(it.displayText) } ?: value.name)
+            setter(initialValue)
+            ddbv.onItemClickedListener = {
+                    value ->
+                if(value is FormatOption) {
+                    viewModel.setVideoFormatOption(value)
+                    true
+                } else {
+                    debugToast("Value is not FormatOption")
+                    false
+                }
+            }
+            viewModel.videoFormatOptionLiveData.observe(viewLifecycleOwner) {
+                    value ->
+                setter(value)
+            }
+            root.setOnClickListener {
+                ddbv.showMenu()
             }
         }
     }

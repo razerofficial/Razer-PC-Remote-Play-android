@@ -18,6 +18,8 @@ object ComputerSharedModelHelper: NeuronProviderModelHelper<ComputerDetails> {
     const val COL_SERVER_CERT = "server_cert"
     const val COL_RUNNING_GAME_ID = "running_game_id"
     const val COL_MACHINE_IDENTIFIER = "machine_identifier"
+    const val COL_SERVER_CODEC_MODE_SUPPORT = "server_codec_mode_support"
+    const val COL_RAZER_HOST_VERSION = "cortex_host_version"
 
     override val allFields = mapOf(
         COL_UUID to String::class.java,
@@ -26,7 +28,9 @@ object ComputerSharedModelHelper: NeuronProviderModelHelper<ComputerDetails> {
         COL_MAC_ADDRESS to String::class.java,
         COL_SERVER_CERT to String::class.java,
         COL_RUNNING_GAME_ID to Int::class.java,
-        COL_MACHINE_IDENTIFIER to String::class.java
+        COL_MACHINE_IDENTIFIER to String::class.java,
+        COL_SERVER_CODEC_MODE_SUPPORT to Int::class.java,
+        COL_RAZER_HOST_VERSION to String::class.java,
     )
 
     override fun create(values: ContentValues): ComputerDetails {
@@ -43,6 +47,8 @@ object ComputerSharedModelHelper: NeuronProviderModelHelper<ComputerDetails> {
             serverCert = values.getAsString(COL_SERVER_CERT)?.hexToByteArray()?.toX509Cert()
             runningGameId = values.getAsInteger(COL_RUNNING_GAME_ID)
             machineIdentifier = values.getAsString(COL_MACHINE_IDENTIFIER)
+            serverCodecModeSupport = values.getAsInteger(COL_SERVER_CODEC_MODE_SUPPORT)
+            razerHostVersion = values.getAsString(COL_RAZER_HOST_VERSION)
         }
     }
 
@@ -61,7 +67,9 @@ object ComputerSharedModelHelper: NeuronProviderModelHelper<ComputerDetails> {
             COL_MAC_ADDRESS to obj.macAddress,
             COL_SERVER_CERT to obj.serverCert?.encoded?.convertToHex(false),
             COL_RUNNING_GAME_ID to obj.runningGameId,
-            COL_MACHINE_IDENTIFIER to obj.machineIdentifier
+            COL_MACHINE_IDENTIFIER to obj.machineIdentifier,
+            COL_SERVER_CODEC_MODE_SUPPORT to obj.serverCodecModeSupport,
+            COL_RAZER_HOST_VERSION to obj.razerHostVersion
         )
     }
 

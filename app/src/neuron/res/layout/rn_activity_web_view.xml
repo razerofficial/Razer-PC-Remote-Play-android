@@ -9,9 +9,9 @@
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/top_tool_bar"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/tool_bar_height"
+        android:layout_height="wrap_content"
         android:layerType="software"
-        app:titleTextAppearance="@style/TextAppearance.Material3.Item.Header"
+        app:titleTextAppearance="@style/TextAppearance.Material3.Toolbar.Title"
         android:touchscreenBlocksFocus="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

@@ -47,6 +47,6 @@ class RnAppearanceViewModel
             return
         }
         onAppThemeConfirmed(appThemeType)
-        emitState(AppearanceState.RestartApp)
+        emitState(AppearanceState.ApplyTheme)
     }
 }

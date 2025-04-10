@@ -5,5 +5,4 @@
 
     <dimen name="settings_title_margin_top">@dimen/margin_4x</dimen>
     <dimen name="settings_device_popup_item_height">48dp</dimen>
-    <dimen name="tool_bar_height">54dp</dimen>
 </resources>

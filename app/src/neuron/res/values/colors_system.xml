@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="m3_on_system_dialog">@color/md_theme_onSurface_highContrast</color>
+    <color name="m3_system_on_dialog">@color/md_theme_onSurface_highContrast</color>
     <color name="m3_system_dialog">@color/md_theme_surfaceContainerHigh</color>
 
     <color name="m3_on_system_settings">@color/md_theme_onSurface</color>
     <color name="m3_system_settings">@color/md_theme_surface</color>
 
-    <color name="m3_on_system_container">@color/md_theme_onSurface</color>
+    <color name="m3_system_on_container">@color/md_theme_onSurface</color>
     <color name="m3_system_container">@color/md_theme_surface</color>
 
     <color name="m3_system_primary">@color/md_theme_primary</color>
@@ -14,6 +14,6 @@
     <color name="m3_system_on_primary_container">@color/md_theme_onPrimaryContainer</color>
     <color name="m3_system_primary_container">@color/md_theme_primaryContainer</color>
 
-    <color name="m3_highlight">#33000000</color>
+    <color name="m3_system_highlight">#33000000</color>
 
 </resources>

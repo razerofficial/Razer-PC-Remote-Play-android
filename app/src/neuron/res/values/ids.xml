@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <item name="menu_item_about" type="id" />
+
     <item name="menu_item_computers" type="id" />
     <item name="menu_item_appearance" type="id" />
     <item name="menu_item_streaming_options" type="id" />
     <item name="menu_item_dev_options" type="id" />
+    <item name="menu_item_tag" type="id" />
 
     <item name="menu_group_app_settings" type="id" />
     <item name="menu_group_remote_play" type="id" />
     <item name="menu_group_help" type="id" />
 
     <item name="menu_top_bar_settings" type="id" />
+
 
 </resources>

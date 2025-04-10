@@ -1,6 +1,7 @@
 package com.limelight.nvstream;
 
 import com.limelight.nvstream.http.ComputerDetails;
+import com.limelight.preferences.PreferenceConfiguration;
 
 import java.security.cert.X509Certificate;
 
@@ -13,6 +14,7 @@ public class ConnectionContext {
     public boolean isNvidiaServerSoftware;
     public X509Certificate serverCert;
     public StreamConfiguration streamConfig;
+    public PreferenceConfiguration prefConfig;
     public NvConnectionListener connListener;
     public SecretKey riKey;
     public int riKeyId;

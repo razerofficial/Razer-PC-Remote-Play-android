@@ -22,7 +22,7 @@
         android:fullBackupContent="false"
         android:dataExtractionRules="@xml/rn_data_extraction_rules"
         android:name="com.razer.neuron.RnApp"
-        android:theme="@style/RnTheme"
+        android:theme="@style/AppTheme.Razer.Splash"
         android:icon="@mipmap/ic_launcher_neuron"
         android:roundIcon="@mipmap/ic_launcher_neuron_round"
         android:isGame="false"
@@ -74,7 +74,6 @@
             Custom home activity for Neuron
         -->
         <activity
-            android:theme="@style/RnTheme.Splash"
             android:launchMode="singleTask"
             android:name="com.razer.neuron.main.RnMainActivity"
             android:configChanges="mcc|mnc|touchscreen|keyboard|keyboardHidden|navigation|screenLayout|fontScale|uiMode|orientation|screenSize|smallestScreenSize|layoutDirection"
@@ -101,7 +100,6 @@
         
         
         <activity
-            android:theme="@style/RnTheme.Oobe"
             android:launchMode="singleTask"
             android:name="com.razer.neuron.oobe.RnOobeActivity"
             android:configChanges="mcc|mnc|touchscreen|keyboard|keyboardHidden|navigation|screenLayout|fontScale|uiMode|orientation|screenSize|smallestScreenSize|layoutDirection"
@@ -114,14 +112,12 @@
         <activity
             android:name="com.razer.neuron.web.RnWebViewActivity"
             android:screenOrientation="sensorLandscape"
-            android:theme="@style/RnTheme.Web"
             android:configChanges="mcc|mnc|touchscreen|keyboard|keyboardHidden|navigation|screenLayout|fontScale|uiMode|orientation|screenSize|smallestScreenSize|layoutDirection"
             android:enableOnBackInvokedCallback="true"
             android:launchMode="singleTask"
             android:resizeableActivity="true"
             tools:ignore="DiscouragedApi" />
         <activity
-            android:theme="@style/RnTheme.Game"
             android:screenOrientation="sensorLandscape"
             android:name="com.razer.neuron.game.RnGame"
             android:exported="true"
@@ -147,7 +143,6 @@
         </activity>
 
         <activity
-            android:theme="@style/RnTheme.Game"
             android:screenOrientation="sensorLandscape"
             android:name="com.razer.neuron.game.RnGameError"
             android:exported="true"
@@ -167,7 +162,6 @@
         </activity>
 
         <activity
-            android:theme="@style/RnTheme.Settings"
             android:name="com.razer.neuron.settings.RnSettingsActivity"
             android:configChanges="mcc|mnc|touchscreen|keyboard|keyboardHidden|navigation|screenLayout|fontScale|uiMode|orientation|screenSize|smallestScreenSize|layoutDirection"
             android:enableOnBackInvokedCallback="true"
@@ -185,13 +179,12 @@
 
 
         <activity
-            android:theme="@style/RnTheme.Settings"
             android:name="com.razer.neuron.settings.manualpairing.RnManualPairingActivity"
             android:configChanges="mcc|mnc|touchscreen|keyboard|keyboardHidden|navigation|screenLayout|fontScale|uiMode|orientation|screenSize|smallestScreenSize|layoutDirection"
             android:enableOnBackInvokedCallback="true"
             android:launchMode="singleTask"
             android:screenOrientation="sensorLandscape"
-            android:windowSoftInputMode="stateVisible"
+            android:windowSoftInputMode="adjustPan"
             android:exported="true"
             android:resizeableActivity="true">
             <meta-data
@@ -203,7 +196,6 @@
         </activity>
 
         <activity
-            android:theme="@style/RnTheme.Settings"
             android:name="com.razer.neuron.landing.RnLandingActivity"
             android:configChanges="mcc|mnc|touchscreen|keyboard|keyboardHidden|navigation|screenLayout|fontScale|uiMode|orientation|screenSize|smallestScreenSize|layoutDirection"
             android:enableOnBackInvokedCallback="true"

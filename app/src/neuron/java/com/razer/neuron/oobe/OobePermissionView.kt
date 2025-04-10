@@ -20,7 +20,6 @@ class OobePermissionView @JvmOverloads constructor(
     val title by lazy { binding.tvPermissionName }
     val subtitle by lazy { binding.tvPermissionSubtitle }
     val checkedIcon by lazy { binding.ivChecked }
-    val btnAllow by lazy { binding.btnAllow }
 
 
     init {

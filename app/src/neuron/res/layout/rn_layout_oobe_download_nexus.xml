@@ -16,6 +16,7 @@
 
 
     <ImageView
+        android:importantForAccessibility="no"
         android:id="@+id/iv_left_image"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -29,7 +30,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <ScrollView
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/margin_17x"
@@ -38,61 +39,68 @@
         app:layout_constraintStart_toEndOf="@+id/mid_line"
         app:layout_constraintTop_toTopOf="parent">
 
-        <ImageView
-            android:id="@+id/iv_app_icon"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:tint="@color/rn_black"
-            app:backgroundTint="@color/rn_razer_green"
-            app:layout_constraintBottom_toBottomOf="@+id/tv_intro_subtitle"
-            android:paddingLeft="8.45dp"
-            android:paddingTop="9.05dp"
-            android:paddingRight="4.9dp"
-            android:paddingBottom="8.55dp"
-            android:src="@drawable/razer_nexus_app_icon"
-            android:background="@drawable/circle_primary"
-            android:layout_width="35dp"
-            android:layout_height="35dp" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:importantForAccessibility="no"
+                android:id="@+id/iv_app_icon"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:tint="@color/rn_black"
+                app:backgroundTint="@color/rn_razer_green"
+                app:layout_constraintBottom_toBottomOf="@+id/tv_intro_subtitle"
+                android:paddingLeft="8.45dp"
+                android:paddingTop="9.05dp"
+                android:paddingRight="4.9dp"
+                android:paddingBottom="8.55dp"
+                android:src="@drawable/razer_nexus_app_icon"
+                android:background="@drawable/circle_primary"
+                android:layout_width="35dp"
+                android:layout_height="35dp" />
 
 
 
-        <TextView
-            android:layout_marginStart="@dimen/margin_4x"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/iv_app_icon"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:id="@+id/tv_intro_title"
-            style="@style/RnOobeTextOnBackground"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="@string/rn_download_razer_nexus"
-            android:textSize="18sp"
-            android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
+            <TextView
+                android:layout_marginStart="@dimen/margin_4x"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/iv_app_icon"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:id="@+id/tv_intro_title"
+                style="@style/RnOobeTextOnBackground"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/rn_download_razer_nexus"
+                android:textSize="18sp"
+                android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
 
-        <TextView
-            app:layout_constraintTop_toBottomOf="@+id/tv_intro_title"
-            app:layout_constraintStart_toStartOf="@+id/tv_intro_title"
-            app:layout_constraintEnd_toEndOf="@+id/tv_intro_title"
-            android:id="@+id/tv_intro_subtitle"
-            style="@style/RnOobeTextOnBackgroundVariant"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="@string/rn_download_razer_nexus_subtitle"
-            android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
-
-
-        <ImageView
-            android:focusable="false"
-            android:layout_marginTop="@dimen/margin_3x"
-            app:layout_constraintTop_toBottomOf="@+id/tv_intro_subtitle"
-            app:layout_constraintStart_toStartOf="@+id/tv_intro_subtitle"
-            android:src="@drawable/google_play"
-            android:id="@+id/google_play_store"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            <TextView
+                app:layout_constraintTop_toBottomOf="@+id/tv_intro_title"
+                app:layout_constraintStart_toStartOf="@+id/tv_intro_title"
+                app:layout_constraintEnd_toEndOf="@+id/tv_intro_title"
+                android:id="@+id/tv_intro_subtitle"
+                style="@style/RnOobeTextOnBackgroundVariant"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/rn_download_razer_nexus_subtitle"
+                android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
 
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <ImageView
+                android:importantForAccessibility="no"
+                android:focusable="false"
+                android:layout_marginTop="@dimen/margin_3x"
+                app:layout_constraintTop_toBottomOf="@+id/tv_intro_subtitle"
+                app:layout_constraintStart_toStartOf="@+id/tv_intro_subtitle"
+                android:src="@drawable/google_play"
+                android:id="@+id/google_play_store"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
 
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

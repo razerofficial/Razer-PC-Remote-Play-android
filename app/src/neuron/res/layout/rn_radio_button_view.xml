@@ -22,6 +22,7 @@
                 android:focusable="false"
                 android:minWidth="0dp"
                 android:minHeight="0dp"
+                android:background="@null"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/irb_tv_subtitle" />

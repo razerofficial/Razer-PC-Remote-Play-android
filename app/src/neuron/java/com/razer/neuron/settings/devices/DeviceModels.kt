@@ -31,7 +31,7 @@ sealed class DeviceState {
     data class ShowError(val error: Throwable) : DeviceState()
     data class ShowMessage(val message: String) : DeviceState()
 
-    data object RestartApp : DeviceState()
+    data object ApplyTheme : DeviceState()
 
     data class ShowPin(val computerDetails: ComputerDetails, val pinCode: String) : DeviceState()
 
@@ -43,6 +43,11 @@ sealed class DeviceState {
 
     data object StartManualPairing : DeviceState()
 
+    /**
+     * Use [com.razer.neuron.startgame.RnStartGameViewModel.askBeforeStartStream] to trigger
+     * [com.razer.neuron.startgame.RnStartGameModel.Navigation.Stream] instead
+     */
+    @Deprecated("Don't start stream directly")
     data class StartStreaming(val intent: Intent) : DeviceState()
 
     /**

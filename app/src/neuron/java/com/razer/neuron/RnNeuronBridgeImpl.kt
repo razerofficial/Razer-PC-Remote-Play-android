@@ -2,7 +2,7 @@ package com.razer.neuron
 
 import android.content.Context
 import android.content.Intent
-import android.content.res.Resources
+import android.media.MediaCodecInfo
 import android.preference.PreferenceManager
 import android.util.Size
 import android.view.Window
@@ -10,17 +10,31 @@ import com.limelight.Game
 import com.limelight.NeuronBridgeInterface
 import com.limelight.R
 import com.limelight.RemotePlayConfig
+import com.limelight.binding.video.MediaCodecDecoderRenderer
 import com.limelight.binding.video.VideoStats
 import com.limelight.nvstream.ConnectionContext
+import com.limelight.nvstream.StreamConfiguration
 import com.limelight.nvstream.http.DisplayMode
 import com.limelight.nvstream.http.toResolution
+import com.limelight.nvstream.http.toResolutionString
+import com.limelight.nvstream.jni.MoonBridge
 import com.limelight.preferences.PreferenceConfiguration
-import com.razer.neuron.managers.AIDLManager
+import com.razer.neuron.extensions.SCM_AV1_MAIN10
+import com.razer.neuron.extensions.SCM_AV1_MAIN8
+import com.razer.neuron.extensions.SCM_AV1_MASK_10BIT
+import com.razer.neuron.extensions.SCM_H264
+import com.razer.neuron.extensions.SCM_HEVC
+import com.razer.neuron.extensions.SCM_HEVC_MAIN10
 import com.razer.neuron.extensions.edit
 import com.razer.neuron.extensions.getAllSupportedNativeFps
 import com.razer.neuron.extensions.getPPI
 import com.razer.neuron.extensions.getScreenResolution
 import com.razer.neuron.extensions.getUserFacingMessage
+import com.razer.neuron.extensions.parseServerCodecModeSupportFlags
+import com.razer.neuron.extensions.parseSupportedVideoFormat
+import com.razer.neuron.extensions.willStreamHdr
+import com.razer.neuron.game.helpers.RnStreamError
+import com.razer.neuron.managers.AIDLManager
 import com.razer.neuron.managers.RumbleManager.isRumbleWithNexus
 import com.razer.neuron.model.DisplayModeOption
 import com.razer.neuron.model.ResolutionScale
@@ -41,10 +55,14 @@ import java.util.concurrent.CompletableFuture
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
+
 /**
  * You can use com.razer.neuron.xxx classes here
  */
 class RnNeuronBridgeImpl(val context: Context) : NeuronBridgeInterface {
+
+
+
     private val prefs by lazy { PreferenceManager.getDefaultSharedPreferences(context) }
 
     private val displayMode get() = prefs.getString(RazerRemotePlaySettingsKey.PREF_DISPLAY_MODE, null)?.let { DisplayModeOption.findByDisplayModeName(it) }
@@ -83,12 +101,14 @@ class RnNeuronBridgeImpl(val context: Context) : NeuronBridgeInterface {
         }
 
 
-
-
-    override fun fallbackToDuplicateDisplay() {
-        RemotePlaySettingsPref.isUseDefaultResolution = true
+    override fun fallbackVideoSettings(fallbackResolution: Size?, fallbackDisplayMode : DisplayModeOption?) {
+        val _fallbackDisplayMode = fallbackDisplayMode ?: DisplayModeOption.safest
+        val tag = "fallbackVideoSettings"
+        RemotePlaySettingsPref.isUseFallbackResolution = true
+        RemotePlaySettingsPref.fallbackResolution = fallbackResolution?.toResolutionString() ?: DEFAULT_LIST_RESOLUTION
+        Timber.v("$tag: final fallbackResolution=${RemotePlaySettingsPref.fallbackResolution}, fallbackDisplayMode=${_fallbackDisplayMode}")
         prefs.edit {
-            putString(RazerRemotePlaySettingsKey.PREF_DISPLAY_MODE, DisplayModeOption.DuplicateDisplay.displayModeName)
+            putString(RazerRemotePlaySettingsKey.PREF_DISPLAY_MODE, _fallbackDisplayMode.displayModeName)
         }
     }
 
@@ -139,9 +159,20 @@ class RnNeuronBridgeImpl(val context: Context) : NeuronBridgeInterface {
 
         Timber.v("$tag: activeDisplayMode=$activeDisplayMode, displayMode=$displayMode")
 
-        when (displayMode) {
-            DisplayModeOption.PhoneOnlyDisplay,
-            DisplayModeOption.SeparateDisplay -> {
+        when {
+            RemotePlaySettingsPref.isUseFallbackResolution -> {
+                val defaultResolution =
+                    requireNotNull(DEFAULT_LIST_RESOLUTION.toResolution()) { "default resolution not formatted" }
+                val defaultFps =
+                    requireNotNull(DEFAULT_LIST_FPS.toIntOrNull()) { "default FPS not formatted" }
+                val fallbackFps = defaultFps
+                val fallbackResolution = RemotePlaySettingsPref.fallbackResolution?.toResolution() ?: defaultResolution
+                Timber.v("$tag: fallbackResolution=$defaultResolution fallbackFps=$defaultFps")
+                prefConfig.width = fallbackResolution.width
+                prefConfig.height = fallbackResolution.height
+                prefConfig.fps = fallbackFps
+            }
+            displayMode == DisplayModeOption.PhoneOnlyDisplay || displayMode == DisplayModeOption.SeparateDisplay -> {
                 val virtualDisplayMode = calculateVirtualDisplayMode(context).getOrNull()
                 Timber.v("$tag: virtualDisplayMode=$virtualDisplayMode")
                 if (virtualDisplayMode != null) {
@@ -150,16 +181,9 @@ class RnNeuronBridgeImpl(val context: Context) : NeuronBridgeInterface {
                     prefConfig.fps = virtualDisplayMode.refreshRateInt ?: prefConfig.fps
                 }
             }
-            DisplayModeOption.DuplicateDisplay -> {
-                val defaultResolution = DEFAULT_LIST_RESOLUTION.toResolution()
-                val defaultFps = DEFAULT_LIST_FPS.toIntOrNull()
+            displayMode == DisplayModeOption.DuplicateDisplay -> {
                 // for cases when we had to fallback to use default resolution
-                if(RemotePlaySettingsPref.isUseDefaultResolution && defaultFps != null && defaultResolution != null) {
-                    Timber.v("$tag: defaultResolution=$defaultResolution defaultFps=$defaultFps")
-                    prefConfig.width = defaultResolution.width
-                    prefConfig.height = defaultResolution.height
-                    prefConfig.fps = defaultFps
-                } else if(activeDisplayMode != null) {
+                if(activeDisplayMode != null) {
                     // NEUR-103
                     val nativeRefreshRates = getAllSupportedNativeFps(window)
                     val closestMatchingRefreshRate = nativeRefreshRates.minByOrNull { abs(it - (activeDisplayMode.refreshRateInt ?: 0)) } ?: context.getDefaultDisplayRefreshRateHz(true)
@@ -178,8 +202,70 @@ class RnNeuronBridgeImpl(val context: Context) : NeuronBridgeInterface {
 
     /**
      * See [NeuronBridgeInterface.updateStreamConfiguration]
+     * Already called serverInfo API and convert the data to [ConnectionContext.computerDetails]
+     *
+     * Apply logic to determine if we should use AV1 by tricking the [MediaCodecDecoderRenderer] into thinking
+     * user wants to use AV1. But we still need to check that it supports AV1
+     *  1. Check if AV1 is supported by [MediaCodecDecoderRenderer] but this is depended on [PreferenceConfiguration]
+     *  2. Use [MediaCodecDecoderRenderer] using a fake [PreferenceConfiguration]
+     *  3. Run [MediaCodecDecoderRenderer.findAv1Decoder]
+     *  4. Set [com.limelight.nvstream.StreamConfiguration.supportedVideoFormats] (bit flag) (in [ConnectionContext.streamConfig])
      */
-    override fun updateStreamConfiguration(connectionContext: ConnectionContext) = Unit
+    override fun updateStreamConfiguration(
+        connectionContext: ConnectionContext,
+        decoderRenderer: MediaCodecDecoderRenderer
+    ) {
+        runCatching {
+            if(connectionContext.prefConfig.videoFormat == PreferenceConfiguration.FormatOption.AUTO) {
+                //applyAutoVideoFormat0(connectionContext, decoderRenderer)
+            }
+            decoderRenderer.debugServerCodecModeSupport = connectionContext.serverCodecModeSupport.parseServerCodecModeSupportFlags()
+            decoderRenderer.debugLocalSupportedVideoFormats = connectionContext.streamConfig.supportedVideoFormats.parseSupportedVideoFormat()
+            Timber.v("updateStreamConfiguration: debugServerCodecModeSupport=${decoderRenderer.debugServerCodecModeSupport}")
+            Timber.v("updateStreamConfiguration: debugLocalSupportedVideoFormats=${decoderRenderer.debugLocalSupportedVideoFormats}")
+        }.exceptionOrNull()?.let {
+            logAndRecordException(it)
+        }
+    }
+
+    /**
+     * NEUR-154
+     * Custom logic to deal with "AUTO" video format
+     *
+     * Will modify [ConnectionContext.streamConfig]
+     */
+    private fun applyAutoVideoFormat0(connectionContext: ConnectionContext,
+                                     decoderRenderer: MediaCodecDecoderRenderer) {
+        val originalPrefConfig = requireNotNull(connectionContext.prefConfig) { "prefConfig must be set in connectionContext" }
+        Timber.v("applyAutoVideoFormat0: videoFormat=${originalPrefConfig.videoFormat} isAv1Main10Supported=${decoderRenderer.isAv1Main10Supported}, isAv1Supported=${decoderRenderer.isAv1Supported}")
+        val localAv1Decoder : MediaCodecInfo? = decoderRenderer.findAv1Decoder(originalPrefConfig)
+
+        val oldStreamConfig = connectionContext.streamConfig
+        val newStreamConfig = StreamConfiguration.Builder(oldStreamConfig)
+        var newSupportedVideoFormats = oldStreamConfig.supportedVideoFormats
+        val willStreamHdr = context.willStreamHdr(originalPrefConfig)
+
+        // if it is snapdragon
+        val serverCodecModeSupport = connectionContext.serverCodecModeSupport
+        Timber.v("applyAutoVideoFormat0: av1Decoder=${localAv1Decoder?.name}")
+        Timber.v("applyAutoVideoFormat0: serverCodecModeSupport=${serverCodecModeSupport}")
+        Timber.v("applyAutoVideoFormat0: SCM_AV1_MAIN8=${(serverCodecModeSupport and SCM_AV1_MAIN8) == SCM_AV1_MAIN8}")
+        Timber.v("applyAutoVideoFormat0: SCM_AV1_MAIN10=${(serverCodecModeSupport and SCM_AV1_MAIN10) == SCM_AV1_MAIN10}")
+        Timber.v("applyAutoVideoFormat0: SCM_H264=${(serverCodecModeSupport and SCM_H264) == SCM_H264}")
+        Timber.v("applyAutoVideoFormat0: SCM_HEVC=${(serverCodecModeSupport and SCM_HEVC) == SCM_HEVC}")
+        Timber.v("applyAutoVideoFormat0: SCM_HEVC_MAIN10=${(serverCodecModeSupport and SCM_HEVC_MAIN10) == SCM_HEVC_MAIN10}")
+
+        val hasAv1ServerSupported = (serverCodecModeSupport and SCM_AV1_MASK_10BIT) != 0 // either SCM_AV1_MAIN10 or SCM_AV1_MAIN8
+        if (hasAv1ServerSupported && localAv1Decoder != null) {
+            newSupportedVideoFormats = newSupportedVideoFormats or MoonBridge.VIDEO_FORMAT_AV1_MAIN8
+            if (willStreamHdr && decoderRenderer.isAv1Main10Supported(localAv1Decoder)) {
+                newSupportedVideoFormats =
+                    newSupportedVideoFormats or MoonBridge.VIDEO_FORMAT_AV1_MAIN10
+            }
+            newStreamConfig.setSupportedVideoFormats(newSupportedVideoFormats)
+        }
+        connectionContext.streamConfig = newStreamConfig.build()
+    }
 
     /**
      * See [NeuronBridgeInterface.getLaunchUrlQueryParameters]
@@ -324,11 +410,17 @@ class RnNeuronBridgeImpl(val context: Context) : NeuronBridgeInterface {
     }
 
     override fun getLocalizedStringFromErrorCode(errorCode: Int) = when (errorCode) {
-        5031 -> context.getString(R.string.conn_error_code_5031)
-        5032 -> context.getString(R.string.conn_error_code_5032)
-        5033 -> context.getString(R.string.conn_error_code_5033)
-        5034 -> context.getString(R.string.conn_error_code_5034)
-        else -> "(error $this)"
+        RnStreamError.ERROR_CODE_5031_CONCURRENT_STREAM_LIMIT_REACHED,
+        RnStreamError.ERROR_CODE_5035_DEPRECATED_CONCURRENT_STREAM_LIMIT_REACHED,
+        RnStreamError.ERROR_CODE_5036_MAYBE_REPLACE_EXISTING_SESSION -> context.getString(R.string.conn_error_code_5031)
+        RnStreamError.ERROR_CODE_5032_FAILED_INIT_VID_ENCODING -> context.getString(R.string.conn_error_code_5032)
+        RnStreamError.ERROR_CODE_5033_NO_RUNNING_APP_TO_RESUME -> context.getString(R.string.conn_error_code_5033)
+        RnStreamError.ERROR_CODE_5034_ALL_SESSION_MUST_BE_DISCONNECTED -> context.getString(R.string.conn_error_code_5034)
+        RnStreamError.ERROR_CODE_5037_HOST_ENCODER_NOT_FOUND -> context.getString(R.string.conn_error_code_5037)
+        RnStreamError.ERROR_CODE_5038_CODEC_NOT_SUPPORTED_BY_HOST -> context.getString(R.string.conn_error_code_5038)
+        RnStreamError.ERROR_CODE_5039_HOST_MONITOR_OFF -> context.getString(R.string.conn_error_code_5039)
+        RnStreamError.ERROR_CODE_5040_HOST_MONITOR_OFF_IN_PHONE_ONLY_MODE -> context.getString(R.string.conn_error_code_5040)
+        else -> "(error $errorCode)"
     }
 }
 

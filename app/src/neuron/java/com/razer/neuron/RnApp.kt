@@ -3,11 +3,12 @@ package com.razer.neuron
 import android.app.Activity
 import android.app.Application
 import android.content.Context
+import android.os.Bundle
 import android.util.Log
 import com.limelight.BuildConfig
 import com.limelight.NeuronBridge
 import com.razer.neuron.common.BaseApplication.BaseActivityLifecycleCallbacks
-import com.razer.neuron.common.RnAppThemeHelper
+import com.razer.neuron.common.RnThemeManager
 import com.razer.neuron.common.debugToast
 import com.razer.neuron.extensions.globalOnUnexpectedError
 import com.razer.neuron.managers.AIDLManager
@@ -47,7 +48,7 @@ class RnApp : Application(){
         super.onCreate()
         appContext = applicationContext
         initActivityLifeCycleCallback()
-        RnAppThemeHelper.onApplicationCreated(this)
+        RnThemeManager.onApplicationCreated(this)
         NeuronBridge.setImplementation(RnNeuronBridgeImpl(this))
         Timber.plant(if(BuildConfig.DEBUG || RemotePlaySettingsPref.isDevModeEnabled) Timber.DebugTree() else ReleaseTree())
     }
@@ -76,6 +77,7 @@ class RnApp : Application(){
 
     companion object {
         lateinit var appContext : Context
+        val appContextOrNull get() = if(::appContext.isInitialized) appContext else null
         val globalScope = CoroutineScope(SupervisorJob() + Dispatchers.IO + globalOnUnexpectedError)
 
         private var lastResumedRef: WeakReference<Activity>? = null
@@ -93,9 +95,10 @@ class RnApp : Application(){
 /**
  * Restart the app. (should only use it for testing config change)
  */
-fun Context.restartApp() {
+fun Context.restartApp(bundle: Bundle = Bundle()) {
     packageManager.getLaunchIntentForPackage(packageName)?.let { intent ->
         val restartIntent = android.content.Intent.makeRestartActivityTask(intent.component)
+        restartIntent.putExtras(bundle)
         startActivity(restartIntent) // Launches a new launch intent.
         Runtime.getRuntime().exit(0) // Kills the current app process.
     }

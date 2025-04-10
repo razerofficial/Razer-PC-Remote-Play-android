@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="overlay_hint_background">#222222</color>
+    <color name="overlay_layout_background">#CC222222</color>
+    <color name="overlay_layout_divider_color">#999999</color>
+    <color name="overlay_open_button_background">#CC000000</color>
+</resources>

@@ -20,6 +20,7 @@
 
     <!--region material design specific measurement. Don't put Neuron UI dimen here-->
     <dimen name="m3_navigation_view_padding_horizontal">@dimen/margin_3x</dimen>
+    <dimen name="m3_navigation_view_top_margin_offset">14dp</dimen>
     <dimen name="m3_sys_action_bar_textsize">21sp</dimen>
     <dimen name="m3_sys_item_title_textsize">19sp</dimen> <!--Pixel uses 20sp -->
     <dimen name="m3_sys_item_margin_top">@dimen/margin_6x</dimen>
@@ -38,6 +39,11 @@
     <dimen name="m3_subheader_progress_bar_end_margin">12dp</dimen>
     <dimen name="m3_subheader_progress_bar_track_thickness">2dp</dimen>
     <dimen name="m3_default_dropdown_menu_width">160dp</dimen>
-
+    <dimen name="m3_button_dropdown_vertical_padding">@dimen/margin_2x</dimen>
+    <dimen name="m3_button_dropdown_radius">999dp</dimen>
+    <dimen name="m3_button_dropdown_start_padding">16dp</dimen>
+    <dimen name="m3_button_dropdown_end_padding">11dp</dimen>
+    <dimen name="m3_button_dropdown_icon_size">20dp</dimen>
+    <dimen name="m3_button_dropdown_text_size">15sp</dimen>
     <!--endregion-->
 </resources>

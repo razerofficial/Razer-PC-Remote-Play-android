@@ -70,11 +70,10 @@
     <string name="rn_all_computers">所有電腦</string>
     <string name="rn_settings_computers">電腦</string>
     <string name="rn_add">新增</string>
-    <string name="rn_hint_input_pc_ip_address">輸入 PC IP 位址</string>
+    <string name="rn_hint_input_pc_ip_address">IP 位址</string>
     <string name="rn_discovery_state_pc_online">可用</string>
     <string name="rn_pair">配對</string>
     <string name="rn_paired_computers">已配對的電腦</string>
-    <string name="rn_manual_pairing_loading_content">請確定 &hostlabel; 在相同網路中運行。</string>
     <string name="rn_nexus_content_provider_permission_name">正在配對</string>
     <string name="rn_pin_code_subtitle">PIN 碼：</string>
     <string name="rn_pin_code_title">在串流 PC 上輸入\n%1$s</string>
@@ -144,7 +143,18 @@
     <string name="rn_add_computer_manually">手動新增 PC</string>
     <string name="rn_remote_play_settings_localized">PC 遠端遊玩</string>
     <string name="rn_setting_neuron_video_settings">視訊設定</string>
-    <string name="rn_pairing_hint">請確定 &hostlabel; 在相同網路中運行。</string>
+    <string name="rn_pairing_hint">請確保 &hostlabel; 正在執行。</string>
+    <string name="rn_setting_neuron_video_format_title">視頻編解碼器</string>
+    <string name="rn_setting_neuron_video_format_subtitle">指定用於串流的視訊編解碼器。</string>
+    <string name="rn_video_format_auto">自動</string>
+    <string name="rn_prompt_quit_existing_session_title">串流會話進行中</string>
+    <string name="rn_prompt_quit_existing_session_msg"><![CDATA[<b>%1$s</b> 已在 <b>%2$s</b> 上進行串流播放，您要替換當前會話嗎？所有未保存的數據將丟失。]]></string>
+    <string name="rn_replace">替換</string>
+    <string name="rn_reconnecting_to_x">正在重新連接到 %1$s \u2026</string>
+    <string name="rn_tap_to_cancel">點擊取消</string>
+    <string name="rn_overlay_title">PC 鍵</string>
+    <string name="rn_warning_missing_address">缺少 IP 位址。</string>
+    <string name="rn_warning_missing_port">缺少連接埠。</string>
 
     <!-- Failed to start error message, part 1  -->
     <string name="failed_to_start_msg_with_param">無法開始%1$s。</string>
@@ -168,6 +178,14 @@
     <string name="conn_error_code_5032">無法初始化視訊擷取/編碼。顯示器是否已連接並開啟？</string>
     <string name="conn_error_code_5033">沒有正在執行的應用程式可恢復。</string>
     <string name="conn_error_code_5034">在結束前必須斷開所有連線。</string>
+    <string name="conn_error_code_5037">主機PC無法啟動視頻編碼器。請確保您的GPU和CPU驅動程式已更新。</string>
+    <string name="conn_error_code_5038">視頻編碼器啟動失敗。請嘗試使用不同的視頻編解碼器，或重新啟動主機PC。</string>
+    <string name="conn_error_code_5039"><![CDATA[未檢測到連接到您的PC的顯示器。請確保您的顯示器已開啟，或將顯示模式更改為<b>僅限手機</b>。]]></string>
+    <string name="conn_error_code_5040">Razer虛擬顯示未正確加載。請重新啟動您的主機PC。</string>
 
     <string name="open_source_notice">開放原始碼軟體注意事項</string>
+
+    <string name="rn_fallback_display_mode_and_video_res_msg"><![CDATA[<br/><br/>設定<b>顯示模式</b>已還原為<b>複製電腦顯示器</b>和 720p，請稍後再試。]]></string>
+    <string name="rn_fallback_video_res_msg"><![CDATA[<br/><br/>影片解析度已變更為 720p，請稍後再試。]]></string>
+    <string name="rn_hint_input_pc_port">連接埠</string>
 </resources>

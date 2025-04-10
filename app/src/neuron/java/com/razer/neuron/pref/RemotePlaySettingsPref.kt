@@ -7,6 +7,7 @@ import com.razer.neuron.RnApp
 import com.razer.neuron.common.ComputerMeta
 import com.razer.neuron.extensions.edit
 import com.razer.neuron.extensions.enumPref2
+import com.razer.neuron.extensions.vv
 import com.razer.neuron.model.AppThemeType
 import com.razer.neuron.model.DisplayModeOption
 import com.razer.neuron.model.SessionStats
@@ -34,7 +35,9 @@ object RemotePlaySettingsPref : Krate {
 
     private val KEY_IS_NEURON_OOBE_COMPLETED = "${NEURON}_KEY_IS_OOBE_COMPLETED"
 
-    private val KEY_IS_USE_DEFAULT_RESOLUTION = "${NEURON}_KEY_IS_USE_DEFAULT_RESOLUTION"
+    private val KEY_IS_USE_FALLBACK_RESOLUTION = "${NEURON}_KEY_IS_USE_FALLBACK_RESOLUTION"
+
+    private val KEY_FALLBACK_RESOLUTION = "${NEURON}_KEY_FALLBACK_RESOLUTION"
     /**
      * To read when Nexus was last foreground/background
      */
@@ -66,6 +69,13 @@ object RemotePlaySettingsPref : Krate {
     private const val AUTO_CLOSE_RUNNING_GAME_COUNTDOWN_IN_SEC = "auto_close_running_game_countdown_sec"
 
     private const val COMPUTER_META = "computer_meta"
+    private const val MAX_SESSION_LENGTH_MS = "${NEURON}_max_session_length_ms"
+    private const val TOTAL_SESSION_LENGTH_MS = "${NEURON}_total_session_length_ms"
+    private const val CONNECTION_TERMINATED_UNGRACEFULLY_AT = "${NEURON}_connectionTerminatedUngracefullyAt"
+    private const val KEY_LAST_REVIEW_REQUEST_AT = "${NEURON}_key_last_review_request_at"
+    private const val KEY_LAST_REVIEW_COMPLETED_AT = "${NEURON}_key_last_review_completed_at"
+
+
     private fun getComputerMetaKey(uuid: String) = "${COMPUTER_META}_${uuid}"
 
     override val sharedPreferences: SharedPreferences by lazy {
@@ -78,8 +88,9 @@ object RemotePlaySettingsPref : Krate {
     var isTosAccepted by booleanPref(NEURON_TOS_ACCEPTED).withDefault(false)
     var isOobeCompleted by booleanPref(KEY_IS_NEURON_OOBE_COMPLETED).withDefault(false)
 
-    var isUseDefaultResolution by booleanPref(KEY_IS_USE_DEFAULT_RESOLUTION).withDefault(false)
-
+    var isUseFallbackResolution by booleanPref(KEY_IS_USE_FALLBACK_RESOLUTION).withDefault(false)
+    var fallbackResolution by stringPref(KEY_FALLBACK_RESOLUTION)
+    
     private var manuallyUnpairedRaw by stringPref(MANUALLY_UNPAIRED)
 
     private var lastSessionStatsJson by stringPref(LAST_SESSION_STATS_JSON)
@@ -132,12 +143,17 @@ object RemotePlaySettingsPref : Krate {
         set(value) {
             displayModeRaw = value.displayModeName
         }
-    
+
     val isLimitRefreshRate by booleanPref(REDUCE_REFRESH_RATE_PREF_STRING).withDefault(false)
+    var maxSessionLengthMs by longPref(MAX_SESSION_LENGTH_MS).withDefault(0L)
+    var totalSessionLengthMs by longPref(TOTAL_SESSION_LENGTH_MS).withDefault(0L)
+    var connectionTerminatedUngracefullyAt by longPref(CONNECTION_TERMINATED_UNGRACEFULLY_AT)
+    var lastRequestReviewLaunchedAt by longPref(KEY_LAST_REVIEW_REQUEST_AT).withDefault(0L)
+    var lastRequestReviewCompletedAt by longPref(KEY_LAST_REVIEW_COMPLETED_AT).withDefault(0L)
 
     fun getComputerMeta(uuid: String): ComputerMeta? {
         val computerMetaJsonString = sharedPreferences.getString(getComputerMetaKey(uuid), "{}") ?: return null
-        Timber.v("getComputerMeta ${computerMetaJsonString}")
+        Timber.vv("getComputerMeta ${computerMetaJsonString}")
         return ComputerMeta.fromJson(computerMetaJsonString)
     }
 

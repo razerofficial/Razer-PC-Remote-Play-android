@@ -741,6 +741,11 @@ public class MediaCodecHelper {
         return isDecoderInList(whitelistedHevcDecoders, decoderInfo.getName());
     }
 
+    /**
+     * This function ALWAYS return false !!!
+     * @param decoderInfo
+     * @return
+     */
     public static boolean isDecoderWhitelistedForAv1(MediaCodecInfo decoderInfo) {
         // Google didn't have official support for AV1 (or more importantly, a CTS test) until
         // Android 10, so don't use any decoder before then.

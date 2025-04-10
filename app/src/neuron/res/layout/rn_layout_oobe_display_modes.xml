@@ -16,6 +16,7 @@
 
 
     <ImageView
+        android:importantForAccessibility="no"
         android:id="@+id/iv_left_image"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -29,7 +30,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <ScrollView
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/margin_14x"
@@ -38,80 +39,84 @@
         app:layout_constraintStart_toEndOf="@+id/mid_line"
         app:layout_constraintTop_toTopOf="parent">
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            android:layout_height="wrap_content">
 
-            <TextView
-                android:id="@+id/tv_display_mode_title"
-                style="@style/RnOobeTextOnBackground"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:autoSizeMinTextSize="16sp"
-                android:autoSizeTextType="uniform"
-                android:ellipsize="end"
-                android:fontFamily="@string/sans_serif_bold"
-                android:maxLines="2"
-                android:text="@string/rn_display_mode_title"
-                android:textSize="@dimen/m3_sys_item_title_textsize"
-                android:textStyle="bold" />
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
-            <HorizontalScrollView
-                android:defaultFocusHighlightEnabled="false"
-                android:background="@drawable/bg_transparent"
-                android:scrollbarThumbHorizontal="@null"
-                android:layout_marginTop="@dimen/margin_1x"
-                android:layout_marginBottom="@dimen/margin_1x"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/tv_display_mode_title"
+                    style="@style/RnOobeTextOnBackground"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:autoSizeMinTextSize="16sp"
+                    android:autoSizeTextType="uniform"
+                    android:ellipsize="end"
+                    android:fontFamily="@string/sans_serif_bold"
+                    android:maxLines="2"
+                    android:text="@string/rn_display_mode_title"
+                    android:textSize="@dimen/m3_sys_item_title_textsize"
+                    android:textStyle="bold" />
 
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal">
-                    <com.razer.neuron.common.ImageRadioButton
-                        android:layout_marginEnd="@dimen/margin_3x"
-                        android:id="@+id/irb_phone_only"
+                <HorizontalScrollView
+                    android:defaultFocusHighlightEnabled="false"
+                    android:background="@drawable/bg_transparent"
+                    android:scrollbarThumbHorizontal="@null"
+                    android:layout_marginTop="@dimen/margin_1x"
+                    android:layout_marginBottom="@dimen/margin_1x"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal">
+                        <com.razer.neuron.common.ImageRadioButton
+                            android:layout_marginEnd="@dimen/margin_3x"
+                            android:id="@+id/irb_phone_only"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
 
-                    <com.razer.neuron.common.ImageRadioButton
-                        android:layout_marginEnd="@dimen/margin_3x"
-                        android:id="@+id/irb_duplicate_screen"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
+                        <com.razer.neuron.common.ImageRadioButton
+                            android:layout_marginEnd="@dimen/margin_3x"
+                            android:id="@+id/irb_duplicate_screen"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
 
-                    <com.razer.neuron.common.ImageRadioButton
-                        android:layout_marginEnd="@dimen/margin_3x"
-                        android:id="@+id/irb_separate_screen"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
-
-
-                </LinearLayout>
-
-            </HorizontalScrollView>
+                        <com.razer.neuron.common.ImageRadioButton
+                            android:layout_marginEnd="@dimen/margin_3x"
+                            android:id="@+id/irb_separate_screen"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
 
 
-            <TextView
-                android:id="@+id/tv_display_mode_footer"
-                style="@style/RnOobeTextOnBackground"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="75dp"
-                android:ellipsize="end"
-                android:fontFamily="@string/sans_serif_regular"
-                android:lines="6"
-                android:text="@string/placeholder_paragraph_long"
-                android:textSize="12sp" />
+                    </LinearLayout>
 
-        </LinearLayout>
-    </androidx.constraintlayout.widget.ConstraintLayout>
+                </HorizontalScrollView>
 
+
+                <TextView
+                    android:id="@+id/tv_display_mode_footer"
+                    style="@style/RnOobeTextOnBackground"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="75dp"
+                    android:ellipsize="end"
+                    android:fontFamily="@string/sans_serif_regular"
+                    android:lines="6"
+                    android:text="@string/placeholder_paragraph_long"
+                    android:textSize="12sp" />
+
+            </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

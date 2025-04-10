@@ -27,5 +27,7 @@
     </style>
     <style name="RnSlider" parent="Widget.Material3.Slider">
         <item name="android:minHeight">40dp</item>
+        <item name="android:progressTint">?attr/colorPrimary</item>
+        <item name="android:thumbTint">?attr/colorPrimary</item>
     </style>
 </resources>
