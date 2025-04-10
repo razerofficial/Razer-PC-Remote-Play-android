@@ -4,9 +4,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.limelight.preferences.PreferenceConfiguration.FormatOption
 import com.razer.neuron.RnApp.Companion.appContext
 import com.razer.neuron.di.IoDispatcher
 import com.razer.neuron.di.UnexpectedExceptionHandler
+import com.razer.neuron.extensions.FormatOptionMeta
 import com.razer.neuron.model.DisplayModeOption
 import com.razer.neuron.model.FramePacingOption
 import com.razer.neuron.model.TouchScreenOption
@@ -18,6 +20,8 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import kotlin.math.max
+import kotlin.math.min
 
 @HiltViewModel
 class RnRemotePlayViewModel
@@ -81,6 +85,11 @@ class RnRemotePlayViewModel
         _autoCloseGameCountDownLiveData
     }
 
+    private val _videoFormatOptionLiveData = MutableLiveData(remotePlaySettingsManager.getVideoFormatOption())
+    val videoFormatOptionLiveData: LiveData<FormatOption> by lazy {
+        _videoFormatOptionLiveData
+    }
+
 
     init {
         reinitLiveData()
@@ -98,6 +107,7 @@ class RnRemotePlayViewModel
             _touchScreenOptionLiveData.value = remotePlaySettingsManager.getTouchScreenOption()
             _gameOptimizationLiveData.value = remotePlaySettingsManager.getGameOptimization()
             _autoCloseGameCountDownLiveData.value = remotePlaySettingsManager.getAutoCloseGameCountDown()
+            _videoFormatOptionLiveData.value = remotePlaySettingsManager.getVideoFormatOption()
         }
     }
 
@@ -132,8 +142,9 @@ class RnRemotePlayViewModel
 
     fun setBitrateSettings(rate: Int) {
         viewModelScope.launch {
-            remotePlaySettingsManager.setBitrateSettings(rate)
-            _bitrateSettingsLiveData.value = BitrateRateSettings(500, 150000, rate)
+            val default = BitrateRateSettings.default
+            remotePlaySettingsManager.setBitrateSettings(rate.coerceIn(default.min, default.max))
+            _bitrateSettingsLiveData.value = BitrateRateSettings.default.copy(rate = rate)
         }
     }
 
@@ -181,6 +192,14 @@ class RnRemotePlayViewModel
         viewModelScope.launch {
             remotePlaySettingsManager.setAutoCloseGameCountDown(value)
             _autoCloseGameCountDownLiveData.value = value
+        }
+    }
+
+
+    fun setVideoFormatOption(videoFormatOption: FormatOption) {
+        viewModelScope.launch {
+            remotePlaySettingsManager.setVideoFormatOption(videoFormatOption)
+            _videoFormatOptionLiveData.value = videoFormatOption
         }
     }
 

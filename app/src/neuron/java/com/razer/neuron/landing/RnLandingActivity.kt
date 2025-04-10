@@ -1,13 +1,11 @@
 package com.razer.neuron.landing
 
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.Handler
-import android.os.IBinder
 import android.os.Looper
+import android.os.Parcelable
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.Menu
@@ -21,54 +19,75 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.limelight.R
-import com.limelight.computers.ComputerManagerListener
-import com.limelight.computers.ComputerManagerListener2
-import com.limelight.computers.ComputerManagerService
 import com.limelight.databinding.RnActivityLandingBinding
 import com.limelight.nvstream.http.ComputerDetails
 import com.razer.neuron.common.BaseControllerActivity
+import com.razer.neuron.common.ComputerServiceHelper
 import com.razer.neuron.common.materialAlertDialogTheme
 import com.razer.neuron.common.toast
 import com.razer.neuron.di.IoDispatcher
 import com.razer.neuron.extensions.dismissSafely
 import com.razer.neuron.extensions.getUserFacingMessage
 import com.razer.neuron.extensions.gone
-import com.razer.neuron.extensions.setDescendantsUnfocusableUntilLayout
 import com.razer.neuron.extensions.hasGenericController
+import com.razer.neuron.extensions.setDescendantsUnfocusableUntilLayout
 import com.razer.neuron.extensions.visible
 import com.razer.neuron.extensions.visibleIf
+import com.razer.neuron.extensions.vv
 import com.razer.neuron.model.ButtonHint
 import com.razer.neuron.model.ControllerInput
+import com.razer.neuron.model.DynamicThemeActivity
 import com.razer.neuron.oobe.ButtonHintsBarHelper
 import com.razer.neuron.settings.RnSettingsActivity
 import com.razer.neuron.settings.devices.DeviceAction
 import com.razer.neuron.settings.devices.RnDevicesViewModel
 import com.razer.neuron.settings.manualpairing.RnManualPairingActivity
+import com.razer.neuron.startgame.RnStartGameView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import java.io.FileNotFoundException
-import java.net.UnknownHostException
 import javax.inject.Inject
 
 
 @AndroidEntryPoint
-class RnLandingActivity : BaseControllerActivity(), LandingItemAdapter.Listener, ButtonHintsBarHelper {
+class RnLandingActivity : BaseControllerActivity(), LandingItemAdapter.Listener, ButtonHintsBarHelper, RnStartGameView, DynamicThemeActivity {
+    override fun getThemeId() = appThemeType.settingsThemeId
 
     companion object {
-        fun createIntent(context: Context) = Intent(context, RnLandingActivity::class.java)
+        /**
+         * If included the next [RnLandingActivity.onCreate] will start [RnSettingsActivity]
+         */
+        const val EXTRA_START_SETTINGS = "EXTRA_START_SETTINGS"
+
+        fun createIntent(context: Context, startSettings : Boolean = false) = Intent(context, RnLandingActivity::class.java).apply {
+            putExtra(EXTRA_START_SETTINGS, startSettings)
+        }
     }
+
+    private val computerServiceHelper by lazy {
+        object : ComputerServiceHelper() {
+            override val computerServiceActivity = this@RnLandingActivity
+            override fun onBeforeStartComputerUpdates() = viewModel.onBeforeStartComputerUpdates()
+            override fun onComputerDetailsRemoved(fromNeuron: Boolean, details: ComputerDetails) = viewModel.onComputerDetailsRemoved(fromNeuron, details)
+            override fun onComputerDetailsUpdated(fromNeuron: Boolean, details: ComputerDetails?) = viewModel.onComputerDetailsUpdated(fromNeuron, details)
+        }
+    }
+    private val managerBinder get() = computerServiceHelper.managerBinder
 
     private lateinit var binding: RnActivityLandingBinding
 
     private val viewModel: RnLandingViewModel by viewModels()
+    override var alertDialog: AlertDialog? = null
+    override val sessionViewModel get() = viewModel
+    override val sessionLifecycleScope get() = lifecycleScope
+    override val activity get() = this
+    override fun finishFromStartStream() {
+        super.finishFromStartStream()
+    }
 
-    private var managerBinder: ComputerManagerService.ComputerManagerBinder? = null
-    private var freezeUpdates = false
-    private var runningPolling = false
-    private var inForeground = false
+    private var listState: Parcelable? = null
 
     @Inject
     @IoDispatcher
@@ -83,22 +102,6 @@ class RnLandingActivity : BaseControllerActivity(), LandingItemAdapter.Listener,
     }
 
     override val buttonHintsBar by lazy { binding.buttonHintsBar }
-
-    private val serviceConnection: ServiceConnection = object : ServiceConnection {
-        override fun onServiceConnected(className: ComponentName, binder: IBinder) {
-            val localBinder = binder as ComputerManagerService.ComputerManagerBinder
-            Thread {
-                localBinder.waitForReady()
-                managerBinder = localBinder
-                startComputerUpdates()
-            }.start()
-        }
-
-        override fun onServiceDisconnected(className: ComponentName) {
-            managerBinder = null
-        }
-    }
-
 
 
     private val rv by lazy {
@@ -115,17 +118,28 @@ class RnLandingActivity : BaseControllerActivity(), LandingItemAdapter.Listener,
 
     private val adapter get() = rv.adapter as LandingItemAdapter
 
+    private var isStartSettings : Boolean
+        get() = intent.getBooleanExtra(EXTRA_START_SETTINGS, false)
+        set(value) {
+            intent.putExtra(EXTRA_START_SETTINGS, value)
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = RnActivityLandingBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setupTopToolBar()
-        bindComputerService()
+        computerServiceHelper.onCreate()
         observe()
         viewModel.onViewCreated()
+        if(isStartSettings) {
+            isStartSettings = false
+            startActivity(RnSettingsActivity.createIntent(this))
+        }
+        setReviewAllowed(true)
     }
 
-    override fun dispatchKeyEvent(event: KeyEvent?): Boolean {
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         val controllerInput = ControllerInput.entries.firstOrNull { it.keyCode == event?.keyCode }
         return if(controllerInput != null) {
             viewModel.onControllerInput(controllerInput, event?.action == KeyEvent.ACTION_UP)
@@ -163,9 +177,6 @@ class RnLandingActivity : BaseControllerActivity(), LandingItemAdapter.Listener,
         binding.topToolBar.setDescendantsUnfocusableUntilLayout()
     }
 
-    private fun bindComputerService() {
-        bindService(Intent(baseContext, ComputerManagerService::class.java), serviceConnection, BIND_AUTO_CREATE)
-    }
 
     private fun startPairing(details: ComputerDetails) {
         val managerBinder = managerBinder
@@ -187,15 +198,7 @@ class RnLandingActivity : BaseControllerActivity(), LandingItemAdapter.Listener,
         }
     }
 
-    private fun startComputerUpdates() {
-        if (!runningPolling && inForeground) {
-            freezeUpdates = false
-            val managerBinder = managerBinder
-            if (managerBinder != null) {
-                viewModel.onBeforeStartComputerUpdates()
-            }
-        }
-    }
+
 
     /**
      * Need to update the [ComputerDetails] data in the [managerBinder], after [ComputerDetails] is updated.
@@ -206,17 +209,7 @@ class RnLandingActivity : BaseControllerActivity(), LandingItemAdapter.Listener,
         managerBinder.invalidateStateForComputer(computerDetails.uuid)
     }
 
-    private fun stopComputerUpdates(wait: Boolean) {
-        if (!runningPolling) {
-            return
-        }
-        freezeUpdates = true
-        managerBinder?.stopPolling()
-        if (wait) {
-            managerBinder?.waitForPollingStopped()
-        }
-        runningPolling = false
-    }
+
 
     private var pinCodeDialog : AlertDialog? = null
 
@@ -240,7 +233,7 @@ class RnLandingActivity : BaseControllerActivity(), LandingItemAdapter.Listener,
     private fun observe() {
         lifecycleScope.launch {
             viewModel.viewSharedFlow.collect {
-                Timber.v("observe: viewStateFlow: ${it.javaClass.simpleName}")
+                Timber.vv("observe: viewStateFlow: ${it.javaClass.simpleName}")
                 when (it) {
                     is LandingState.StartComputerUpdates -> it.handle()
                     is LandingState.StopComputerUpdates -> it.handle()
@@ -271,30 +264,10 @@ class RnLandingActivity : BaseControllerActivity(), LandingItemAdapter.Listener,
                 }
             }
         }
+        observeSessionViewModel()
     }
 
-    private fun LandingState.StartComputerPolling.handle() {
-        managerBinder?.let {
-            it.restartPolling(object : ComputerManagerListener2 {
-                override fun notifyComputerUpdated(details: ComputerDetails?) {
-                    if (!freezeUpdates) {
-                        runOnUiThread {
-                            viewModel.onComputerDetailsUpdated(fromNeuron = false, details)
-                        }
-                    }
-                }
-
-                override fun notifyComputerRemoved(details: ComputerDetails) {
-                    if (!freezeUpdates) {
-                        runOnUiThread {
-                            viewModel.onComputerDetailsRemoved(fromNeuron = false, details)
-                        }
-                    }
-                }
-            })
-            runningPolling = true
-        }
-    }
+    private fun LandingState.StartComputerPolling.handle() = computerServiceHelper.startComputerPolling()
 
     private fun LandingState.InvalidateComputer.handle() {
         lifecycleScope.launch {
@@ -329,13 +302,15 @@ class RnLandingActivity : BaseControllerActivity(), LandingItemAdapter.Listener,
         }
     }
 
-    private fun LandingState.StartComputerUpdates.handle() = startComputerUpdates()
+    private fun LandingState.StartComputerUpdates.handle() = computerServiceHelper.startComputerUpdates()
 
-    private fun LandingState.StopComputerUpdates.handle() = stopComputerUpdates(wait)
+    private fun LandingState.StopComputerUpdates.handle() = computerServiceHelper.stopComputerUpdates(wait)
 
     private fun LandingState.ShowContent.handle() {
-        Timber.v("ShowContent: size=${this.items.size} ${items.joinToString { it.toString() }}")
-        adapter.submitList(items, rv)
+        Timber.vv("ShowContent: size=${this.items.size} ${items.joinToString { it.toString() }}")
+        adapter.submitList(items, rv) {
+            restoreLastListState()
+        }
     }
 
 
@@ -358,7 +333,7 @@ class RnLandingActivity : BaseControllerActivity(), LandingItemAdapter.Listener,
     }
 
     private fun LandingState.ShowLoading.handle() {
-        binding.loadingLayoutContainer.visible()
+        showLoading()
         when(tag) {
             RnDevicesViewModel.LOADING_TAG_PAIR -> {
                 tvLoadingTitle.text = getString(R.string.pairing)
@@ -378,9 +353,14 @@ class RnLandingActivity : BaseControllerActivity(), LandingItemAdapter.Listener,
 
     private fun LandingState.HideLoading.handle() = hideLoading()
 
-    private fun hideLoading() {
+    override fun showLoading() {
+        binding.loadingLayoutContainer.visible()
+    }
+
+    override fun hideLoading() {
         binding.loadingLayoutContainer.gone()
     }
+
 
     override fun onButtonHintsBarButtonHintClicked(buttonHint: ButtonHint) {
         viewModel.onButtonHintClicked(buttonHint)
@@ -422,6 +402,15 @@ class RnLandingActivity : BaseControllerActivity(), LandingItemAdapter.Listener,
 
     private fun updateButtonHintsBarVisibility() = buttonHintsBar.visibleIf { hasGenericController() }
 
+    private fun restoreLastListState() {
+        listState?.let {
+            binding.rvLandingItems.postDelayed({
+                binding.rvLandingItems.layoutManager?.onRestoreInstanceState(it)
+                listState = null
+            }, 100)
+        }
+    }
+
     override fun onUsbDeviceAttached() {
         viewModel.refreshFocusItems()
         updateButtonHintsBarVisibility()
@@ -440,22 +429,24 @@ class RnLandingActivity : BaseControllerActivity(), LandingItemAdapter.Listener,
     override fun onDestroy() {
         super.onDestroy()
         pinCodeDialog.dismissSafely()
-        if (managerBinder != null) {
-            unbindService(serviceConnection)
-        }
+        computerServiceHelper.onDestroy()
     }
 
     override fun onResume() {
         super.onResume()
-        inForeground = true
-        startComputerUpdates()
+        computerServiceHelper.onResume()
         updateButtonHintsBarVisibility()
     }
 
     override fun onPause() {
         super.onPause()
-        inForeground = false
-        stopComputerUpdates(false)
+        computerServiceHelper.onPause()
+        listState = binding.rvLandingItems.layoutManager?.onSaveInstanceState()
+    }
+
+    override fun startGame(gameIntent: Intent) {
+        hideLoading()
+        super.startGame(gameIntent)
     }
 
 }

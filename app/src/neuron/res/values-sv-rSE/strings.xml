@@ -70,11 +70,10 @@
     <string name="rn_all_computers">Alla datorer</string>
     <string name="rn_settings_computers">Datorer</string>
     <string name="rn_add">Lägg till</string>
-    <string name="rn_hint_input_pc_ip_address">Ange datorns IP-adress</string>
+    <string name="rn_hint_input_pc_ip_address">IP-adress</string>
     <string name="rn_discovery_state_pc_online">Tillgängligt</string>
     <string name="rn_pair">Parkoppla</string>
     <string name="rn_paired_computers">Parkopplade datorer</string>
-    <string name="rn_manual_pairing_loading_content">Kontrollera att &hostlabel; körs på samma nätverk.</string>
     <string name="rn_nexus_content_provider_permission_name">Parkopplar</string>
     <string name="rn_pin_code_subtitle">PIN-kod:</string>
     <string name="rn_pin_code_title">Skriv in på den strömmande datorn\n%1$s</string>
@@ -144,7 +143,18 @@
     <string name="rn_add_computer_manually">Lägg till dator manuellt</string>
     <string name="rn_remote_play_settings_localized">PC-fjärrspel</string>
     <string name="rn_setting_neuron_video_settings">Videoinställningar</string>
-    <string name="rn_pairing_hint">Kontrollera att &hostlabel; körs på samma nätverk.</string>
+    <string name="rn_pairing_hint">Se till att &hostlabel; körs.</string>
+    <string name="rn_setting_neuron_video_format_title">Videokodek</string>
+    <string name="rn_setting_neuron_video_format_subtitle">Ange videokodeken som används för streaming.</string>
+    <string name="rn_video_format_auto">Automatisk</string>
+    <string name="rn_prompt_quit_existing_session_title">Streaming-session pågår</string>
+    <string name="rn_prompt_quit_existing_session_msg"><![CDATA[<b>%1$s</b> streamar redan på <b>%2$s</b>. Vill du ersätta den aktuella sessionen? All osparad data kommer att gå förlorad.]]></string>
+    <string name="rn_replace">Ersätt</string>
+    <string name="rn_reconnecting_to_x">Återansluter till %1$s \u2026</string>
+    <string name="rn_tap_to_cancel">Tryck för att avbryta</string>
+    <string name="rn_overlay_title">PC-tangenter</string>
+    <string name="rn_warning_missing_address">Saknad IP-adress.</string>
+    <string name="rn_warning_missing_port">Saknad port.</string>
 
     <!-- Failed to start error message, part 2  -->
     <string name="conn_stage_none">ingen</string>
@@ -165,6 +175,13 @@
     <string name="conn_error_code_5032">Misslyckades med att initiera videoinspelning/kodning. Är en skärm ansluten och påslagen?</string>
     <string name="conn_error_code_5033">Ingen aktiv app att återuppta.</string>
     <string name="conn_error_code_5034">Alla sessioner måste kopplas från innan avslutning.</string>
+    <string name="conn_error_code_5037">Värd-PC:n kunde inte starta videoenkodaren. Se till att dina GPU- och CPU-drivrutiner är uppdaterade.</string>
+    <string name="conn_error_code_5038">Videoenkodaren misslyckades med att starta. Försök med en annan videokodek eller starta om värd-PC:n.</string>
+    <string name="conn_error_code_5039"><![CDATA[Ingen bildskärm hittades ansluten till din PC. Se till att din bildskärm är påslagen eller ändra visningsläge till <b>Endast telefon</b>.]]></string>
+    <string name="conn_error_code_5040">Razer Virtual Display laddades inte korrekt. Starta om din värd-PC.</string>
 
     <string name="open_source_notice">Meddelande om programvara med öppen källkod</string>
+    <string name="rn_fallback_display_mode_and_video_res_msg"><![CDATA[<br/><br/>Inställningen <b>Visningsläge</b> har återställts till <b>Duplicerad datorskärm</b> och 720p, så försök igen senare.]]></string>
+    <string name="rn_fallback_video_res_msg"><![CDATA[<br/><br/>Videoupplösningen har ändrats till 720p, så försök igen senare.]]></string>
+    <string name="rn_hint_input_pc_port">Port</string>
 </resources>

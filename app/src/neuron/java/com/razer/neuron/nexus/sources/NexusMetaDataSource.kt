@@ -14,7 +14,7 @@ import timber.log.Timber
 import java.io.File
 
 class NexusMetaDataSource : NexusContentSource {
-    override val path get() = SharedConstants.META_DATA
+    override val path get() = SharedConstants.NEXUS_META_DATA
     private val uriPath get() = SharedConstants.baseNexusUri.buildUpon().appendPath(path).build()
 
     private fun getIntValue(context: Context, key: String): Int? {

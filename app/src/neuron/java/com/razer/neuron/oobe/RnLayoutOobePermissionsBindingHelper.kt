@@ -28,7 +28,7 @@ interface RnLayoutOobePermissionsBindingHelper {
      */
     fun updateMockSystemPermissionDialogVisual() {
         val binding = layoutPermissionBinding
-        binding.mockPermissionDialog.mockSystemPermissionDialog.setBackgroundResource(
+        binding.mockSystemPermissionDialog.setBackgroundResource(
             if (context.isSystemInDarkMode()) R.drawable.mock_system_permission_dialog_night else R.drawable.mock_system_permission_dialog_light
         )
     }
@@ -47,7 +47,7 @@ interface RnLayoutOobePermissionsBindingHelper {
             val v = allOobePermissionViews.removeFirstOrNull() ?: break
             v.visible()
             val isFakeFocus = oobePermission == focusPermission
-            v.setOobePermission(oobePermission, if (isFakeFocus) focusPermissionHint else null)
+            v.setOobePermission(oobePermission)
             if (isFakeFocus) {
                 v.checkSelfAndUncheckSiblings()
             } else {
@@ -58,8 +58,7 @@ interface RnLayoutOobePermissionsBindingHelper {
 
 
     private fun OobePermissionView.setOobePermission(
-        oobePermission: OobePermission,
-        buttonHint: ButtonHint?
+        oobePermission: OobePermission
     ) {
         val (name, desc) = oobePermission.toDisplayNameAndDesc()
         this.title.text = name
@@ -70,20 +69,7 @@ interface RnLayoutOobePermissionsBindingHelper {
         } else {
             this.checkedIcon.gone()
         }
-
-        if (buttonHint == null) {
-            this.btnAllow.invisible()
-            this.btnAllow.setOnClickListener(null)
-        } else {
-            this.btnAllow.text = buttonHint.appAction.toButtonText()
-            this.btnAllow.visible()
-            this.btnAllow.setOnClickListener {
-                onPermissionButtonHintClicked(buttonHint = buttonHint)
-            }
-        }
     }
-
-    fun onPermissionButtonHintClicked(buttonHint: ButtonHint)
 
 
     private fun OobePermission.toDisplayNameAndDesc() = when (this) {

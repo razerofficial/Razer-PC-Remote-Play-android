@@ -71,11 +71,10 @@
     <string name="rn_all_computers">すべてのコンピューター</string>
     <string name="rn_settings_computers">コンピューター</string>
     <string name="rn_add">追加</string>
-    <string name="rn_hint_input_pc_ip_address">PC の IP アドレスを入力</string>
+    <string name="rn_hint_input_pc_ip_address">IP アドレス</string>
     <string name="rn_discovery_state_pc_online">利用可能</string>
     <string name="rn_pair">ペアリング</string>
     <string name="rn_paired_computers">ペアリング済みコンピューター</string>
-    <string name="rn_manual_pairing_loading_content">&hostlabel; が同じネットワーク上で実行していることを確認してください。</string>
     <string name="rn_nexus_content_provider_permission_name">ペアリング中</string>
     <string name="rn_pin_code_subtitle">PIN コード</string>
     <string name="rn_pin_code_title">ストリーミング PC で入力\n%1$s</string>
@@ -145,7 +144,18 @@
     <string name="rn_add_computer_manually">PC を手動で追加</string>
     <string name="rn_remote_play_settings_localized">PC リモートプレイ</string>
     <string name="rn_setting_neuron_video_settings">ビデオ設定</string>
-    <string name="rn_pairing_hint">&hostlabel; が同じネットワーク上で実行していることを確認してください。</string>
+    <string name="rn_pairing_hint">&hostlabel; が実行中であることを確認してください。</string>
+    <string name="rn_setting_neuron_video_format_title">ビデオコーデック</string>
+    <string name="rn_setting_neuron_video_format_subtitle">ストリーミングに使用するビデオコーデックを指定してください。</string>
+    <string name="rn_video_format_auto">自動</string>
+    <string name="rn_prompt_quit_existing_session_title">ストリーミングセッションが進行中</string>
+    <string name="rn_prompt_quit_existing_session_msg"><![CDATA[<b>%1$s</b> はすでに <b>%2$s</b> でストリーミングしています。現在のセッションを置き換えますか？ 保存されていないデータは失われます。]]></string>
+    <string name="rn_replace">置き換える</string>
+    <string name="rn_reconnecting_to_x">%1$s に再接続中 \u2026</string>
+    <string name="rn_tap_to_cancel">タップしてキャンセル</string>
+    <string name="rn_overlay_title">PCキー</string>
+    <string name="rn_warning_missing_address">IPアドレスがありません。</string>
+    <string name="rn_warning_missing_port">ポートがありません。</string>
 
     <!-- Failed to start error message, part 1  -->
     <string name="failed_to_start_msg_with_param">開始できません%1$s。</string>
@@ -169,6 +179,14 @@
     <string name="conn_error_code_5032">ビデオキャプチャ/エンコーディングの初期化に失敗しました。ディスプレイが接続され、オンになっていますか?</string>
     <string name="conn_error_code_5033">再開する実行中のアプリがありません。</string>
     <string name="conn_error_code_5034">終了する前にすべてのセッションを切断する必要があります。</string>
+    <string name="conn_error_code_5037">ホストPCはビデオエンコーダーを起動できませんでした。GPUおよびCPUのドライバーが最新であることを確認してください。</string>
+    <string name="conn_error_code_5038">ビデオエンコーダーの起動に失敗しました。別のビデオコーデックを試すか、ホストPCを再起動してください。</string>
+    <string name="conn_error_code_5039"><![CDATA[お使いのPCに接続されたディスプレイが見つかりませんでした。モニターの電源が入っていることを確認するか、表示モードを<b>電話のみ</b>に変更してください。]]></string>
+    <string name="conn_error_code_5040">Razer仮想ディスプレイが正しく読み込まれませんでした。ホストPCを再起動してください。</string>
 
     <string name="open_source_notice">オープンソースソフトウェア通知</string>
+
+    <string name="rn_fallback_display_mode_and_video_res_msg"><![CDATA[<br/><br/>設定の<b>表示モード</b>が<b>PC ディスプレイを複製</b>と720pに戻されました。後ほど再度お試しください。]]></string>
+    <string name="rn_fallback_video_res_msg"><![CDATA[<br/><br/>ビデオ解像度が720pに変更されました。後ほど再度お試しください。]]></string>
+    <string name="rn_hint_input_pc_port">ポート</string>
 </resources>

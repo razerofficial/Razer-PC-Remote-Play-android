@@ -1,0 +1,66 @@
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout"
+    tools:theme="@style/AppTheme">
+    
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/ddbv_clickable_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:duplicateParentState="true"
+        app:cardBackgroundColor="?attr/colorPrimaryContainer"
+        app:cardCornerRadius="@dimen/m3_button_dropdown_radius"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:strokeColor="@color/transparent"
+        app:strokeWidth="0dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:paddingVertical="@dimen/m3_button_dropdown_vertical_padding"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingStart="@dimen/m3_button_dropdown_start_padding"
+            android:paddingEnd="@dimen/m3_button_dropdown_end_padding">
+
+            <TextView
+                android:id="@+id/ddbv_tv_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/margin_1x"
+                android:duplicateParentState="true"
+                android:ellipsize="end"
+                android:gravity="start|center_vertical"
+                android:includeFontPadding="false"
+                android:lines="1"
+                android:textSize="@dimen/m3_button_dropdown_text_size"
+                android:textAppearance="@style/TextAppearance.Material3.Item.Subtitle"
+                android:textColor="?attr/colorOnPrimaryContainer"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/ddbv_iv_icon"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="@string/placeholder_short" />
+
+            <ImageView
+                android:importantForAccessibility="no"
+                android:id="@+id/ddbv_iv_icon"
+                android:layout_width="@dimen/m3_button_dropdown_icon_size"
+                android:layout_height="@dimen/m3_button_dropdown_icon_size"
+                android:duplicateParentState="true"
+                android:src="@drawable/ic_keyboard_arrow_down"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="?attr/colorOnPrimaryContainer" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+</merge>
+
+

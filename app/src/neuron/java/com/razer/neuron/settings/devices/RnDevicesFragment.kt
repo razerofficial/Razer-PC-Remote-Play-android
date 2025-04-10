@@ -1,17 +1,14 @@
 package com.razer.neuron.settings.devices
 
+
 import android.app.Activity
-import android.content.ComponentName
-import android.content.Intent
-import android.content.ServiceConnection
 import android.os.Bundle
-import android.os.IBinder
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.activity.ComponentActivity
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
@@ -20,51 +17,61 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.limelight.R
-import com.limelight.computers.ComputerManagerListener
-import com.limelight.computers.ComputerManagerListener2
-import com.limelight.computers.ComputerManagerService
 import com.limelight.databinding.RnFragmentDevicesBinding
 import com.limelight.nvstream.http.ComputerDetails
-import timber.log.Timber
+import com.razer.neuron.common.ComputerServiceHelper
+import com.razer.neuron.common.RnThemeManager
 import com.razer.neuron.common.debugToast
 import com.razer.neuron.common.materialAlertDialogTheme
 import com.razer.neuron.common.showSingleChoiceItemsDialog
 import com.razer.neuron.common.toast
-
-
 import com.razer.neuron.di.IoDispatcher
 import com.razer.neuron.extensions.dismissSafely
 import com.razer.neuron.extensions.getUserFacingMessage
 import com.razer.neuron.extensions.gone
 import com.razer.neuron.extensions.visible
+import com.razer.neuron.extensions.vv
 import com.razer.neuron.model.AppThemeType
-import com.razer.neuron.restartApp
 import com.razer.neuron.settings.manualpairing.RnManualPairingActivity
+import com.razer.neuron.startgame.RnStartGameView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.FileNotFoundException
-import java.net.UnknownHostException
+import timber.log.Timber
 import javax.inject.Inject
 
 
 @AndroidEntryPoint
-class RnDevicesFragment : Fragment(), DeviceItemAdapter.Listener {
+class RnDevicesFragment : Fragment(), DeviceItemAdapter.Listener, RnStartGameView {
 
     private lateinit var binding: RnFragmentDevicesBinding
 
     private val viewModel: RnDevicesViewModel by activityViewModels()
 
-    private var managerBinder: ComputerManagerService.ComputerManagerBinder? = null
-    private var freezeUpdates = false
-    private var runningPolling = false
-    private var inForeground = false
+    private val computerServiceHelper by lazy {
+        object : ComputerServiceHelper() {
+            override val computerServiceActivity = this@RnDevicesFragment.activity as? ComponentActivity
+            override fun onBeforeStartComputerUpdates() = viewModel.onBeforeStartComputerUpdates()
+            override fun onComputerDetailsRemoved(fromNeuron: Boolean, details: ComputerDetails) = viewModel.onComputerDetailsRemoved(fromNeuron, details)
+            override fun onComputerDetailsUpdated(fromNeuron: Boolean, details: ComputerDetails?) = viewModel.onComputerDetailsUpdated(fromNeuron, details)
+        }
+    }
+    private val managerBinder get() = computerServiceHelper.managerBinder
+
 
     @Inject
     @IoDispatcher
     lateinit var ioDispatcher : CoroutineDispatcher
+
+    override var alertDialog: AlertDialog? = null
+    override val sessionViewModel get() = viewModel
+    override val sessionLifecycleScope get() = lifecycleScope
+    override val activity : Activity? get() = getActivity()
+
+    override fun finishFromStartStream() {
+        super.finishFromStartStream()
+    }
 
     private val tvLoadingTitle by lazy {
         binding.loadingLayoutContainer.findViewById<TextView>(R.id.tv_loading_title)
@@ -74,21 +81,6 @@ class RnDevicesFragment : Fragment(), DeviceItemAdapter.Listener {
         binding.loadingLayoutContainer.findViewById<TextView>(R.id.tv_loading_subtitle)
     }
 
-
-    private val serviceConnection: ServiceConnection = object : ServiceConnection {
-        override fun onServiceConnected(className: ComponentName, binder: IBinder) {
-            val localBinder = binder as ComputerManagerService.ComputerManagerBinder
-            Thread {
-                localBinder.waitForReady()
-                managerBinder = localBinder
-                startComputerUpdates()
-            }.start()
-        }
-
-        override fun onServiceDisconnected(className: ComponentName) {
-            managerBinder = null
-        }
-    }
 
     private val rv by lazy {
         binding.rvComputerItems.apply {
@@ -116,7 +108,7 @@ class RnDevicesFragment : Fragment(), DeviceItemAdapter.Listener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        bindComputerService()
+        computerServiceHelper.onCreate()
         observe()
         viewModel.onViewCreated()
     }
@@ -124,7 +116,7 @@ class RnDevicesFragment : Fragment(), DeviceItemAdapter.Listener {
     private fun observe() {
         lifecycleScope.launch {
             viewModel.viewSharedFlow.collect {
-                Timber.v("observe: viewStateFlow: ${it.javaClass.simpleName}")
+                Timber.vv("observe: viewStateFlow: ${it.javaClass.simpleName}")
                 when (it) {
                     is DeviceState.StartComputerUpdates -> it.handle()
                     is DeviceState.StopComputerUpdates -> it.handle()
@@ -136,7 +128,7 @@ class RnDevicesFragment : Fragment(), DeviceItemAdapter.Listener {
                     is DeviceState.HideLoading -> it.handle()
                     is DeviceState.ShowMessage -> toast(it.message)
                     is DeviceState.ShowError -> it.handle()
-                    is DeviceState.RestartApp -> it.handle()
+                    is DeviceState.ApplyTheme -> it.handle()
                     is DeviceState.ShowSelectTheme -> it.handle()
                     is DeviceState.StartManualPairing -> it.handle()
                     is DeviceState.StartStreaming -> startActivity(it.intent)
@@ -145,7 +137,7 @@ class RnDevicesFragment : Fragment(), DeviceItemAdapter.Listener {
                 }
             }
         }
-
+        observeSessionViewModel()
     }
     private fun DeviceState.InvalidateComputer.handle() {
         lifecycleScope.launch {
@@ -155,12 +147,12 @@ class RnDevicesFragment : Fragment(), DeviceItemAdapter.Listener {
         }
     }
 
-    private fun DeviceState.StartComputerUpdates.handle() = startComputerUpdates()
+    private fun DeviceState.StartComputerUpdates.handle() = computerServiceHelper.startComputerUpdates()
 
-    private fun DeviceState.StopComputerUpdates.handle() = stopComputerUpdates(wait)
+    private fun DeviceState.StopComputerUpdates.handle() = computerServiceHelper.stopComputerUpdates(wait)
 
     private fun DeviceState.ShowContent.handle() {
-        Timber.v("ShowContent: size=${this.items.size} ${items.joinToString { it.toString() }}")
+        Timber.vv("ShowContent: size=${this.items.size} ${items.joinToString { it.toString() }}")
         adapter.submitList(items)
     }
 
@@ -180,15 +172,12 @@ class RnDevicesFragment : Fragment(), DeviceItemAdapter.Listener {
         }
     }
 
-    private fun DeviceState.RestartApp.handle() {
+    private fun DeviceState.ApplyTheme.handle() {
         val activity = activity ?: return
         binding.loadingLayoutContainer.visible()
         tvLoadingTitle.text = getString(R.string.rn_restarting)
         tvLoadingSubtitle.gone()
-        lifecycleScope.launch {
-            delay(1000)
-            activity.restartApp()
-        }
+        RnThemeManager.maybeRecreateOnThemeChange(activity)
     }
 
 
@@ -219,6 +208,10 @@ class RnDevicesFragment : Fragment(), DeviceItemAdapter.Listener {
     }
 
 
+    override fun showLoading() {
+        binding.loadingLayoutContainer.visible()
+    }
+
 
     private fun DeviceState.ShowLoading.handle() {
         binding.loadingLayoutContainer.visible()
@@ -241,54 +234,13 @@ class RnDevicesFragment : Fragment(), DeviceItemAdapter.Listener {
 
     private fun DeviceState.HideLoading.handle() = hideLoading()
 
-    private fun hideLoading() {
+    override fun hideLoading() {
         binding.loadingLayoutContainer.gone()
     }
 
 
-    private fun startComputerUpdates() {
-        if (!runningPolling && inForeground) {
-            freezeUpdates = false
-            val managerBinder = managerBinder
-            if (managerBinder != null) {
-                viewModel.onBeforeStartComputerUpdates();
-            }
-        }
-    }
+    private fun DeviceState.StartComputerPolling.handle() = computerServiceHelper.startComputerPolling()
 
-
-
-    private fun DeviceState.StartComputerPolling.handle() {
-        managerBinder?.let {
-            it.restartPolling(object : ComputerManagerListener2 {
-                override fun notifyComputerUpdated(details: ComputerDetails?) {
-                    if (!freezeUpdates) {
-                        requireActivity().runOnUiThread {
-                            viewModel.onComputerDetailsUpdated(fromNeuron = false, details)
-                        }
-                    }
-                }
-
-                override fun notifyComputerRemoved(details: ComputerDetails) {
-                    if (!freezeUpdates) {
-                        requireActivity().runOnUiThread {
-                            viewModel.onComputerDetailsRemoved(fromNeuron = false, details)
-                        }
-                    }
-                }
-
-            })
-            runningPolling = true
-        }
-    }
-
-
-    private fun bindComputerService() {
-        requireActivity().bindService(
-            Intent(context, ComputerManagerService::class.java), serviceConnection,
-            AppCompatActivity.BIND_AUTO_CREATE
-        )
-    }
 
     private fun startPairing(details: ComputerDetails) {
         val managerBinder = managerBinder
@@ -338,17 +290,7 @@ class RnDevicesFragment : Fragment(), DeviceItemAdapter.Listener {
         }
     }
 
-    private fun stopComputerUpdates(wait: Boolean) {
-        if (!runningPolling) {
-            return
-        }
-        freezeUpdates = true
-        managerBinder?.stopPolling()
-        if (wait) {
-            managerBinder?.waitForPollingStopped()
-        }
-        runningPolling = false
-    }
+
 
     override fun onComputerActionClicked(computer: ComputerDetails, action: DeviceAction) {
         when (action) {
@@ -382,22 +324,17 @@ class RnDevicesFragment : Fragment(), DeviceItemAdapter.Listener {
     override fun onDestroy() {
         super.onDestroy()
         pinCodeDialog.dismissSafely()
-        if (managerBinder != null) {
-            requireActivity().unbindService(serviceConnection)
-        }
+        computerServiceHelper.onDestroy()
     }
 
     override fun onResume() {
         super.onResume()
-        inForeground = true
-        startComputerUpdates()
-
+        computerServiceHelper.onResume()
     }
 
     override fun onPause() {
         super.onPause()
-        inForeground = false
-        stopComputerUpdates(false)
+        computerServiceHelper.onPause()
     }
 
 }

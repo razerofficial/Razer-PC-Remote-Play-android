@@ -36,22 +36,6 @@
         <item>120</item>
     </string-array>
 
-    <string-array name="auto_close_games_names" translatable="false">
-        <item>@string/auto_close_immediately</item>
-        <item>@string/auto_close_30s</item>
-        <item>@string/auto_close_5min</item>
-        <item>@string/auto_close_never</item>
-    </string-array>
-
-    <integer-array name="auto_close_games_values" translatable="false">
-        <item>0</item>
-        <item>30</item>
-        <item>300</item>
-        <item>-1</item>
-    </integer-array>
-
-
-
     <string-array name="audio_config_names">
         <item>@string/audioconf_stereo</item>
         <item>@string/audioconf_51surround</item>

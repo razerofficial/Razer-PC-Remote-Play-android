@@ -70,11 +70,10 @@
     <string name="rn_all_computers">모든 컴퓨터</string>
     <string name="rn_settings_computers">컴퓨터</string>
     <string name="rn_add">추가</string>
-    <string name="rn_hint_input_pc_ip_address">PC IP 주소 입력</string>
+    <string name="rn_hint_input_pc_ip_address">IP 주소</string>
     <string name="rn_discovery_state_pc_online">이용 가능</string>
     <string name="rn_pair">페어링</string>
     <string name="rn_paired_computers">페어링된 컴퓨터</string>
-    <string name="rn_manual_pairing_loading_content">&hostlabel;가 동일한 네트워크에서 실행 중인지 확인하세요.</string>
     <string name="rn_nexus_content_provider_permission_name">페어링 중</string>
     <string name="rn_pin_code_subtitle">PIN 코드:</string>
     <string name="rn_pin_code_title">스트리밍 PC에서 입력\n%1$s</string>
@@ -144,7 +143,18 @@
     <string name="rn_add_computer_manually">수동으로 PC 추가</string>
     <string name="rn_remote_play_settings_localized">PC 리모트 플레이</string>
     <string name="rn_setting_neuron_video_settings">동영상 설정</string>
-    <string name="rn_pairing_hint">&hostlabel;가 동일한 네트워크에서 실행 중인지 확인하세요.</string>
+    <string name="rn_pairing_hint">&hostlabel;가 실행 중인지 확인하세요.</string>
+    <string name="rn_setting_neuron_video_format_title">비디오 코덱</string>
+    <string name="rn_setting_neuron_video_format_subtitle">스트리밍에 사용되는 비디오 코덱을 지정하세요.</string>
+    <string name="rn_video_format_auto">자동</string>
+    <string name="rn_prompt_quit_existing_session_title">스트리밍 세션 진행 중</string>
+    <string name="rn_prompt_quit_existing_session_msg"><![CDATA[<b>%1$s</b>이(가) 이미 <b>%2$s</b>에서 스트리밍 중입니다. 현재 세션을 교체하시겠습니까? 저장되지 않은 데이터는 모두 손실됩니다.]]></string>
+    <string name="rn_replace">교체</string>
+    <string name="rn_reconnecting_to_x">%1$s에 다시 연결 중 \u2026</string>
+    <string name="rn_tap_to_cancel">탭하여 취소</string>
+    <string name="rn_overlay_title">PC 키</string>
+    <string name="rn_warning_missing_address">IP 주소가 없습니다.</string>
+    <string name="rn_warning_missing_port">포트 없습니다.</string>
 
     <!-- Failed to start error message, part 1  -->
     <string name="failed_to_start_msg_with_param">연결 오류 %1$s.</string>
@@ -168,6 +178,14 @@
     <string name="conn_error_code_5032">비디오 캡처/인코딩을 초기화하지 못했습니다. 디스플레이가 연결되어 있고 켜져 있습니까?</string>
     <string name="conn_error_code_5033">다시 시작할 실행 중인 앱이 없습니다.</string>
     <string name="conn_error_code_5034">종료하기 전에 모든 세션을 연결 해제해야 합니다.</string>
+    <string name="conn_error_code_5037">호스트 PC에서 비디오 인코더를 시작할 수 없습니다. GPU 및 CPU 드라이버가 최신 상태인지 확인하세요.</string>
+    <string name="conn_error_code_5038">비디오 인코더를 시작하지 못했습니다. 다른 비디오 코덱을 시도하거나 호스트 PC를 다시 시작하세요.</string>
+    <string name="conn_error_code_5039"><![CDATA[PC에 연결된 디스플레이를 찾을 수 없습니다. 모니터의 전원이 켜져 있는지 확인하거나 표시 모드를 <b>전화 전용</b>으로 변경하세요.]]></string>
+    <string name="conn_error_code_5040">Razer 가상 디스플레이가 올바르게 로드되지 않았습니다. 호스트 PC를 다시 시작하세요.</string>
 
     <string name="open_source_notice">오픈 소스 소프트웨어 공지사항</string>
+
+    <string name="rn_fallback_display_mode_and_video_res_msg"><![CDATA[<br/><br/>설정 <b>디스플레이 모드</b>가 <b>PC 디스플레이 복제</b> 및 720p로 되돌아갔습니다. 나중에 다시 시도해 주세요.]]></string>
+    <string name="rn_fallback_video_res_msg"><![CDATA[<br/><br/>비디오 해상도가 720p로 변경되었습니다. 나중에 다시 시도해 주세요.]]></string>
+    <string name="rn_hint_input_pc_port">포트</string>
 </resources>

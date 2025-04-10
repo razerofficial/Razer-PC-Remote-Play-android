@@ -11,4 +11,8 @@
     <style name="RnLandingHeaderButton">
         <item name="android:foreground">?android:attr/selectableItemBackground</item>
     </style>
+    <style name="M3SettingsToolbar">
+        <item name="android:background">?attr/colorSurface</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
 </resources>

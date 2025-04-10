@@ -11,7 +11,7 @@
       android:fillColor="@color/m3_system_dialog"/>
   <path
       android:pathData="M262,14H27V64H262V14Z"
-      android:fillColor="@color/m3_on_system_dialog"/>
+      android:fillColor="@color/m3_system_on_dialog"/>
   <path
       android:pathData="M59,77L229,77A15,15 0,0 1,244 92L244,92A15,15 0,0 1,229 107L59,107A15,15 0,0 1,44 92L44,92A15,15 0,0 1,59 77z"
       android:fillColor="@color/m3_system_primary_container"/>

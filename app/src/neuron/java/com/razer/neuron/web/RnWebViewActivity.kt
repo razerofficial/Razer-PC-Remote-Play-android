@@ -18,13 +18,14 @@ import com.limelight.databinding.RnActivityWebViewBinding
 import com.razer.neuron.common.BaseActivity
 import com.razer.neuron.common.toast
 import com.razer.neuron.extensions.hideNavigationBars
+import com.razer.neuron.model.DynamicThemeActivity
 import com.razer.neuron.utils.URL_STRING
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import kotlin.math.max
 
-class RnWebViewActivity : BaseActivity() {
-
+class RnWebViewActivity : BaseActivity(), DynamicThemeActivity {
+    override fun getThemeId() = appThemeType.settingsThemeId
     companion object{
         const val OPEN_LICENSE = "open_license"
         const val PDF_SUFFIX = ".pdf"
@@ -133,7 +134,9 @@ class RnWebViewActivity : BaseActivity() {
 
     private fun setupToolbar() {
         val toolbar = binding.topToolBar
-        toolbar.title = intent?.extras?.getString(TITLE)
+        val title = intent?.extras?.getString(TITLE)
+        toolbar.title = title
+        toolbar.navigationContentDescription = title
         toolbar.setNavigationIcon(R.drawable.ic_back)
         toolbar.setNavigationOnClickListener {
             onBackAction()

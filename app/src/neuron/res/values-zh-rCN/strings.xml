@@ -70,11 +70,10 @@
     <string name="rn_all_computers">所有电脑</string>
     <string name="rn_settings_computers">电脑</string>
     <string name="rn_add">添加</string>
-    <string name="rn_hint_input_pc_ip_address">输入电脑 IP 地址</string>
+    <string name="rn_hint_input_pc_ip_address">IP 地址</string>
     <string name="rn_discovery_state_pc_online">可用</string>
     <string name="rn_pair">配对</string>
     <string name="rn_paired_computers">已配对的电脑</string>
-    <string name="rn_manual_pairing_loading_content">请确保 &hostlabel;在同一网络上运行。</string>
     <string name="rn_nexus_content_provider_permission_name">正在配对</string>
     <string name="rn_pin_code_subtitle">PIN 码：</string>
     <string name="rn_pin_code_title">在进行串流的电脑上输入\n%1$s</string>
@@ -144,7 +143,18 @@
     <string name="rn_add_computer_manually">手动添加电脑</string>
     <string name="rn_remote_play_settings_localized">电脑远程畅玩</string>
     <string name="rn_setting_neuron_video_settings">视频设置</string>
-    <string name="rn_pairing_hint">请确保 &hostlabel;在同一网络上运行。</string>
+    <string name="rn_pairing_hint">请确保 &hostlabel; 正在运行。</string>
+    <string name="rn_setting_neuron_video_format_title">视频编解码器</string>
+    <string name="rn_setting_neuron_video_format_subtitle">指定用于流媒体的视频编解码器。</string>
+    <string name="rn_video_format_auto">自动</string>
+    <string name="rn_prompt_quit_existing_session_title">流媒体会话正在进行中</string>
+    <string name="rn_prompt_quit_existing_session_msg"><![CDATA[<b>%1$s</b> 已在 <b>%2$s</b> 上进行流媒体播放，您要替换当前会话吗？所有未保存的数据将丢失。]]></string>
+    <string name="rn_replace">替换</string>
+    <string name="rn_reconnecting_to_x">正在重新连接到 %1$s \u2026</string>
+    <string name="rn_tap_to_cancel">点击取消</string>
+    <string name="rn_overlay_title">PC 键</string>
+    <string name="rn_warning_missing_address">缺少 IP 地址。</string>
+    <string name="rn_warning_missing_port">缺少端口。</string>
 
     <!-- Failed to start error message, part 1  -->
     <string name="failed_to_start_msg_with_param">无法启动%1$s。</string>
@@ -168,6 +178,13 @@
     <string name="conn_error_code_5032">无法初始化视频捕获/编码。显示器是否已连接并打开？</string>
     <string name="conn_error_code_5033">没有正在运行的应用可恢复。</string>
     <string name="conn_error_code_5034">在退出之前必须断开所有连接。</string>
+    <string name="conn_error_code_5037">主机PC无法启动视频编码器。请确保您的GPU和CPU驱动程序已更新。</string>
+    <string name="conn_error_code_5038">视频编码器启动失败。请尝试使用不同的视频编解码器，或重新启动主机PC。</string>
+    <string name="conn_error_code_5039"><![CDATA[未检测到连接到您的PC的显示器。请确保您的显示器已开启，或将显示模式更改为<b>仅限手机</b>。]]></string>
+    <string name="conn_error_code_5040">Razer虚拟显示未正确加载。请重新启动您的主机PC。</string>
 
     <string name="open_source_notice">开源软件说明</string>
+    <string name="rn_fallback_display_mode_and_video_res_msg"><![CDATA[<br/><br/>设置<b>显示模式</b>已恢复为<b>复制电脑显示</b>和720p，请稍后重试。]]></string>
+    <string name="rn_fallback_video_res_msg"><![CDATA[<br/><br/>视频分辨率已更改为720p，请稍后重试。]]></string>
+    <string name="rn_hint_input_pc_port">端口</string>
 </resources>

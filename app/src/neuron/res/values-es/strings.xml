@@ -70,11 +70,10 @@
     <string name="rn_all_computers">Todos los ordenadores</string>
     <string name="rn_settings_computers">Ordenadores</string>
     <string name="rn_add">Añadir</string>
-    <string name="rn_hint_input_pc_ip_address">Introduce la dirección IP del PC</string>
+    <string name="rn_hint_input_pc_ip_address">Dirección IP</string>
     <string name="rn_discovery_state_pc_online">Disponible</string>
     <string name="rn_pair">Sincronizar</string>
     <string name="rn_paired_computers">Ordenadores sincronizados</string>
-    <string name="rn_manual_pairing_loading_content">Asegúrate de que &hostlabel; se ejecute en la misma red.</string>
     <string name="rn_nexus_content_provider_permission_name">Sincronizando</string>
     <string name="rn_pin_code_subtitle">Código PIN:</string>
     <string name="rn_pin_code_title">Introduce en el PC del streaming\n%1$s</string>
@@ -144,7 +143,18 @@
     <string name="rn_add_computer_manually">Añadir PC manualmente</string>
     <string name="rn_remote_play_settings_localized">Juego en remoto en PC</string>
     <string name="rn_setting_neuron_video_settings">Ajustes de vídeo</string>
-    <string name="rn_pairing_hint">Asegúrate de que &hostlabel; se ejecute en la misma red.</string>
+    <string name="rn_pairing_hint">Asegúrese de que &hostlabel; se esté ejecutando.</string>
+    <string name="rn_setting_neuron_video_format_title">Códec de vídeo</string>
+    <string name="rn_setting_neuron_video_format_subtitle">Especifique el códec de video utilizado para la transmisión.</string>
+    <string name="rn_video_format_auto">Automático</string>
+    <string name="rn_prompt_quit_existing_session_title">Sesión de transmisión en curso</string>
+    <string name="rn_prompt_quit_existing_session_msg"><![CDATA[<b>%1$s</b> ya está transmitiendo en <b>%2$s</b>, ¿desea reemplazar la sesión actual? Todos los datos no guardados se perderán.]]></string>
+    <string name="rn_replace">Reemplazar</string>
+    <string name="rn_reconnecting_to_x">Reconectando a %1$s \u2026</string>
+    <string name="rn_tap_to_cancel">Toca para cancelar</string>
+    <string name="rn_overlay_title">Teclas de PC</string>
+    <string name="rn_warning_missing_address">Falta la dirección IP.</string>
+    <string name="rn_warning_missing_port">Falta el puerto.</string>
 
     <!-- Failed to start error message, part 1  -->
     <string name="failed_to_start_msg_with_param">Error al iniciar %1$s.</string>
@@ -168,6 +178,14 @@
     <string name="conn_error_code_5032">No se pudo inicializar la captura/codificación de video. ¿Hay una pantalla conectada y encendida?</string>
     <string name="conn_error_code_5033">No hay ninguna aplicación en ejecución para reanudar.</string>
     <string name="conn_error_code_5034">Todas las sesiones deben desconectarse antes de salir.</string>
+    <string name="conn_error_code_5037">El PC anfitrión no pudo iniciar el codificador de video. Asegúrese de que sus controladores de GPU y CPU estén actualizados.</string>
+    <string name="conn_error_code_5038">El codificador de video no pudo iniciarse. Intente con un códec de video diferente o reinicie el PC anfitrión.</string>
+    <string name="conn_error_code_5039"><![CDATA[No se encontró una pantalla conectada a su PC. Asegúrese de que su monitor esté encendido o cambie el modo de pantalla a <b>Solo teléfono</b>.]]></string>
+    <string name="conn_error_code_5040">La pantalla virtual de Razer no se cargó correctamente. Reinicie su PC anfitrión.</string>
 
     <string name="open_source_notice">Aviso sobre el software de código abierto</string>
+
+    <string name="rn_fallback_display_mode_and_video_res_msg"><![CDATA[<br/><br/>La configuración <b>Modo de visualización</b> ha sido revertida a <b>Duplicar pantalla del PC</b> y 720p, por lo que, por favor, inténtelo de nuevo más tarde.]]></string>
+    <string name="rn_fallback_video_res_msg"><![CDATA[<br/><br/>La resolución de vídeo ha sido cambiada a 720p, por lo que, por favor, inténtelo de nuevo más tarde.]]></string>
+    <string name="rn_hint_input_pc_port">Puerto</string>
 </resources>

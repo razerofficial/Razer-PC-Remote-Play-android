@@ -1,13 +1,13 @@
 package com.limelight
 
 import android.content.Intent
-import android.content.res.Resources
 import android.util.Size
 import android.view.Window
-import com.limelight.NeuronBridge.implementation
+import com.limelight.binding.video.MediaCodecDecoderRenderer
 import com.limelight.binding.video.VideoStats
 import com.limelight.nvstream.ConnectionContext
 import com.limelight.preferences.PreferenceConfiguration
+import com.razer.neuron.model.DisplayModeOption
 import java.util.concurrent.CompletableFuture
 
 
@@ -29,7 +29,7 @@ interface NeuronBridgeInterface {
     /**
      * For cases when virtual display has rendering issue
      */
-    fun fallbackToDuplicateDisplay()
+    fun fallbackVideoSettings(fallbackResolution: Size? = null, fallbackDisplayMode : DisplayModeOption? = null)
 
     /**
      * true if virtual display is used
@@ -52,7 +52,7 @@ interface NeuronBridgeInterface {
      * Called right after [ConnectionContext.computerDetails] is assigned in
      * in [Game] (Stage 2)
      */
-    fun updateStreamConfiguration(connectionContext: ConnectionContext)
+    fun updateStreamConfiguration(connectionContext: ConnectionContext, decoderRenderer: MediaCodecDecoderRenderer)
 
 
     /**
@@ -162,7 +162,7 @@ object NeuronBridge {
      * See BAA-2341
      */
     @JvmStatic
-    fun updateStreamConfiguration(connectionContext: ConnectionContext) = implementation.updateStreamConfiguration(connectionContext)
+    fun updateStreamConfiguration(connectionContext: ConnectionContext, decoderRenderer: MediaCodecDecoderRenderer) = implementation.updateStreamConfiguration(connectionContext,decoderRenderer)
 
     /**
      * Used to get the parameters to be send to host launch/resume API
@@ -179,7 +179,7 @@ object NeuronBridge {
     fun getPairQueryParameters() = implementation.getPairQueryParameters()
 
     @JvmStatic
-    fun fallbackToDuplicateDisplay() = implementation.fallbackToDuplicateDisplay()
+    fun fallbackVideoSettings(fallbackResolution: Size? = null, fallbackDisplayMode: DisplayModeOption? = null) = implementation.fallbackVideoSettings(fallbackResolution, fallbackDisplayMode)
 
     @JvmStatic
     fun doVibrate(lowFreqMotor: Int, highFreqMotor: Int) = implementation.doVibrate(lowFreqMotor, highFreqMotor)
@@ -251,7 +251,7 @@ object NoNeuronBridge : NeuronBridgeInterface {
 
     override fun getPairQueryParameters() = ""
 
-    override fun fallbackToDuplicateDisplay() = Unit
+    override fun fallbackVideoSettings(fallbackResolution: Size?, fallbackDisplayMode : DisplayModeOption?) = Unit
 
     override val isLaunchWithVirtualDisplay = false
 
@@ -279,7 +279,7 @@ object NoNeuronBridge : NeuronBridgeInterface {
 
     override fun logAndRecordException(t : Throwable) = Unit
 
-    override fun updateStreamConfiguration(connectionContext: ConnectionContext) = Unit
+    override fun updateStreamConfiguration(connectionContext: ConnectionContext, decoderRenderer: MediaCodecDecoderRenderer) = Unit
 
     override fun invertMotors(freqArray : IntArray) = Unit
 

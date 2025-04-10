@@ -8,6 +8,7 @@ import com.razer.neuron.RnApp
 import com.razer.neuron.common.logAndRecordException
 import com.razer.neuron.provider.sources.NeuronAndroidCryptoSource
 import com.razer.neuron.provider.sources.NeuronComputerDetailsSource
+import com.razer.neuron.provider.sources.NeuronMetaDataSource
 import com.razer.neuron.provider.sources.RemotePlaySettingsProviderSource
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
@@ -25,6 +26,7 @@ class NeuronContentProvider : ContentProvider() {
         fun remotePlaySettingsSource(): RemotePlaySettingsProviderSource
         fun androidCryptoProviderSource(): NeuronAndroidCryptoSource
         fun computerDetailsSource(): NeuronComputerDetailsSource
+        fun metaDataSource(): NeuronMetaDataSource
     }
 
 
@@ -40,7 +42,8 @@ class NeuronContentProvider : ContentProvider() {
         listOf(
             dependency.remotePlaySettingsSource(),
             dependency.androidCryptoProviderSource(),
-            dependency.computerDetailsSource()
+            dependency.computerDetailsSource(),
+            dependency.metaDataSource()
         )
     }
 

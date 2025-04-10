@@ -11,6 +11,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.limelight.R
 import com.limelight.databinding.RnFragmentAppearanceBinding
+import com.razer.neuron.common.RnThemeManager
 import timber.log.Timber
 import com.razer.neuron.common.debugToast
 import com.razer.neuron.common.showSingleChoiceItemsDialog
@@ -20,7 +21,6 @@ import com.razer.neuron.extensions.gone
 import com.razer.neuron.extensions.visible
 import com.razer.neuron.model.AppThemeType
 import com.razer.neuron.pref.RemotePlaySettingsPref
-import com.razer.neuron.restartApp
 import com.razer.neuron.utils.getStringExt
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
@@ -73,7 +73,7 @@ class RnAppearanceFragment : Fragment() {
                 when (it) {
                     is AppearanceState.ShowLoading -> it.handle()
                     is AppearanceState.HideLoading -> it.handle()
-                    is AppearanceState.RestartApp -> it.handle()
+                    is AppearanceState.ApplyTheme -> it.handle()
                     is AppearanceState.ShowSelectTheme -> it.handle()
                     else -> debugToast("${it.javaClass.simpleName} not handled")
                 }
@@ -93,14 +93,14 @@ class RnAppearanceFragment : Fragment() {
         binding.loadingLayoutContainer.gone()
     }
 
-    private fun AppearanceState.RestartApp.handle() {
+    private fun AppearanceState.ApplyTheme.handle() {
         val activity = activity ?: return
         binding.loadingLayoutContainer.visible()
-        tvLoadingTitle.text = getString(R.string.rn_restarting)
+        tvLoadingTitle.text = getString(R.string.rn_please_wait)
         tvLoadingSubtitle.gone()
         lifecycleScope.launch {
-            delay(1000)
-            activity.restartApp()
+            delay(250)
+            RnThemeManager.maybeRecreateOnThemeChange(activity)
         }
     }
 
@@ -121,7 +121,7 @@ class RnAppearanceFragment : Fragment() {
             options = AppThemeType.entries,
             defaultOption = defaultOption,
             isCancelable = true,
-            positiveButton = getString(R.string.rn_apply_and_restart) to {
+            positiveButton = getString(android.R.string.ok) to {
                 viewModel.onSelectTheme(it)
             },
             negativeButton = getString(android.R.string.cancel) to { Unit }

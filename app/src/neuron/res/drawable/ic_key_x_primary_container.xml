@@ -6,13 +6,13 @@
   <path
       android:pathData="M13,13m-13,0a13,13 0,1 1,26 0a13,13 0,1 1,-26 0"
       android:strokeWidth="1"
-      android:fillColor="?attr/colorOnPrimaryContainer"
+      android:fillColor="@color/m3_primary_container_button_foreground_color_selector"
       android:fillType="evenOdd"
       android:strokeColor="#00000000"/>
   <path
       android:pathData="M10.1953,18.2734l2.6719,-4.1484l0.0703,0l2.6641,4.1484l2.3203,0l-3.7031,-5.625l0,-0.0234l3.7656,-5.625l-2.2578,0l-2.6094,4.2422l-0.0859,0l-2.6172,-4.2422l-2.3828,0l3.6406,5.5703l0,0.0234l-3.6719,5.6797z"
       android:strokeWidth="1"
-      android:fillColor="?attr/colorPrimaryContainer"
+      android:fillColor="@color/m3_primary_container_button_background_color_selector"
       android:fillType="nonZero"
       android:strokeColor="#00000000"/>
 </vector>

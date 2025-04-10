@@ -1,0 +1,9 @@
+<resources>
+    <!-- BaseTheme should NOT be modified by value folders -->
+    <style name="BaseTheme.Razer" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="android:forceDarkAllowed">false</item>
+        <!--Spinner Style-->
+        <item name="android:navigationBarColor">@color/rn_nav_bar</item>
+    </style>
+
+</resources>

@@ -32,6 +32,7 @@
             android:layout_height="wrap_content"
             style="@style/RnDeviceSettingsTitle"
             android:paddingStart="@dimen/m3_sys_item_padding_start"
+            android:layout_marginBottom="@dimen/margin_4x"
             android:paddingEnd="@dimen/m3_sys_item_padding_end"
             android:textAppearance="@style/TextAppearance.Material3.Item.Title"
             android:text="@string/rn_setting_neuron_display_mode"/>
@@ -107,18 +108,6 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <TextView
-                    android:layout_marginEnd="@dimen/margin_1x"
-                    android:id="@+id/tv_bitrate_value"
-                    style="@style/RnDeviceSettingsSubtitle"
-                    android:textAppearance="@style/TextAppearance.Material3.Item.Subtitle"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    tools:text="5 MBPS"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="@+id/tv_bitrate"
-                    app:layout_constraintBottom_toBottomOf="@+id/tv_bitrate"/>
-
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <com.google.android.material.slider.Slider
@@ -126,10 +115,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 style="@style/RnSlider"
+                android:layout_marginTop="@dimen/margin_2x"
                 android:layout_marginStart="@dimen/margin_3x"
                 android:layout_marginEnd="@dimen/margin_1x"
                 android:splitTrack="false"
-                app:labelBehavior="gone" />
+                app:haloColor="@color/m3_system_highlight"
+                app:labelBehavior="floating" />
         </LinearLayout>
 
 
@@ -196,9 +187,10 @@
 
         <include
             android:id="@+id/row_auto_close_game_countdown_dropdown"
-            layout="@layout/rn_item_neuron_settings_dropdown"
+            layout="@layout/rn_item_neuron_settings_dropdown_m3"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
 
         <include
             android:id="@+id/row_limit_refresh_rate"
@@ -246,6 +238,13 @@
                 android:layout_height="wrap_content" />
 
         </RadioGroup>
+
+
+        <include
+            android:id="@+id/row_video_format_dropdown"
+            layout="@layout/rn_item_neuron_settings_dropdown_m3"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </LinearLayout>
 </ScrollView>

@@ -43,6 +43,8 @@ public class ComputerDatabaseManager {
     private static final String MAC_ADDRESS_COLUMN_NAME = "MacAddress";
     private static final String SERVER_CERT_COLUMN_NAME = "ServerCert";
     private static final String MACHINE_IDENTIFIER_COLUMN_NAME = "MachineIdentifier";
+    private static final String SERVER_CODEC_MODE_SUPPORT_COLUMN_NAME = "ServerCodecModeSupport";
+    private static final String RAZER_HOST_VERSION_COLUMN_NAME = "RazerHostVersion";
     private SQLiteDatabase computerDb;
 
     public ComputerDatabaseManager(Context c) {
@@ -75,11 +77,13 @@ public class ComputerDatabaseManager {
     private void initializeDb(Context c) {
         // Create tables if they aren't already there
         computerDb.execSQL(String.format((Locale)null,
-                "CREATE TABLE IF NOT EXISTS %s(%s TEXT PRIMARY KEY, %s TEXT NOT NULL, %s TEXT NOT NULL, %s TEXT, %s TEXT, %s TEXT)",
+                "CREATE TABLE IF NOT EXISTS %s(%s TEXT PRIMARY KEY, %s TEXT NOT NULL, %s TEXT NOT NULL, %s TEXT, %s TEXT, %s TEXT, %s INTEGER NOT NULL DEFAULT 0, %s TEXT)",
                 COMPUTER_TABLE_NAME, COMPUTER_UUID_COLUMN_NAME, COMPUTER_NAME_COLUMN_NAME,
-                ADDRESSES_COLUMN_NAME, MAC_ADDRESS_COLUMN_NAME, SERVER_CERT_COLUMN_NAME, MACHINE_IDENTIFIER_COLUMN_NAME));
+                ADDRESSES_COLUMN_NAME, MAC_ADDRESS_COLUMN_NAME, SERVER_CERT_COLUMN_NAME, MACHINE_IDENTIFIER_COLUMN_NAME, SERVER_CODEC_MODE_SUPPORT_COLUMN_NAME, RAZER_HOST_VERSION_COLUMN_NAME));
 
         addColumnIfNotExist(COMPUTER_TABLE_NAME, MACHINE_IDENTIFIER_COLUMN_NAME, "TEXT");
+        addColumnIfNotExist(COMPUTER_TABLE_NAME, SERVER_CODEC_MODE_SUPPORT_COLUMN_NAME, "INTEGER NOT NULL DEFAULT 0");
+        addColumnIfNotExist(COMPUTER_TABLE_NAME, RAZER_HOST_VERSION_COLUMN_NAME, "TEXT");
         // Move all computers from the old DB (if any) to the new one
         List<ComputerDetails> oldComputers = LegacyDatabaseReader.migrateAllComputers(c);
         for (ComputerDetails computer : oldComputers) {
@@ -153,6 +157,10 @@ public class ComputerDatabaseManager {
         if(details.machineIdentifier != null) {
             values.put(MACHINE_IDENTIFIER_COLUMN_NAME, details.machineIdentifier);
         }
+        values.put(SERVER_CODEC_MODE_SUPPORT_COLUMN_NAME, details.serverCodecModeSupport);
+        if(details.razerHostVersion != null) {
+            values.put(RAZER_HOST_VERSION_COLUMN_NAME, details.razerHostVersion);
+        }
         return -1 != computerDb.insertWithOnConflict(COMPUTER_TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
     }
 
@@ -192,10 +200,11 @@ public class ComputerDatabaseManager {
             e.printStackTrace();
         }
         details.machineIdentifier = c.getString(5);
+        details.serverCodecModeSupport = c.getInt(6);
 
         // This signifies we don't have dynamic state (like pair state)
         details.state = ComputerDetails.State.UNKNOWN;
-
+        details.razerHostVersion = c.getString(7);
         return details;
     }
 

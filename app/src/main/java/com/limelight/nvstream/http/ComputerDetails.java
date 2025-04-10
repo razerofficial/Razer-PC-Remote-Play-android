@@ -84,6 +84,11 @@ public class ComputerDetails {
     public DisplayMode activeDisplayMode = null;
     @Nullable
     public String machineIdentifier = null;
+    public int serverCodecModeSupport;
+    @Nullable
+    public String runningGameDevice = null;
+    @Nullable
+    public String razerHostVersion = null;
 
     public ComputerDetails() {
         // Use defaults
@@ -164,6 +169,11 @@ public class ComputerDetails {
         if(details.machineIdentifier != null && !details.machineIdentifier.isEmpty()) {
             this.machineIdentifier = details.machineIdentifier;
         }
+        if(details.serverCodecModeSupport != 0) {
+            this.serverCodecModeSupport = details.serverCodecModeSupport;
+        }
+        this.runningGameDevice = details.runningGameDevice;
+        this.razerHostVersion = details.razerHostVersion;
     }
 
     @Override
@@ -187,6 +197,9 @@ public class ComputerDetails {
         str.append("serverVersion: ").append(serverVersion).append(", ");
         str.append("activeDisplayMode: ").append(activeDisplayMode).append(", ");
         str.append("machineIdentifier: ").append(machineIdentifier).append(", ");
+        str.append("serverCodecModeSupport: ").append(serverCodecModeSupport).append(", ");
+        str.append("runningGameDevice: ").append(runningGameDevice).append(", ");
+        str.append("razerHostVersion: ").append(razerHostVersion).append(", ");
         return str.toString();
     }
 
@@ -195,11 +208,11 @@ public class ComputerDetails {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ComputerDetails that = (ComputerDetails) o;
-        return httpsPort == that.httpsPort && externalPort == that.externalPort && runningGameId == that.runningGameId && nvidiaServer == that.nvidiaServer && offlineCount == that.offlineCount && Objects.equals(uuid, that.uuid) && Objects.equals(name, that.name) && Objects.equals(localAddress, that.localAddress) && Objects.equals(remoteAddress, that.remoteAddress) && Objects.equals(manualAddress, that.manualAddress) && Objects.equals(ipv6Address, that.ipv6Address) && Objects.equals(macAddress, that.macAddress) && Objects.equals(serverCert, that.serverCert) && state == that.state && Objects.equals(activeAddress, that.activeAddress) && pairState == that.pairState && Objects.equals(machineIdentifier, that.machineIdentifier) && Objects.equals(activeDisplayMode, that.activeDisplayMode) && Objects.equals(rawAppList, that.rawAppList);
+        return httpsPort == that.httpsPort && externalPort == that.externalPort && runningGameId == that.runningGameId && nvidiaServer == that.nvidiaServer && offlineCount == that.offlineCount && Objects.equals(uuid, that.uuid) && Objects.equals(name, that.name) && Objects.equals(localAddress, that.localAddress) && Objects.equals(remoteAddress, that.remoteAddress) && Objects.equals(manualAddress, that.manualAddress) && Objects.equals(ipv6Address, that.ipv6Address) && Objects.equals(macAddress, that.macAddress) && Objects.equals(serverCert, that.serverCert) && state == that.state && Objects.equals(activeAddress, that.activeAddress) && pairState == that.pairState && Objects.equals(runningGameDevice, that.runningGameDevice) && Objects.equals(machineIdentifier, that.machineIdentifier) && Objects.equals(serverCodecModeSupport, that.serverCodecModeSupport) && Objects.equals(activeDisplayMode, that.activeDisplayMode) && Objects.equals(razerHostVersion, that.razerHostVersion) && Objects.equals(rawAppList, that.rawAppList);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(uuid, name, localAddress, remoteAddress, manualAddress, ipv6Address, macAddress, serverCert, state, activeAddress, httpsPort, externalPort, pairState, runningGameId, rawAppList, nvidiaServer, offlineCount, machineIdentifier, activeDisplayMode);
+        return Objects.hash(uuid, name, localAddress, remoteAddress, manualAddress, ipv6Address, macAddress, serverCert, state, activeAddress, httpsPort, externalPort, pairState, runningGameId, rawAppList, nvidiaServer, offlineCount, machineIdentifier, serverCodecModeSupport,  activeDisplayMode, runningGameDevice, razerHostVersion);
     }
 }

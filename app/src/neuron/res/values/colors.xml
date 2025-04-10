@@ -8,20 +8,20 @@
     <!--endregion-->
 
     <!--region debug theme, use dark color for light-->
-    <color name="md_theme_primary">#6AFA4F</color>
-    <color name="md_theme_onPrimary">#043900</color>
-    <color name="md_theme_primaryContainer">#3BCE23</color>
+    <color name="md_theme_primary">#44D62C</color>
+    <color name="md_theme_onPrimary">#032F00</color>
+    <color name="md_theme_primaryContainer">#44D62C</color>
     <color name="md_theme_onPrimaryContainer">#032F00</color>
     <color name="md_theme_secondary">#A1D490</color>
     <color name="md_theme_onSecondary">#0C3906</color>
-    <color name="md_theme_secondaryContainer">#093604</color>
+    <color name="md_theme_secondaryContainer">#14400D</color>
     <color name="md_theme_onSecondaryContainer">#96C886</color>
     <color name="md_theme_tertiary">#6CDF59</color>
     <color name="md_theme_onTertiary">#003A00</color>
     <color name="md_theme_tertiaryContainer">#007D00</color>
     <color name="md_theme_onTertiaryContainer">#FFFFFF</color>
-    <color name="md_theme_error">#FFB3AE</color>
-    <color name="md_theme_onError">#68000A</color>
+    <color name="md_theme_error">#fd4949</color> <!--Evelyn color request change on 10:32am 2025-02-17 -->
+    <color name="md_theme_onError">#000000</color>  <!--Evelyn color request change on 10:32am 2025-02-17 -->
     <color name="md_theme_errorContainer">#DC3035</color>
     <color name="md_theme_onErrorContainer">#FFFFFF</color>
     <color name="md_theme_background">#0E150B</color>
@@ -50,11 +50,11 @@
     <color name="md_theme_onTertiaryFixedVariant">#005300</color>
     <color name="md_theme_surfaceDim">#131313</color>
     <color name="md_theme_surfaceBright">#393939</color>
-    <color name="md_theme_surfaceContainerLowest">#0E0E0E</color>
-    <color name="md_theme_surfaceContainerLow">#1B1B1B</color>
-    <color name="md_theme_surfaceContainer">#1F1F1F</color>
-    <color name="md_theme_surfaceContainerHigh">#2A2A2A</color>
-    <color name="md_theme_surfaceContainerHighest">#353535</color>
+    <color name="md_theme_surfaceContainerLowest">#2A2A2A</color> <!-- md_theme_surfaceContainerLow - 0D0D0D -->
+    <color name="md_theme_surfaceContainerLow">#373737</color> <!-- md_theme_surfaceContainer -040404 -->
+    <color name="md_theme_surfaceContainer">#3B3B3B</color>  <!-- originally, 1F1F1F, but since surface is now #222222, we need to change these too) -->
+    <color name="md_theme_surfaceContainerHigh">#464646</color>  <!-- md_theme_surfaceContainer + 0B0B0B -->
+    <color name="md_theme_surfaceContainerHighest">#515151</color>  <!-- md_theme_surfaceContainerHigh +0B0B0B -->
     <color name="md_theme_primary_mediumContrast">#6AFA4F</color>
     <color name="md_theme_onPrimary_mediumContrast">#022E00</color>
     <color name="md_theme_primaryContainer_mediumContrast">#3BCE23</color>

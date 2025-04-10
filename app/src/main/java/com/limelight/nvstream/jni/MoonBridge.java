@@ -5,6 +5,8 @@ import com.limelight.nvstream.NvConnectionListener;
 import com.limelight.nvstream.av.audio.AudioRenderer;
 import com.limelight.nvstream.av.video.VideoDecoderRenderer;
 
+import java.io.Serializable;
+
 public class MoonBridge {
     /* See documentation in Limelight.h for information about these functions and constants */
 
@@ -138,7 +140,7 @@ public class MoonBridge {
         return slices << 24;
     }
 
-    public static class AudioConfiguration {
+    public static class AudioConfiguration implements Serializable {
         public final int channelCount;
         public final int channelMask;
 

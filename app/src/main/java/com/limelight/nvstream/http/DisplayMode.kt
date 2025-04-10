@@ -121,6 +121,7 @@ data class DisplayMode(
     }
 }
 
+fun Size.toResolutionString() = "${width}x${height}"
 fun String.toResolution() = split("x").mapNotNull { it.toIntOrNull() }
     .takeIf { length > 1 }
     ?.let {

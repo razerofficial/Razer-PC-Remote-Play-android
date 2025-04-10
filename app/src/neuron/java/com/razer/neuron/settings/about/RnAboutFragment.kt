@@ -21,6 +21,7 @@ import com.razer.neuron.common.materialAlertDialogTheme
 import com.razer.neuron.common.toast
 import com.razer.neuron.extensions.dismissSafely
 import com.razer.neuron.extensions.gone
+import com.razer.neuron.extensions.toHtmlSpanned
 import com.razer.neuron.extensions.visible
 import com.razer.neuron.settings.RnSettingsActivity
 import com.razer.neuron.utils.Web
@@ -125,9 +126,5 @@ class RnAboutFragment : Fragment() {
                 getString(R.string.open_source_message_1) +
                 getString(R.string.open_source_message_2)
         return message.toHtmlSpanned()
-    }
-
-    fun String.toHtmlSpanned(): Spanned {
-        return Html.fromHtml(this, Html.FROM_HTML_MODE_LEGACY)
     }
 }

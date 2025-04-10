@@ -9,7 +9,9 @@ import android.view.Display;
 
 import com.limelight.nvstream.jni.MoonBridge;
 
-public class PreferenceConfiguration {
+import java.io.Serializable;
+
+public class PreferenceConfiguration implements Serializable {
     public enum FormatOption {
         AUTO,
         FORCE_AV1,

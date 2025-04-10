@@ -26,13 +26,13 @@
         <item name="android:foreground">?android:attr/selectableItemBackground</item>
         <item name="android:gravity">start|center_vertical</item>
         <item name="android:paddingHorizontal">@dimen/margin_4x</item>
-        <item name="android:height">@dimen/settings_device_popup_item_height</item>
+        <item name="android:paddingVertical">@dimen/margin_4x</item>
         <item name="android:width">195dp</item>
         <item name="android:maxLines">2</item>
         <item name="android:ellipsize">end</item>
     </style>
     <style name="RnPopupWindowMenu">
-        <item name="android:background">?attr/colorSurfaceContainer</item>
+        <item name="android:background">@drawable/bg_dropdown_button</item>
     </style>
     <style name="RnPopupWindowAnimation">
         <item name="android:windowEnterAnimation">@anim/popup_enter_anim</item>

@@ -5,7 +5,9 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -23,7 +25,7 @@ import com.limelight.nvstream.jni.MoonBridge;
 import com.limelight.preferences.PreferenceConfiguration;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
+import android.app.Service;
 import android.content.Context;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
@@ -39,6 +41,11 @@ import android.util.Range;
 import android.util.Size;
 import android.view.Choreographer;
 import android.view.SurfaceHolder;
+import android.view.WindowManager;
+
+import androidx.annotation.NonNull;
+
+import javax.annotation.Nullable;
 
 public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements Choreographer.FrameCallback {
     public static final int ERROR_INIT_DECODER_RESOLUTION_NOT_SUPPORTED_OR_MISSING_DECODER = -1;
@@ -65,9 +72,10 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
 
     private int nextInputBufferIndex = -1;
     private ByteBuffer nextInputBuffer;
-
+    @NonNull
     private Context context;
-    private Activity activity;
+    @Nullable
+    private WindowManager windowManager;
     private MediaCodec videoDecoder;
     private Thread rendererThread;
     private boolean needsSpsBitstreamFixup, isExynos4;
@@ -78,6 +86,11 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
     private boolean refFrameInvalidationActive;
     private int initialWidth, initialHeight;
     private int videoFormat;
+    @NonNull
+    public Set<String> debugServerCodecModeSupport = new HashSet<>();
+    @NonNull
+    public Set<String> debugLocalSupportedVideoFormats = new HashSet<>();
+
     private SurfaceHolder renderTarget;
     private volatile boolean stopping;
     private CrashListener crashListener;
@@ -136,7 +149,7 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
     private int numFramesIn;
     private int numFramesOut;
 
-    private MediaCodecInfo findAvcDecoder() {
+    public MediaCodecInfo findAvcDecoder() {
         MediaCodecInfo decoder = MediaCodecHelper.findProbableSafeDecoder("video/avc", MediaCodecInfo.CodecProfileLevel.AVCProfileHigh);
         if (decoder == null) {
             decoder = MediaCodecHelper.findFirstDecoder("video/avc");
@@ -225,11 +238,17 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
         }
     }
 
-    private MediaCodecInfo findHevcDecoder(PreferenceConfiguration prefs, boolean meteredNetwork, boolean requestedHdr) {
-        // Don't return anything if H.264 is forced
-        if (prefs.videoFormat == PreferenceConfiguration.FormatOption.FORCE_H264) {
+    public MediaCodecInfo findHevcDecoder(PreferenceConfiguration prefs, boolean meteredNetwork, boolean requestedHdr) {
+        // we will look for the decoder so long as it is auto or force HEVC
+        if (prefs.videoFormat != PreferenceConfiguration.FormatOption.FORCE_HEVC
+                && prefs.videoFormat != PreferenceConfiguration.FormatOption.AUTO) {
             return null;
         }
+
+        // Don't return anything if H.264 is forced
+//        if (prefs.videoFormat == PreferenceConfiguration.FormatOption.FORCE_H264) {
+//            return null;
+//        }
 
         // We don't try the first HEVC decoder. We'd rather fall back to hardware accelerated AVC instead
         //
@@ -265,21 +284,40 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
 
         return hevcDecoderInfo;
     }
-
-    private MediaCodecInfo findAv1Decoder(PreferenceConfiguration prefs) {
-        // For now, don't use AV1 unless explicitly requested
-        if (prefs.videoFormat != PreferenceConfiguration.FormatOption.FORCE_AV1) {
+    
+    /**
+     * Made it public so that we can determine if the device actually support AV1
+     * regardless of [PreferenceConfiguration]
+     * @param prefs
+     * @return
+     */
+    public MediaCodecInfo findAv1Decoder(PreferenceConfiguration prefs) {
+        // we will look for the decoder so long as it is auto or force AV1
+        if (prefs.videoFormat != PreferenceConfiguration.FormatOption.FORCE_AV1
+                && prefs.videoFormat != PreferenceConfiguration.FormatOption.AUTO) {
             return null;
         }
+        // For now, don't use AV1 unless explicitly requested
+//        if (prefs.videoFormat != PreferenceConfiguration.FormatOption.FORCE_AV1) {
+//            return null;
+//        }
 
         MediaCodecInfo decoderInfo = MediaCodecHelper.findProbableSafeDecoder("video/av01", -1);
         if (decoderInfo != null) {
             if (!MediaCodecHelper.isDecoderWhitelistedForAv1(decoderInfo)) {
                 LimeLog.info("Found AV1 decoder, but it's not whitelisted - "+decoderInfo.getName());
 
+                // Must have hardware support
+                if(!hasHardwareSupport(decoderInfo)) {
+                    LimeLog.warning("Cannot use AV1 as there is no hardware support");
+                    return null;
+                }
                 // Force HEVC enabled if the user asked for it
-                if (prefs.videoFormat == PreferenceConfiguration.FormatOption.FORCE_AV1) {
+                else if (prefs.videoFormat == PreferenceConfiguration.FormatOption.FORCE_AV1) {
                     LimeLog.info("Forcing AV1 enabled despite non-whitelisted decoder");
+                }
+                else if (prefs.videoFormat == PreferenceConfiguration.FormatOption.AUTO) {
+                    LimeLog.info("Auto AV1 enabled despite non-whitelisted decoder");
                 }
                 // Use AV1 if the HEVC decoder is unable to meet the performance point
                 else if (hevcDecoder != null && decoderCanMeetPerformancePointWithAv1AndNotHevc(decoderInfo, hevcDecoder, prefs)) {
@@ -302,14 +340,21 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
         this.renderTarget = renderTarget;
     }
 
-    public MediaCodecDecoderRenderer(Activity activity, PreferenceConfiguration prefs,
+
+    public MediaCodecDecoderRenderer(@NonNull Context context, PreferenceConfiguration prefs,
+                                     CrashListener crashListener, int consecutiveCrashCount,
+                                     boolean meteredData, boolean requestedHdr,
+                                     String glRenderer, PerfOverlayListener perfListener) {
+        this(context, (WindowManager)context.getSystemService(Service.WINDOW_SERVICE) , prefs, crashListener, consecutiveCrashCount, meteredData, requestedHdr, glRenderer, perfListener);
+    }
+
+    public MediaCodecDecoderRenderer(@NonNull Context context, @NonNull WindowManager windowManager, PreferenceConfiguration prefs,
                                      CrashListener crashListener, int consecutiveCrashCount,
                                      boolean meteredData, boolean requestedHdr,
                                      String glRenderer, PerfOverlayListener perfListener) {
         //dumpDecoders();
-
-        this.context = activity;
-        this.activity = activity;
+        this.context = context;
+        this.windowManager = windowManager;
         this.prefs = prefs;
         this.crashListener = crashListener;
         this.consecutiveCrashCount = consecutiveCrashCount;
@@ -419,18 +464,27 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
         return av1Decoder != null;
     }
 
+
     public boolean isAv1Main10Supported() {
         if (av1Decoder == null) {
             return false;
         }
+        return isAv1Main10Supported(av1Decoder);
+    }
 
+    /**
+     * Made it into public so that we can call this function to determine if Av1Main10 is supported
+     * for HDR for any AV1 av1Decoder
+     * @return
+     */
+    public boolean isAv1Main10Supported(@Nullable MediaCodecInfo av1Decoder) {
+        if(av1Decoder == null) return false;
         for (MediaCodecInfo.CodecProfileLevel profileLevel : av1Decoder.getCapabilitiesForType("video/av01").profileLevels) {
             if (profileLevel.profile == MediaCodecInfo.CodecProfileLevel.AV1ProfileMain10HDR10) {
                 LimeLog.info("AV1 decoder "+av1Decoder.getName()+" supports AV1 Main 10 HDR10");
                 return true;
             }
         }
-
         return false;
     }
 
@@ -1000,8 +1054,8 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
             return;
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            frameTimeNanos -= activity.getWindowManager().getDefaultDisplay().getAppVsyncOffsetNanos();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && windowManager != null) {
+            frameTimeNanos -= windowManager.getDefaultDisplay().getAppVsyncOffsetNanos();
         }
 
         // Don't render unless a new frame is due. This prevents microstutter when streaming
@@ -1468,6 +1522,12 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
                 StringBuilder sb = new StringBuilder();
                 sb.append(context.getString(R.string.perf_overlay_streamdetails, initialWidth + "x" + initialHeight, fps.totalFps)).append('\n');
                 sb.append(context.getString(R.string.perf_overlay_decoder, decoder)).append('\n');
+                if(!debugServerCodecModeSupport.isEmpty()) {
+                    sb.append("Host decoders: "+debugServerCodecModeSupport).append('\n');
+                }
+                if(!debugLocalSupportedVideoFormats.isEmpty()) {
+                    sb.append("Client decoders: "+debugLocalSupportedVideoFormats).append('\n');
+                }
                 sb.append(context.getString(R.string.perf_overlay_incomingfps, fps.receivedFps)).append('\n');
                 sb.append(context.getString(R.string.perf_overlay_renderingfps, fps.renderedFps)).append('\n');
                 sb.append(context.getString(R.string.perf_overlay_netdrops,
@@ -1852,6 +1912,7 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
         return (int)(globalVideoStats.decoderTimeMs / globalVideoStats.totalFramesReceived);
     }
 
+
     static class DecoderHungException extends RuntimeException {
         private int hangTimeMs;
 
@@ -2003,5 +2064,17 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
 
             return str;
         }
+    }
+
+    public static boolean hasHardwareSupport(@NonNull MediaCodecInfo decoderInfo) {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && (isHardwareAccelerated(decoderInfo) || !isSoftwareOnly(decoderInfo));
+    }
+
+    public static boolean isHardwareAccelerated(@NonNull MediaCodecInfo decoderInfo) {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && decoderInfo.isHardwareAccelerated();
+    }
+
+    public static boolean isSoftwareOnly(@NonNull MediaCodecInfo decoderInfo) {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && decoderInfo.isSoftwareOnly();
     }
 }

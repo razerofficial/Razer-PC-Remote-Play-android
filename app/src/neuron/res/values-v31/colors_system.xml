@@ -7,13 +7,13 @@
         and comparing it with screenshots of various system UIs (e.g. permission dialog and settings
         page of ANDROID OS)
     -->
-    <color name="m3_on_system_dialog">@android:color/system_neutral2_900</color>
+    <color name="m3_system_on_dialog">@android:color/system_neutral2_900</color>
     <color name="m3_system_dialog">@android:color/system_neutral1_50</color>
 
-    <color name="m3_on_system_surface">@android:color/system_neutral2_700</color>
+    <color name="m3_system_on_surface">@android:color/system_neutral2_700</color>
     <color name="m3_system_surface">@android:color/system_neutral1_100</color>
 
-    <color name="m3_on_system_container">@android:color/system_neutral1_900</color>
+    <color name="m3_system_on_container">@android:color/system_neutral1_900</color>
     <color name="m3_system_container">@android:color/system_neutral2_100</color>
 
     <color name="m3_system_primary">@android:color/system_accent1_600</color>
@@ -21,5 +21,5 @@
     <color name="m3_system_on_primary_container">@android:color/system_neutral2_900</color>
     <color name="m3_system_primary_container">@android:color/system_accent1_100</color>
 
-    <color name="m3_highlight">#33000000</color>
+    <color name="m3_system_highlight">#33000000</color>
 </resources>

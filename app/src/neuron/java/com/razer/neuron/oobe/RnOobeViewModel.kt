@@ -95,12 +95,7 @@ class RnOobeViewModel
     fun onControllerInput(controllerInput: ControllerInput, isActionUp: Boolean) {
         if (!isActionUp) return
         val currentState = _state.value
-        val buttonHint = when {
-            currentState is RnOobeModel.State.PermissionSummary
-                    && currentState.focusPermissionHint?.controllerInput == controllerInput -> currentState.focusPermissionHint
-
-            else -> currentState.buttonHints.firstOrNull { it.controllerInput == controllerInput }
-        }
+        val buttonHint = currentState.buttonHints.firstOrNull { it.controllerInput == controllerInput }
         nextStateOrFinish(buttonHint?.appAction)
     }
 
@@ -326,10 +321,12 @@ class RnOobeViewModel
         } else {
             buttonHints += ButtonHint.Skip
         }
+        if (!focusPermission.wasGranted(appContext)) {
+            buttonHints += ButtonHint.Allow
+        }
 
         return RnOobeModel.State.PermissionSummary(
             focusPermission,
-            if (!focusPermission.wasGranted(appContext)) ButtonHint.Allow else null,
             activePermissions,
             buttonHints
         )
@@ -398,7 +395,6 @@ class RnOobeModel {
 
         class PermissionSummary(
             val focusPermission: OobePermission,
-            val focusPermissionHint: ButtonHint?,
             val displayPermissions: List<OobePermission>,
             buttonHints: Set<ButtonHint>
         ) : State("permission", buttonHints)

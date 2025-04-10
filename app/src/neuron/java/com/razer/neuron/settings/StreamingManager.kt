@@ -54,6 +54,15 @@ class StreamingManager(
     }
 
     private val _startStreamFlow = MutableSharedFlow<Intent>()
+
+    /**
+     * Once this emits, you should not call
+     * [android.app.Activity.startActivity] on the intent right away.
+     * 
+     * Use [com.razer.neuron.startgame.RnStartGameViewModel.askBeforeStartStream] first
+     * if possible. Then let the [com.razer.neuron.startgame.RnStartGameViewModel] tell
+     * [com.razer.neuron.startgame.RnStartGameView] to start the activity.
+     */
     val startStreamFlow by lazy {
         _startStreamFlow.asSharedFlow()
     }

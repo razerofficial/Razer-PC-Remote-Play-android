@@ -63,7 +63,7 @@
     <string name="conn_error_title">Connection Error</string>
     <string name="conn_error_msg">Failed to start</string>
     <string name="conn_terminated_title">Connection Terminated</string>
-    <string name="conn_terminated_msg">The connection was terminated</string>
+    <string name="conn_terminated_msg">Please ensure the Cortex host is running and that no other device is connected to it.</string>
 
     <!-- Failed to start error message, part 1  -->
     <string name="failed_to_start_msg_with_param">Failed to start %1$s.</string>
@@ -87,6 +87,10 @@
     <string name="conn_error_code_5032">Failed to initialize video capture/encoding. Is a display connected and turned on?</string>
     <string name="conn_error_code_5033">No running app to resume.</string>
     <string name="conn_error_code_5034">All sessions must be disconnected before quitting.</string>
+    <string name="conn_error_code_5037">Host PC could not start video encoder. Please ensure your GPU and CPU drivers are updated.</string>
+    <string name="conn_error_code_5038">The video encoder failed to start. Please try a different video codec, or restart the host PC.</string>
+    <string name="conn_error_code_5039"><![CDATA[No display was found connected to your PC. Please ensure your monitor is turned on, or change display mode to <b>Phone Only</b>.]]></string>
+    <string name="conn_error_code_5040">The Razer Virtual Display did not load correctly. Please restart your host PC.</string>
 
 
     <!-- General strings -->
@@ -134,7 +138,6 @@
 
 
     <!--region OOBE-->
-    <string name="rn_data_access_permission_explanation">&applabel; needs to access data from &nexus;. Please grant permission for both apps to communicate with each other.</string>
     <string name="rn_razer_nexus_required_message">&applabel; is meant to be used together with &nexus; to play PC games from your mobile device. Do you want to download it now?</string>
     <string name="rn_razer_nexus_needs_update_message">&applabel; needs the latest version of &nexus; to play PC games from your mobile device. Do you want to update it now?</string>
     <string name="rn_download">Download</string>
@@ -428,12 +431,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</b><p>]]></string>
     <!--endregion-->
 
     <!-- region Game Page-->
-
     <string name="rn_host_ended_connection_msg">Stream ended abruptly by the host, please check if the host is still streaming and try again.</string>
     <string name="rn_unsupported_native_resolution_title">Unsupported resolution</string>
-    <string name="rn_unsupported_native_resolution_msg"><![CDATA[The native resolution of %1$s is not support for streaming on this device.
+    <string name="rn_unsupported_native_resolution_msg"><![CDATA[The native resolution of %1$s is not supported for streaming on this device.
         The settings <b>Display Mode</b> has been reverted to <b>Duplicate PC display</b>, so please try again later.<br/><br/>
     Alternatively, you may also try changing <b>Display Size</b> scaling in <b>Android settings</b> and try again.]]></string>
+    <string name="rn_fallback_display_mode_and_video_res_msg"><![CDATA[<br/><br/>The settings <b>Display Mode</b> has been reverted to <b>Duplicate PC display</b> and 720p, so please try again later.]]></string>
+    <string name="rn_fallback_video_res_msg"><![CDATA[<br/><br/>The video resolution has been changed to 720p, so please try again later.]]></string>
     <!--endregion-->
 
     <!-- region Settings Page -->
@@ -451,9 +455,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</b><p>]]></string>
     <string name="rn_settings_display_mode_phone_only_2_lines">Device\noptimized</string>
     <string name="rn_settings_display_mode_phone_only_desc_x_resolution_x_refresh_rate">Your PC will create a virtual display matching your device\'s resolution and refresh rate of %1$s at %2$sHz and stream it to your device.\n\nAny screen connected to your PC will be temporarily disabled while streaming.</string>
     <string name="rn_settings_streaming_options">Streaming options</string>
-    <string name="rn_settings_display_mode_duplicate_oobe_desc">Easily mirror your PC screen to your phone for convenient access to apps and content anywhere. Enjoy smooth synchronization and vibrant visuals—perfect for gaming, presentations, or multitasking on the go!</string>
-    <string name="rn_settings_display_mode_separate_oobe_desc">Extend your PC display to your phone for seamless multitasking. Use your phone as a second screen to view different content, ideal for productivity and gaming on the go.</string>
-    <string name="rn_settings_display_mode_phone_only_oobe_desc">Mirror your PC screen to your phone while the PC display turns off. Enjoy seamless access to apps and content—perfect for gaming or presentations on the go.</string>
     <!--endregion-->
 
     <!-- region Remote Play Page -->
@@ -481,6 +482,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</b><p>]]></string>
     <string name="rn_setting_neuron_game_optimization_subtitle">Optimize resolution, refresh rate, v-sync, and performance to match display settings.</string>
     <string name="rn_setting_neuron_autoclose_countdown_title">Automatically quit games</string>
     <string name="rn_setting_neuron_autoclose_countdown_subtitle">Attempt to automatically close games when finished streaming.</string>
+    <string name="rn_setting_neuron_video_format_title">Video codec</string>
+    <string name="rn_setting_neuron_video_format_subtitle">Specify the video codec used for streaming.</string>
     <!--endregion-->
 
     <!-- region About Page -->
@@ -492,15 +495,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</b><p>]]></string>
     <string name="rn_device_page_pc_unpair">Unpair</string>
     <string name="rn_device_page_pc_start_play">Start play</string>
     <string name="rn_discovery_state_pc_online">Available</string>
-    <string name="rn_discovery_state_pc_offline">Unavailable</string>
     <string name="rn_paired_computers">Paired computers</string>
     <string name="rn_unpaired_computers">Unpaired computers</string>
-    <string name="rn_pairing_hint">Please ensure &hostlabel; is running on the same network.</string>
+    <string name="rn_pairing_hint">Please ensure &hostlabel; is running.</string>
     <string name="rn_all_computers">All computers</string>
     <string name="rn_all_computers_subtitle">To pair a PC, it must be on the same network as your device. Ensure your PC has &hostlabel; v11.0.+ installed and signed in with your Razer ID.</string>
     <string name="rn_add_computer_manually">Add PC manually</string>
     <string name="rn_add_computer_manually_subtitle">Enter the IP address of the host computer.</string>
-    <string name="rn_hint_input_pc_ip_address">Input PC IP address</string>
+    <string name="rn_hint_input_pc_ip_address">IP address</string>
+    <string name="rn_hint_input_pc_port">Port</string>
     <string name="rn_manual_pairing_loading_title">Connecting\u2026</string>
     <string name="rn_pin_code_title">Enter on the streaming PC\n%1$s</string>
     <string name="rn_pin_code_subtitle">PIN code:</string>
@@ -509,10 +512,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</b><p>]]></string>
     <!-- region Manually Pairing Page -->
     <string name="rn_add">Add</string>
     <string name="rn_warning_could_not_connect_to_host">Could not connect to host</string>
-    <string name="rn_manual_pairing_loading_content">Please ensure &hostlabel; is running on the same network.</string>
+    <string name="rn_manual_pairing_loading_content" translatable="false">@string/rn_pairing_hint</string>
     <string name="rn_connecting">Connecting\u2026</string>
     <string name="rn_searching">Searching\u2026</string>
     <string name="rn_warning_unable_to_pair">Unable to pair</string>
+    <string name="rn_warning_missing_address">Missing IP address.</string>
+    <string name="rn_warning_missing_port">Missing port.</string>
     <!--endregion-->
 
     <!-- region general -->
@@ -540,9 +545,23 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</b><p>]]></string>
     <string name="rn_quit_and_dismiss">Quit and Dismiss</string>
     <string name="rn_unable_quit_game_error">Unable to quit the game: %1$s</string>
     <string name="rn_currently_running_game">running game</string> <!--e.g. "Would you like to quit running game first before starting this game?" -->
+    <string name="rn_video_format_auto">Automatic</string>
+    <string name="rn_prompt_quit_existing_session_title">Streaming session in progress</string>
+    <string name="rn_prompt_quit_existing_session_msg"><![CDATA[<b>%1$s</b> is already streaming on <b>%2$s</b>, would you like to replace the current session? All unsaved data will be lost.]]></string>
+    <string name="rn_replace">Replace</string>
+    <string name="rn_reconnecting_to_x">Reconnecting to %1$s \u2026</string>
+    <string name="rn_tap_to_cancel">Tap to cancel</string>
     <!--- endregion-->
 
+    <!-- region overlay -->
+    <string name="rn_overlay_title">PC Keys</string>
+    <!--- endregion-->
+
+
     <!--region do not translate-->
+    <string name="rn_video_format_h264_avc" translatable="false">H264</string>
+    <string name="rn_video_format_h265_hevc" translatable="false">HEVC</string>
+    <string name="rn_video_format_av1" translatable="false">AV1</string>
     <string name="sans_serif_black" translatable="false">sans-serif-black</string>
     <string name="sans_serif_bold" translatable="false">sans-serif-medium</string>
     <string name="sans_serif_medium" translatable="false">sans-serif-medium</string>

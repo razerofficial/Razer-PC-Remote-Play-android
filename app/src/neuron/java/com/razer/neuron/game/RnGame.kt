@@ -1,71 +1,108 @@
 package com.razer.neuron.game
 
+import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.SurfaceHolder
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
-import com.limelight.BuildConfig
 import com.limelight.Game
 import com.limelight.NeuronBridge
 import com.limelight.R
 import com.limelight.nvstream.http.toResolution
+import com.limelight.nvstream.jni.MoonBridge
 import com.limelight.utils.SpinnerDialog
 import com.razer.neuron.common.ComputerMeta
+import com.razer.neuron.common.GameOverlayView
 import com.razer.neuron.common.debugToast
 import com.razer.neuron.di.GlobalCoroutineScope
+import com.razer.neuron.di.IoDispatcher
 import com.razer.neuron.extensions.applyTransition
+import com.razer.neuron.extensions.gone
 import com.razer.neuron.extensions.isStandardResolution
 import com.razer.neuron.extensions.setDrawIntoSafeArea
+import com.razer.neuron.extensions.visible
 import com.razer.neuron.extensions.visibleIf
+import com.razer.neuron.game.RnGameError.Companion.EXTRA_RECOVERY_COUNT
 import com.razer.neuron.game.RnGameError.Companion.EXTRA_WAS_RESTARTED
-import com.razer.neuron.game.RnGameError.Companion.createAlertIntent
+import com.razer.neuron.game.RnGameError.Companion.createHandleStreamErrorIntent
 import com.razer.neuron.game.helpers.RnGameIntentHelper
 import com.razer.neuron.game.helpers.RnGameView
-import com.razer.neuron.game.helpers.getConnectionErrors
-import com.razer.neuron.model.DisplayModeOption
+import com.razer.neuron.game.helpers.RnStreamError
+import com.razer.neuron.game.helpers.transformToStreamError
+import com.razer.neuron.model.DynamicThemeActivity
+import com.razer.neuron.model.OverlayHint
+import com.razer.neuron.model.OverlayHintState
 import com.razer.neuron.model.SessionStats
-import com.razer.neuron.nexus.NexusContentProvider
 import com.razer.neuron.pref.RemotePlaySettingsPref
 import com.razer.neuron.utils.now
 import com.razer.neuron.utils.toISO8601String
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
+import kotlin.math.max
 
 
 /**
  * TODO: subclass [Game] instead. Right now it is just a blue page from [R.layout.rn_activity_test1] for ease of testing
  */
 @AndroidEntryPoint
-class RnGame : Game() {
+class RnGame : Game(), GameOverlayView.OverlayHintActionInterface, DynamicThemeActivity {
+    override val isThemeFullscreen = true
+    override fun getThemeId() = appThemeType.gameThemeId
+    override val isUseWhiteSystemBarIcons = true
+
     companion object : RnGameIntentHelper {
-        private const val EXTRA_CREATE_COUNT = "EXTRA_CREATE_COUNT"
+        const val EXTRA_CREATE_COUNT = "EXTRA_CREATE_COUNT"
     }
+
     @GlobalCoroutineScope
     @Inject
     lateinit var globalScope: CoroutineScope
+    @Inject
+    @IoDispatcher
+    lateinit var ioDispatcher : CoroutineDispatcher
+
+    private val recoveryCount by lazy { intent.getIntExtra(EXTRA_RECOVERY_COUNT, 0) }
     private val wasRestarted by lazy { intent.getBooleanExtra(EXTRA_WAS_RESTARTED, false) }
     private val notificationOverlayView: TextView by lazy { findViewById(R.id.notificationOverlay) }
+    private val gameOverlayView: GameOverlayView by lazy { findViewById(R.id.overlay_buttons) }
     private val view by lazy { RnGameView(this) }
-    private val isCropToSafeArea by lazy { NexusContentProvider.settingsSource.isVirtualDisplayCropToSafeArea(this) }
-    private val isVirtualDisplayMode by lazy { NexusContentProvider.settingsSource.isVirtualDisplayMode(this) }
 
+    private val isCropToSafeArea get() = RemotePlaySettingsPref.isCropDisplaySafeArea
+    private val displayMode get() = RemotePlaySettingsPref.displayMode
+    private val isVirtualDisplayMode get() = displayMode.isUsesVirtualDisplay
     /**
      * Keep track of whether [handleUngracefulTermination] was called once already
      */
     private var wasUngracefulTerminationHandled = false
     private var wasUngracefulTermination = false
 
+    private val overlayButtonStateMap = mutableMapOf<Int, OverlayHintState>()
+    private val overlayButtonPressDuration = 100L
 
+    private var connectionStartedAt : Long? = null
+        set(value) {
+            field = if(field == null) value else field
+        }
     private var connectionTerminatedAt : Long? = null
+        set(value) {
+            field = if(field == null) value else field
+        }
+    private var surfaceCreatedAt : Long? = null
         set(value) {
             field = if(field == null) value else field
         }
@@ -73,6 +110,11 @@ class RnGame : Game() {
         set(value) {
             field = if(field == null) value else field
         }
+    private var surfaceChangedAt : Long? = null
+        set(value) {
+            field = if(field == null) value else field
+        }
+
     private var finishAt : Long? = null
         set(value) {
             field = if(field == null) value else field
@@ -108,27 +150,24 @@ class RnGame : Game() {
 
     private val onBackPressedCallback = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
-            debugToast("Back pressed")
             lastBackPressedAt = now()
             finish()
         }
     }
 
     lateinit var tvStreamInfo : TextView
-
     override fun onCreate(savedInstanceState: Bundle?) {
         applyTransition()
         if(isCropToSafeArea) {
             window.statusBarColor = Color.BLACK
         }
+        Timber.v("onCreate: createCount=$createCount, recoveryCount=$recoveryCount, displayMode=${displayMode}, isVirtualDisplayMode=${isVirtualDisplayMode}, isCropToSafeArea=${isCropToSafeArea}")
         isFullscreenLayout = !isVirtualDisplayMode || !isCropToSafeArea
         setDrawIntoSafeArea(isFullscreenLayout)
         super.onCreate(savedInstanceState)
-        if(BuildConfig.DEBUG) {
-            Timber.v("onCreate: ${intent.extras}")
-            findViewById<View>(R.id.surfaceView).foreground = resources.getDrawable(R.drawable.debug_layout_bound)
-        }
-        if(createCount > 0) {
+
+        // was restarted but not due to recovery
+        if(createCount > 0 && recoveryCount == 0) {
             com.razer.neuron.common.debugToast("Game activity restart aborted")
             finish()
             return
@@ -150,12 +189,24 @@ class RnGame : Game() {
         RnGameError.cancelPendingRestart()
         createCount++
         updateComputerMetaTimestamp()
+
+        gameOverlayView.setOverlayHintAction(this)
+
+        // Show the overlay hint bar when the IME is showing
+        ViewCompat.setOnApplyWindowInsetsListener(window.decorView) { _: View?, insets: WindowInsetsCompat ->
+            if (insets.isVisible(WindowInsetsCompat.Type.ime())) {
+                gameOverlayView.visible()
+            } else {
+                gameOverlayView.resetState()
+                gameOverlayView.gone()
+            }
+            insets
+        }
     }
 
 
     override fun onUserLeaveHint() {
         super.onUserLeaveHint()
-        debugToast("Home pressed")
         lastHomePressedAt = now()
     }
 
@@ -164,14 +215,16 @@ class RnGame : Game() {
     }
 
 
+    /**
+     * There might be multiple [RnStreamError] as a result, so we prioritize displaying the most useful one
+     */
     override fun stageFailed(stage: String?, portFlags: Int, errorCode: Int) {
         lifecycleScope.launch {
-            resources.getConnectionErrors(stage ?: "", portFlags, errorCode = errorCode).forEach {
-                    error ->
-                handleUngracefulTermination(error.title ?: getString(R.string.conn_error_title), error.message)
-                if(!isFinishing) {
-                    finish()
-                }
+            val streamError = resources.transformToStreamError(stage ?: "", portFlags, errorCode = errorCode)
+            Timber.v("stageFailed: stage=$stage, portFlags=$portFlags, errorCode=$errorCode, streamError=$streamError")
+            handleUngracefulStreamError(streamError)
+            if(!isFinishing) {
+                finish()
             }
         }
     }
@@ -194,6 +247,7 @@ class RnGame : Game() {
      */
     override fun connectionStarted() {
         super.connectionStarted()
+        connectionStartedAt = now()
         lifecycleScope.launch { updateDebugStreamInfo() }
         view.hideLoadingProgress()
     }
@@ -240,13 +294,26 @@ class RnGame : Game() {
                     && surfaceDestroyedAt != null
                     && wasUngracefulTermination
                     && connectionTerminatedAt < surfaceDestroyedAt // for some reason surface was destroyed before termination
+
+        Timber.v("onStop: wasUngracefulTerminationHandled=$wasUngracefulTerminationHandled connectionTerminatedUngracefully=$connectionTerminatedUngracefully")
+
+        if(connectionTerminatedUngracefully) {
+            RemotePlaySettingsPref.connectionTerminatedUngracefullyAt = now()
+        }
         if(connectionTerminatedUngracefully && !wasUngracefulTerminationHandled) {
             handleUngracefulTermination(
                 getString(R.string.conn_error_title),
-                getString(R.string.rn_host_ended_connection_msg)
+                getString(R.string.rn_host_ended_connection_msg),
+                RnStreamError.ERROR_CODE_UNHANDLED_TERMINATION,
             )
         }
         NeuronBridge.onStopNeuronGame()
+    }
+
+
+    override fun onPause() {
+        super.onPause()
+        updateSessionStats()
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -255,11 +322,13 @@ class RnGame : Game() {
     }
 
     override fun surfaceCreated(holder: SurfaceHolder) {
+        surfaceCreatedAt = now()
         Timber.v("surfaceCreated:")
         super.surfaceCreated(holder)
     }
 
     override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
+        surfaceChangedAt = now()
         Timber.v("surfaceChanged: $format ${width}x${height}")
         super.surfaceChanged(holder, format, width, height)
     }
@@ -311,39 +380,39 @@ class RnGame : Game() {
         super.onSurfaceDestroyedWhileConnecting()
         val displayModeOption = RemotePlaySettingsPref.displayMode
         Timber.v("onSurfaceDestroyedWhileConnecting: displayModeOption=$displayModeOption")
-        val launchQueryResolution = (when(displayModeOption) {
-            DisplayModeOption.DuplicateDisplay -> this.conn.context.streamConfig?.let { "${it.width}x${it.height}x${it.launchRefreshRate}" }
-            else -> {
-                val lastLaunchQuery = this.conn?.lastLaunchQuery
-                // for logging
-                val launchQueryParams = lastLaunchQuery?.split('&')
-                    ?.mapNotNull {
-                            nvp ->
-                        nvp.split('=').takeIf { it.size == 2 }?.let { it[0] to it[1] }
-                    }?.toMap() ?: emptyMap()
+        var launchQueryResolutionString = this.conn.context.streamConfig?.let { "${it.width}x${it.height}x${it.launchRefreshRate}" }
 
-                listOfNotNull(
-                    launchQueryParams["virtualDisplayMode"],
-                    launchQueryParams["mode"],
-                ).firstOrNull()
-            }
-        })?.toResolution()
+        if(displayModeOption.isUsesVirtualDisplay){
+            val lastLaunchQuery = this.conn?.lastLaunchQuery
+            // for logging
+            val launchQueryParams = lastLaunchQuery?.split('&')
+                ?.mapNotNull { nvp ->
+                    nvp.split('=').takeIf { it.size == 2 }?.let { it[0] to it[1] }
+                }?.toMap() ?: emptyMap()
+
+            launchQueryResolutionString = (listOfNotNull(
+                launchQueryParams["virtualDisplayMode"],
+                launchQueryParams["mode"],
+            ).firstOrNull()) ?: launchQueryResolutionString
+        }
+
+
+        val launchQueryResolution = launchQueryResolutionString?.toResolution()
         Timber.v("onSurfaceDestroyedWhileConnecting: launchQueryResolution=$launchQueryResolution NeuronBridge.isLaunchWithVirtualDisplay=${NeuronBridge.isLaunchWithVirtualDisplay}")
-
-
-    
         if(!isUserWantsToLeave()) {
             if(launchQueryResolution != null) {
                 // disable virtual display if currently using it
-                if(!launchQueryResolution.isStandardResolution() || launchQueryResolution.height > 720) {
-                    // disable virtual display
-                    NeuronBridge.fallbackToDuplicateDisplay()
+                val isStandardResolution  = launchQueryResolution.isStandardResolution()
+                val isMoreThan720p = launchQueryResolution.height > 720
+                val errorCode = if(!isStandardResolution || isMoreThan720p) {
+                    RnStreamError.ERROR_CODE_UNSUPPORTED_NATIVE_RESOLUTION
+                } else {
+                    RnStreamError.ERROR_CODE_UNSUPPORTED_720P_RESOLUTION
                 }
-
-                // start a separate activity and show an alert
                 handleUngracefulTermination(
                     getString(R.string.rn_unsupported_native_resolution_title),
                     getString(R.string.rn_unsupported_native_resolution_msg, launchQueryResolution),
+                    errorCode
                 )
             } else {
                 debugToast("launchQueryResolution missing")
@@ -365,14 +434,22 @@ class RnGame : Game() {
      *
      * This function will user [RnGameError] to show another activity just to show a error message to user.
      */
-    override fun handleUngracefulTermination(title: String, message: String?) : Boolean {
+    override fun handleUngracefulTermination(title: String, message: String?, errorCode : Int) : Boolean {
+        if(errorCode == MoonBridge.ML_ERROR_GRACEFUL_TERMINATION) {
+            debugToast("errorCode $errorCode is graceful termination, so why call this" )
+        }
         message ?: return false
-        Timber.v("handleUngracefulTermination: wasUngracefulTerminationHandled=$wasUngracefulTerminationHandled,  $title, $message")
+        Timber.v("handleUngracefulTermination: wasUngracefulTerminationHandled=$wasUngracefulTerminationHandled, $errorCode $title, $message")
         wasUngracefulTerminationHandled = true
-        // start a separate activity and show an alert
-        startActivity(createAlertIntent(this,
-            title,
-            message))
+        val streamError = RnStreamError(stage = "", portFlags = 0, errorCode = errorCode, title = title, message = message)
+        startActivity(createHandleStreamErrorIntent(this, streamError, intent))
+        return true
+    }
+
+    private fun handleUngracefulStreamError(streamError: RnStreamError) : Boolean {
+        Timber.v("handleUngracefulStreamError: wasUngracefulTerminationHandled=$wasUngracefulTerminationHandled,  $streamError")
+        wasUngracefulTerminationHandled = true
+        startActivity(createHandleStreamErrorIntent(this, streamError, intent))
         return true
     }
 
@@ -381,8 +458,14 @@ class RnGame : Game() {
         view.onDestroy()
     }
 
+    override fun displayMessage(message: String?) {
+        message ?: return
+        Timber.v("displayMessage: $message")
+        view.showNotificationText(message)
+    }
     override fun displayTransientMessage(message: String?) {
         message ?: return
+        Timber.v("displayTransientMessage: $message")
         view.showNotificationText(message)
     }
 
@@ -396,6 +479,69 @@ class RnGame : Game() {
         )
         RemotePlaySettingsPref.setComputerMeta(uuid, newComputerMeta)
     }
-  
+
+    override fun onOverlayHintClicked(overlayHint: OverlayHint) {
+        Timber.v("onOverlayHintClicked: $overlayHint")
+        if (!overlayHint.isToggle) {
+            handleKeyDown(KeyEvent(KeyEvent.ACTION_DOWN, overlayHint.keyCode))
+            handleKeyUp(KeyEvent(KeyEvent.ACTION_UP, overlayHint.keyCode))
+        } else {
+            onOverlayHintToggled(overlayHint)
+        }
+    }
+
+    override fun onOverlayHintsHide() {
+        cancelAllOverlayHintsJob()
+    }
+
+    private fun onOverlayHintToggled(overlayHint: OverlayHint) {
+        val overlayButtonState = overlayButtonStateMap[overlayHint.keyCode] ?: OverlayHintState.empty
+        if (overlayButtonState.isPressing) {
+            overlayButtonState.keyDownJob?.cancel()
+            lifecycleScope.launch(ioDispatcher) {
+                handleKeyUp(KeyEvent(KeyEvent.ACTION_UP, overlayHint.keyCode))
+            }
+            overlayButtonStateMap[overlayHint.keyCode] = OverlayHintState.empty
+        } else {
+            val newJob = lifecycleScope.launch(ioDispatcher) {
+                while (isActive) {
+                    handleKeyDown(KeyEvent(KeyEvent.ACTION_DOWN, overlayHint.keyCode))
+                    delay(overlayButtonPressDuration)
+                }
+            }
+            overlayButtonStateMap[overlayHint.keyCode] = OverlayHintState(true, newJob)
+        }
+    }
+
+    private fun cancelAllOverlayHintsJob() {
+        overlayButtonStateMap.forEach { (keyCode, overlayButtonState) ->
+            if (overlayButtonState.isPressing) {
+                overlayButtonState.keyDownJob?.cancel()
+                lifecycleScope.launch(ioDispatcher) {
+                    handleKeyUp(KeyEvent(KeyEvent.ACTION_UP, keyCode))
+                }
+            }
+        }
+        overlayButtonStateMap.clear()
+    }
+
+    private fun updateSessionStats() {
+        val connectionStartedAt = connectionStartedAt ?: return
+        val connectionStoppedAt = connectionTerminatedAt ?: now()
+        val sessionDurationMs = connectionStoppedAt - connectionStartedAt
+        RemotePlaySettingsPref.maxSessionLengthMs = max(sessionDurationMs, RemotePlaySettingsPref.maxSessionLengthMs ?: 0)
+        RemotePlaySettingsPref.totalSessionLengthMs += sessionDurationMs
+    }
+
 }
 
+
+fun Intent.wasRestarted() = getBooleanExtra(com.razer.neuron.game.RnGameError.EXTRA_WAS_RESTARTED, false)
+fun Intent.setRestarted(restarted : Boolean) {
+    putExtra(EXTRA_WAS_RESTARTED, restarted)
+}
+
+fun Intent.isReplaceSession() = getBooleanExtra(Game.EXTRA_IS_REPLACE_SESSION, false)
+fun Intent.setReplaceSession(replaceSession : Boolean) {
+    putExtra(Game.EXTRA_IS_REPLACE_SESSION, replaceSession)
+}

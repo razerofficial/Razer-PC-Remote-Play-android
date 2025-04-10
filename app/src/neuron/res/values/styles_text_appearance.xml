@@ -7,6 +7,9 @@
     <style name="TextAppearance.Material3.Page.Title" parent="TextAppearance.Material3.TitleLarge">
         <item name="android:textSize">@dimen/m3_sys_item_title_textsize</item>
     </style>
+    <style name="TextAppearance.Material3.Toolbar.Title" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:textSize">@dimen/m3_sys_item_title_textsize</item>
+    </style>
     <style name="TextAppearance.Material3.Item.Header" parent="TextAppearance.Material3.TitleLarge">
         <item name="android:textSize">@dimen/m3_sys_item_title_textsize</item>
     </style>

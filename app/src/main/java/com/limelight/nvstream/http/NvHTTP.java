@@ -22,10 +22,12 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.LinkedList;
 import java.util.ListIterator;
+import java.util.Random;
 import java.util.Stack;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import javax.annotation.Nullable;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManager;
@@ -47,6 +49,7 @@ import com.limelight.LimeLog;
 import com.limelight.NeuronBridge;
 import com.limelight.RemotePlayConfig;
 import com.limelight.nvstream.ConnectionContext;
+import com.limelight.nvstream.StreamConfiguration;
 import com.limelight.nvstream.http.PairingManager.PairState;
 import com.limelight.nvstream.jni.MoonBridge;
 
@@ -421,7 +424,10 @@ public class NvHTTP {
         if(machineIdentifier != null && !machineIdentifier.isEmpty()) {
             details.machineIdentifier = machineIdentifier;
         }
-        LimeLog.info("getComputerDetails: name="+details.name+", uuid="+details.uuid+", machineIdentifier = "+machineIdentifier);
+        details.serverCodecModeSupport = (int)getServerCodecModeSupport(serverInfo); // it is ok to cast it like that apparently
+        details.runningGameDevice = getCurrentDevice(serverInfo);
+        details.razerHostVersion = getRazerHostVersion(serverInfo);
+        LimeLog.info("getComputerDetails: name="+details.name+", uuid="+details.uuid+", machineIdentifier = "+machineIdentifier + ", razerHostVersion="+details.razerHostVersion);
         return details;
     }
     
@@ -466,7 +472,7 @@ public class NvHTTP {
         Response response = performAndroidTlsHack(client).newCall(request).execute();
 
         ResponseBody body = response.body();
-        
+
         if (response.isSuccessful()) {
             return body;
         }
@@ -489,19 +495,25 @@ public class NvHTTP {
     }
 
     private String openHttpConnectionToString(OkHttpClient client, HttpUrl baseUrl, String path, String query) throws IOException {
+        String tag = "openHttpConnectionToString("+Math.abs(new Random().nextInt(1000))+"): ";
+        boolean isImportant = !path.equals("serverinfo");
         try {
+            if (verbose && isImportant) {
+                LimeLog.info(tag + getCompleteUrl(baseUrl, path, query));
+            }
+
             ResponseBody resp = openHttpConnection(client, baseUrl, path, query);
             String respString = resp.string();
             resp.close();
 
-            if (verbose && !path.equals("serverinfo")) {
-                LimeLog.info(getCompleteUrl(baseUrl, path, query)+" -> "+respString);
+            if (verbose && isImportant) {
+                LimeLog.info(tag + respString);
             }
 
             return respString;
         } catch (IOException e) {
-            if (verbose && !path.equals("serverinfo")) {
-                LimeLog.warning(getCompleteUrl(baseUrl, path, query)+" -> "+e.getMessage());
+            if (verbose && isImportant) {
+                LimeLog.warning(tag + e.getMessage());
                 e.printStackTrace();
             }
             
@@ -517,6 +529,7 @@ public class NvHTTP {
         // appversion is present in all supported GFE versions
         return getXmlString(serverInfo, "appversion", true);
     }
+
 
     public PairingManager.PairState getPairState() throws IOException, XmlPullParserException {
         return getPairState(getServerInfo(true));
@@ -596,6 +609,16 @@ public class NvHTTP {
         else {
             return 0;
         }
+    }
+
+    @Nullable
+    public String getRazerHostVersion(String serverInfo) throws IOException, XmlPullParserException {
+        return getXmlString(serverInfo, "hostversion", false);
+    }
+
+    @Nullable
+    public String getCurrentDevice(String serverInfo) throws IOException, XmlPullParserException {
+        return getXmlString(serverInfo, "currentdevice", false);
     }
 
     public int getHttpsPort(String serverInfo) {
@@ -779,8 +802,26 @@ public class NvHTTP {
         }
         return new String(hexChars);
     }
-    
+
+    private static final String CORTEX_API_REPLACE = "replace";
+
+    /**
+     * Wrap {@link #_launchApp(ConnectionContext, String, int, boolean)} with this function
+     * so that we can apply the {@link StreamConfiguration#isReplaceSession()} value if needed.
+     * @param context
+     * @param verb
+     * @param appId
+     * @param enableHdr
+     * @return
+     * @throws IOException
+     * @throws XmlPullParserException
+     */
     public boolean launchApp(ConnectionContext context, String verb, int appId, boolean enableHdr) throws IOException, XmlPullParserException {
+        String _verb = context.streamConfig.isReplaceSession() ? CORTEX_API_REPLACE : verb;
+        return _launchApp(context, _verb, appId, enableHdr);
+    }
+
+    private boolean _launchApp(ConnectionContext context, String verb, int appId, boolean enableHdr) throws IOException, XmlPullParserException {
         // Using an FPS value over 60 causes SOPS to default to 720p60,
         // so force it to 0 to ensure the correct resolution is set. We
         // used to use 60 here but that locked the frame rate to 60 FPS
@@ -817,7 +858,13 @@ public class NvHTTP {
             "&gcpersist="+(context.streamConfig.getPersistGamepadsAfterDisconnect() ? 1 : 0) +
             NeuronBridge.getLaunchUrlQueryParameters(context) +
             MoonBridge.getLaunchUrlQueryParameters()));
-        if ((verb.equals("launch") && !getXmlString(xmlStr, "gamesession", true).equals("0") ||
+        if (verb.equals(CORTEX_API_REPLACE)
+                && !"0".equals(getXmlString(xmlStr, "gamesession", false))
+                && !"0".equals(getXmlString(xmlStr, "resume", false))) {
+            // sessionUrl0 will be missing for older GFE versions
+            context.rtspSessionUrl = getXmlString(xmlStr, "sessionUrl0", false);
+            return true;
+        } else if ((verb.equals("launch") && !getXmlString(xmlStr, "gamesession", true).equals("0") ||
                 (verb.equals("resume") && !getXmlString(xmlStr, "resume", true).equals("0")))) {
             // sessionUrl0 will be missing for older GFE versions
             context.rtspSessionUrl = getXmlString(xmlStr, "sessionUrl0", false);

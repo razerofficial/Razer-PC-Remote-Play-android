@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.limelight.R
+import com.limelight.computers.ComputerDatabaseManager
 import com.limelight.nvstream.http.ComputerDetails
 import com.limelight.nvstream.http.ComputerDetails.AddressTuple
 import com.limelight.nvstream.http.ComputerDetails.State
@@ -13,11 +14,14 @@ import com.razer.neuron.common.debugToast
 import com.razer.neuron.common.logAndRecordException
 import com.razer.neuron.di.IoDispatcher
 import com.razer.neuron.di.UnexpectedExceptionHandler
+import com.razer.neuron.extensions.vv
 import com.razer.neuron.model.AppAction
 import com.razer.neuron.model.ButtonHint
 import com.razer.neuron.model.ControllerInput
 import com.razer.neuron.nexus.NexusContentProvider
 import com.razer.neuron.pref.RemotePlaySettingsPref
+import com.razer.neuron.startgame.RnStartGameModel
+import com.razer.neuron.startgame.RnStartGameViewModel
 import com.razer.neuron.settings.PairingStage
 import com.razer.neuron.settings.StreamingManager
 import com.razer.neuron.settings.devices.DeviceItem
@@ -28,7 +32,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -42,9 +48,10 @@ class RnLandingViewModel
 @Inject constructor(
     private val application: Application,
     @UnexpectedExceptionHandler val unexpectedExceptionHandler: CoroutineExceptionHandler,
-    @IoDispatcher val ioDispatcher: CoroutineDispatcher,
+    @IoDispatcher override val ioDispatcher: CoroutineDispatcher,
+    override val computerDatabaseManager: ComputerDatabaseManager,
     private val streamingManager: StreamingManager
-) : ViewModel() {
+) : ViewModel(), RnStartGameViewModel {
 
     companion object {
         const val tag = "ComputersViewModel"
@@ -176,7 +183,15 @@ class RnLandingViewModel
 
         viewModelScope.launch {
             streamingManager.startStreamFlow.collect {
-                emitState(LandingState.StartStreaming(it))
+                gameIntent ->
+                withContext(ioDispatcher) {
+                    try {
+                        askBeforeStartStream(gameIntent).emit()
+                    } catch (t : Throwable) {
+                        logAndRecordException(t)
+                        RnStartGameModel.Navigation.Error(t).emit()
+                    }
+                }
             }
         }
     }
@@ -218,8 +233,8 @@ class RnLandingViewModel
      * [createContent] (i.e. because [DeviceItem.Header] might need to change if [DeviceItem] changes)
      */
     fun onComputerDetailsUpdated(fromNeuron : Boolean, details: ComputerDetails? = null) {
-        Timber.v("onComputerDetailsUpdated: ${"-".repeat(20)}")
-        Timber.v("onComputerDetailsUpdated: fromNeuron=$fromNeuron $details")
+        Timber.vv("onComputerDetailsUpdated: ${"-".repeat(20)}")
+        Timber.vv("onComputerDetailsUpdated: fromNeuron=$fromNeuron $details")
         if(details != null) {
             details.maybeSaveToCache()
             details.maybeUpdateFromCache()
@@ -227,7 +242,7 @@ class RnLandingViewModel
                 emitState(LandingState.InvalidateComputer(details))
             }
             computerDetailsList.forEachIndexed { index, computerDetails ->
-                Timber.v("onComputerDetailsUpdated: [$index] $computerDetails")
+                Timber.vv("onComputerDetailsUpdated: [$index] $computerDetails")
             }
             val existingComputer = if(details.machineIdentifier != null)
                 computerDetailsList.find { it.machineIdentifier == details.machineIdentifier }
@@ -382,5 +397,19 @@ class RnLandingViewModel
     private fun wasManuallyUnpaired(uuid: String): Boolean {
         return RemotePlaySettingsPref.manuallyUnpaired.contains(uuid)
     }
+
+
+    override val appContext get() = application
+    override val sessionViewModelScope get() = viewModelScope
+
+    private val _sessionNavigation = MutableSharedFlow<RnStartGameModel.Navigation>()
+    override val sessionNavigation = _sessionNavigation.asSharedFlow()
+
+    private val _sessionState = MutableStateFlow<RnStartGameModel.State>(RnStartGameModel.State.Empty)
+    override val sessionState = _sessionState.asStateFlow()
+
+
+    override fun RnStartGameModel.State.emit() = viewModelScope.launch { _sessionState.emit(this@emit) }
+    override fun RnStartGameModel.Navigation.emit() = viewModelScope.launch { _sessionNavigation.emit(this@emit) }
 
 }

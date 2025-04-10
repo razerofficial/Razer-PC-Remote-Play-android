@@ -12,24 +12,50 @@
         android:touchscreenBlocksFocus="false"
         android:layout_marginStart="@dimen/margin_2x"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/tool_bar_height"
-        app:titleTextAppearance="@style/TextAppearance.Material3.Item.Header"
+        android:layout_height="wrap_content"
+        app:titleTextAppearance="@style/TextAppearance.Material3.Toolbar.Title"
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/text_input_layout"
+        android:id="@+id/til_ip_address"
         style="@style/RnTextInputLayout"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@+id/top_tool_bar"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/til_port"
         android:layout_marginStart="@dimen/margin_6x"
         android:layout_marginEnd="@dimen/margin_9x"
         android:hint="@string/rn_hint_input_pc_ip_address"
         app:errorEnabled="true">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/et_address_for_pairing"
+            android:id="@+id/et_ip_address"
+            style="@style/RnTextInputEditText"
+            android:imeOptions="actionDone|flagNoExtractUi"
+            android:nextFocusForward="@id/til_port"
+            android:singleLine="true"
+            android:maxLines="1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/til_port"
+        style="@style/RnTextInputLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintWidth_percent="0.18"
+        app:layout_constraintTop_toBottomOf="@+id/top_tool_bar"
+        app:layout_constraintEnd_toStartOf="@+id/btn_add"
+        android:layout_marginStart="@dimen/margin_6x"
+        android:layout_marginEnd="@dimen/margin_9x"
+        android:hint="@string/rn_hint_input_pc_port"
+        app:errorEnabled="true">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_port"
             style="@style/RnTextInputEditText"
             android:imeOptions="actionDone|flagNoExtractUi"
             android:singleLine="true"
@@ -39,18 +65,17 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_add"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        style="@style/RnButtonHintStyle"
-        android:layout_marginVertical="@dimen/margin_5x"
+        style="@style/RnButtonStyle"
         android:layout_marginEnd="@dimen/margin_9x"
+        android:layout_marginBottom="@dimen/margin_4x"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/til_ip_address"
+        app:layout_constraintBottom_toBottomOf="@+id/til_ip_address"
         android:text="@string/rn_add"
-        app:backgroundTint="@null"
-        app:icon="@null"
         tools:visibility="visible"
         android:focusable="true" />
 

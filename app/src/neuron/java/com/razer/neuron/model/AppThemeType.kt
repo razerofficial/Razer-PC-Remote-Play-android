@@ -1,15 +1,20 @@
 package com.razer.neuron.model
 
 import android.app.Activity
+import android.content.Context
+import android.content.res.Configuration
 import android.os.Build
 import androidx.annotation.StringRes
+import androidx.annotation.StyleRes
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.app.AppCompatDelegate.NightMode
 import com.google.android.material.color.DynamicColors
 import com.limelight.R
+import com.razer.neuron.RnApp
+import com.razer.neuron.common.RnThemeManager
+import com.razer.neuron.common.doOnError
 import timber.log.Timber
 import com.razer.neuron.common.isActivityInDarkMode
-import com.razer.neuron.game.RnGame
 
 import com.razer.neuron.utils.API_LEVEL31
 import com.razer.neuron.utils.isAboveOrEqual
@@ -25,12 +30,52 @@ enum class AppThemeType(
      * For status bar icon color
      */
     @NightMode
-    val mode: Int
+    val mode: Int,
+    @StyleRes
+    val defaultThemeId: Int,
+    @StyleRes
+    val settingsThemeId: Int,
+    @StyleRes
+    val splashThemeId: Int,
+    @StyleRes
+    val gameThemeId: Int,
 ) {
-    RazerColor(R.string.rn_theme_razer, false, AppCompatDelegate.MODE_NIGHT_YES),
-    System(R.string.rn_theme_system, true, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM),
-    Light(R.string.rn_theme_light, true, AppCompatDelegate.MODE_NIGHT_NO),
-    Dark(R.string.rn_theme_dark, true, AppCompatDelegate.MODE_NIGHT_YES);
+    Razer(
+        title = R.string.rn_theme_razer,
+        isUseDynamicColors = false,
+        mode = AppCompatDelegate.MODE_NIGHT_YES,
+        defaultThemeId = R.style.AppTheme_Razer,
+        settingsThemeId = R.style.AppTheme_Razer_Settings,
+        splashThemeId = R.style.AppTheme_Razer_Splash,
+        gameThemeId = R.style.AppTheme_Razer_Game,
+    ),
+    System(
+        title = R.string.rn_theme_system,
+        isUseDynamicColors = true,
+        mode = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM,
+        defaultThemeId = R.style.AppTheme_DynamicColors_System,
+        settingsThemeId = R.style.AppTheme_DynamicColors_System_Settings,
+        splashThemeId = R.style.AppTheme_DynamicColors_System_Splash,
+        gameThemeId = R.style.AppTheme_DynamicColors_System_Game,
+    ),
+    Light(
+        title = R.string.rn_theme_light,
+        isUseDynamicColors = true,
+        mode = AppCompatDelegate.MODE_NIGHT_NO,
+        defaultThemeId = R.style.AppTheme_DynamicColors_Light,
+        settingsThemeId = R.style.AppTheme_DynamicColors_Light_Settings,
+        splashThemeId = R.style.AppTheme_DynamicColors_Light_Splash,
+        gameThemeId = R.style.AppTheme_DynamicColors_Light_Game,
+    ),
+    Dark(
+        title = R.string.rn_theme_dark,
+        isUseDynamicColors = true,
+        mode = AppCompatDelegate.MODE_NIGHT_YES,
+        defaultThemeId = R.style.AppTheme_DynamicColors_Dark,
+        settingsThemeId = R.style.AppTheme_DynamicColors_Dark_Settings,
+        splashThemeId = R.style.AppTheme_DynamicColors_Dark_Splash,
+        gameThemeId = R.style.AppTheme_DynamicColors_Dark_Game,
+    );
 
     companion object {
 
@@ -38,7 +83,7 @@ enum class AppThemeType(
          * Get a [AppThemeType] where [apply] will work
          * NEUR-106
          */
-        fun default() = RazerColor
+        fun default() = Razer
 
         /**
          * Use this instead of [DynamicColors.isDynamicColorAvailable]
@@ -68,62 +113,57 @@ enum class AppThemeType(
     }
 
     /**
-     * true if this [AppThemeType] should use white status icon
-     */
-    fun isUseWhiteStatusIcons(activity : Activity) =
-        (mode == AppCompatDelegate.MODE_NIGHT_YES) || (this == System && activity.isActivityInDarkMode())
-
-    /**
      * As per Greg's requirement, if [DynamicColors] was not applied (and we
      * are forced to use Razer color) then we force it to night mode
      */
     fun apply(activity: Activity) {
-        val finalTheme = if (isUseDynamicColors) {
+        if(activity !is DynamicThemeActivity) return
+
+        runCatching { activity.setTheme(activity.getThemeId()) }
+            .doOnError {
+                Timber.w(it)
+            }
+
+        if (isUseDynamicColors) {
             if (DynamicColors.isDynamicColorAvailable()) {
                 DynamicColors.applyToActivityIfAvailable(activity)
-                this
-            } else if (isDynamicColorAvailableUnofficially()) {
-                /**
-                 * See BAA-2200 on why [isDynamicColorAvailableUnofficially] is needed
-                 *
-                 * e.g.
-                 * Razer edge has partial support. Even though [DynamicColors.isDynamicColorAvailable]
-                 * is false, it can still support it if we force it.
-                 */
-                runCatching {
-                    with(activity) {
-                        setTheme(
-                            when (this) {
-                                /**
-                                 * [RnGame] needs a special theme with black background
-                                 * see [R.style.RnTheme_Game_Base], so if we are overriding
-                                 * the theme, we need to make sure we use one that has black
-                                 * bg also.
-                                 */
-                                is RnGame -> R.style.AppTheme_DynamicColors_WindowBackground_Black
-                                else -> R.style.AppTheme_DynamicColors
-                            }
-                        )
-                    }
-                }
-                this
-            } else {
-                // cannot apply dynamic, just use default
-                default()
             }
-        } else {
-            this
         }
-        finalTheme.applyLightDarkMode()
-        Timber.v("$name.apply(${activity.javaClass.simpleName}): finalTheme=${finalTheme.name} MODEL=${Build.MODEL},MANUFACTURER=${Build.MANUFACTURER},BRAND=${Build.BRAND}  DynamicColors.isDynamicColorAvailable=${DynamicColors.isDynamicColorAvailable()}")
+
+        applyLightDarkMode()
+        Timber.v("$name.apply(${activity.javaClass.simpleName}): finalTheme=${activity.appThemeType.name} MODEL=${Build.MODEL},MANUFACTURER=${Build.MANUFACTURER},BRAND=${Build.BRAND}  DynamicColors.isDynamicColorAvailable=${DynamicColors.isDynamicColorAvailable()}")
     }
 
 
     fun applyLightDarkMode() {
         AppCompatDelegate.setDefaultNightMode(mode)
-        Timber.v("$name.applyLightDarkMode")
+        Timber.v("${this}: applyLightDarkMode, mode=$mode")
     }
 }
 
+interface DynamicThemeActivity {
+    val isThemeTransparentBackground get() = false
+
+    val isThemeFullscreen get() = false
+
+    val isUseWhiteSystemBarIcons get() = RnApp.appContextOrNull?.isUseWhiteSystemBarIcons(appThemeType) ?: false
+
+    val appThemeType get() = RnThemeManager.appThemeType()
+
+    fun getThemeId() = appThemeType.defaultThemeId
+}
 
 
+fun Context.isUseWhiteSystemBarIcons(appThemeType: AppThemeType) : Boolean {
+    return when (appThemeType) {
+        AppThemeType.Razer, AppThemeType.Dark -> true
+        AppThemeType.Light -> false
+        AppThemeType.System -> isSystemDarkMode()
+    }
+}
+
+fun Context.isSystemDarkMode() = when (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) {
+    Configuration.UI_MODE_NIGHT_YES -> true
+    Configuration.UI_MODE_NIGHT_NO -> false
+    else -> false
+}

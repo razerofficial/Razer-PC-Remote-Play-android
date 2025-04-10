@@ -8,7 +8,7 @@ sealed class AppearanceState {
 
     class HideLoading(val tag: String) : AppearanceState()
 
-    data object RestartApp : AppearanceState()
+    data object ApplyTheme : AppearanceState()
 
     class ShowSelectTheme(val defaultOption: AppThemeType) : AppearanceState()
 }

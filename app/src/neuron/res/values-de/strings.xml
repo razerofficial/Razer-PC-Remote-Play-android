@@ -70,11 +70,10 @@
     <string name="rn_all_computers">Alle Computer</string>
     <string name="rn_settings_computers">Computer</string>
     <string name="rn_add">Hinzufügen</string>
-    <string name="rn_hint_input_pc_ip_address">PC-IP-Adresse eingeben</string>
+    <string name="rn_hint_input_pc_ip_address">IP-Adresse</string>
     <string name="rn_discovery_state_pc_online">Verfügbar</string>
     <string name="rn_pair">Koppeln</string>
     <string name="rn_paired_computers">Gekoppelte Computer</string>
-    <string name="rn_manual_pairing_loading_content">Bitte achte darauf, dass &hostlabel; im gleichen Netzwerk läuft.</string>
     <string name="rn_nexus_content_provider_permission_name">Koppeln ...</string>
     <string name="rn_pin_code_subtitle">PIN-Code:</string>
     <string name="rn_pin_code_title">Eingeben auf Streaming-PC\n%1$s</string>
@@ -144,7 +143,18 @@
     <string name="rn_add_computer_manually">PC manuell hinzufügen</string>
     <string name="rn_remote_play_settings_localized">PC Remote Play</string>
     <string name="rn_setting_neuron_video_settings">Video-Einstellungen</string>
-    <string name="rn_pairing_hint">Bitte achte darauf, dass &hostlabel; im gleichen Netzwerk läuft.</string>
+    <string name="rn_pairing_hint">Stellen Sie sicher, dass &hostlabel; ausgeführt wird.</string>
+    <string name="rn_setting_neuron_video_format_title">Videocodec</string>
+    <string name="rn_setting_neuron_video_format_subtitle">Geben Sie den für das Streaming verwendeten Videocodec an.</string>
+    <string name="rn_video_format_auto">Automatisch</string>
+    <string name="rn_prompt_quit_existing_session_title">Streaming-Sitzung läuft</string>
+    <string name="rn_prompt_quit_existing_session_msg"><![CDATA[<b>%1$s</b> streamt bereits auf <b>%2$s</b>. Möchten Sie die aktuelle Sitzung ersetzen? Alle nicht gespeicherten Daten gehen verloren.]]></string>
+    <string name="rn_replace">Ersetzen</string>
+    <string name="rn_reconnecting_to_x">Verbindung zu %1$s wird wiederhergestellt \u2026</string>
+    <string name="rn_tap_to_cancel">Tippen zum Abbrechen</string>
+    <string name="rn_overlay_title">PC-Tasten</string>
+    <string name="rn_warning_missing_address">Fehlende IP-Adresse.</string>
+    <string name="rn_warning_missing_port">Fehlender Port.</string>
 
     <!-- Failed to start error message, part 1  -->
     <string name="failed_to_start_msg_with_param">Verbindungsfehler %1$s.</string>
@@ -168,6 +178,15 @@
     <string name="conn_error_code_5032">Fehler beim Initialisieren der Videoaufnahme/Kodierung. Ist ein Display angeschlossen und eingeschaltet?</string>
     <string name="conn_error_code_5033">Keine laufende App zum Fortsetzen.</string>
     <string name="conn_error_code_5034">Alle Sitzungen müssen vor dem Beenden getrennt werden.</string>
+    <string name="conn_error_code_5037">Der Host-PC konnte den Video-Encoder nicht starten. Stellen Sie sicher, dass Ihre GPU- und CPU-Treiber aktualisiert sind.</string>
+    <string name="conn_error_code_5038">Der Video-Encoder konnte nicht gestartet werden. Versuchen Sie eine andere Video-Codec oder starten Sie den Host-PC neu.</string>
+    <string name="conn_error_code_5039"><![CDATA[Es wurde kein Display gefunden, das mit Ihrem PC verbunden ist. Stellen Sie sicher, dass Ihr Monitor eingeschaltet ist oder ändern Sie den Anzeigemodus auf <b>Nur Telefon</b>.]]></string>
+    <string name="conn_error_code_5040">Die Razer Virtual Display wurde nicht korrekt geladen. Bitte starten Sie Ihren Host-PC neu.</string>
 
     <string name="open_source_notice">Hinweise zu Open-Source-Software</string>
+
+    <string name="rn_fallback_display_mode_and_video_res_msg"><![CDATA[<br/><br/>Die Einstellung <b>Anzeigemodus</b> wurde auf <b>PC-Bildschirm duplizieren</b> und 720p zurückgesetzt. Bitte versuchen Sie es später erneut.]]></string>
+    <string name="rn_fallback_video_res_msg"><![CDATA[<br/><br/>Die Videoauflösung wurde auf 720p geändert. Bitte versuchen Sie es später erneut.]]></string>
+    <string name="rn_hint_input_pc_port">Port</string>
+
 </resources>

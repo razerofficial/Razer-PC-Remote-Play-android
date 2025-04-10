@@ -1,6 +1,8 @@
 package com.razer.neuron.extensions
 
 import android.net.Uri
+import android.text.Html
+import android.text.Spanned
 import timber.log.Timber
 
 
@@ -58,4 +60,9 @@ fun String.toUriOrNull(): Uri? {
         Timber.w(t)
         null
     }
+}
+
+
+fun String.toHtmlSpanned(): Spanned {
+    return Html.fromHtml(this, Html.FROM_HTML_MODE_LEGACY)
 }

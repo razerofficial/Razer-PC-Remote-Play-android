@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:color="?attr/colorSurfaceInverse" android:state_focused="true"/>
-    <item android:color="?attr/colorSurfaceInverse" android:state_pressed="true"/>
-    <item android:color="?attr/colorSurfaceInverse" android:state_selected="true"/>
-    <item android:color="?attr/colorSurfaceInverse" android:state_checked="true"/>
-    <item android:color="?attr/colorSurface"/>
+    <item android:color="@color/m3_system_highlight" android:state_focused="true"/>
+    <item android:color="@color/m3_system_highlight" android:state_pressed="true"/>
+    <item android:color="?attr/colorSecondaryContainer" android:state_selected="true"/>
+    <item android:color="?attr/colorSecondaryContainer" android:state_checked="true"/>
+    <item android:color="@android:color/transparent"/>
 </selector>

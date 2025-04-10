@@ -48,7 +48,7 @@
         android:ellipsize="end"
         android:gravity="center"
         android:lines="1"
-        android:maxWidth="320dp"
+        android:maxWidth="480dp"
         android:maxLines="1"
         tools:text="@string/placeholder_long"
         android:textAppearance="@style/TextAppearance.Material3.Loading.Title"
@@ -56,5 +56,21 @@
         app:layout_constraintEnd_toEndOf="@id/iv_splash_logo"
         app:layout_constraintStart_toStartOf="@id/iv_splash_logo"
         app:layout_constraintBottom_toBottomOf="@id/iv_splash_logo" />
+
+    <com.google.android.material.button.MaterialButton
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="@dimen/margin_2x"
+        app:layout_constraintTop_toBottomOf="@+id/tv_loading_text"
+        android:id="@+id/btn_loading"
+        style="@style/RnTextButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/rn_black"
+        app:rippleColor="@color/m3_system_highlight"
+        tools:visibility="visible"
+        android:visibility="gone"
+        android:text="@string/rn_cancel" />
+
 
 </merge>
