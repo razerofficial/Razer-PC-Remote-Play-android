@@ -8,55 +8,94 @@ import com.limelight.nvstream.http.ComputerDetails
 import com.limelight.nvstream.http.ComputerDetails.AddressTuple
 import com.limelight.nvstream.http.NvHTTP
 import com.razer.neuron.common.debugToast
+import com.razer.neuron.common.doOnError
+import com.razer.neuron.utils.now
+import com.razer.neuron.utils.randomInt
 import okio.IOException
+import org.xmlpull.v1.XmlPullParserException
 import timber.log.Timber
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
+import kotlin.jvm.Throws
 
 private val pollingExecutor = Executors.newFixedThreadPool(6)
+
+/**
+ * @return all non-null addresses
+ */
+fun ComputerDetails.ipAddresses() = listOf(localAddress, manualAddress, remoteAddress, ipv6Address)
+    .filterNotNull()
+
+/**
+ * A class to encapsulate the result of [getActiveComputer]
+ */
+class ActiveComputer(
+    val computerDetails: ComputerDetails,
+    val activeAddress: AddressTuple,
+    val http: NvHTTP) {
+    override fun toString(): String {
+        return computerDetails.toString()
+    }
+}
 
 /**
  * Get the active [AddressTuple] from [ComputerDetails.localAddress], [ComputerDetails.manualAddress],
  * [ComputerDetails.remoteAddress], [ComputerDetails.ipv6Address]
  *
- * @param isUpdateThis, true if you want to also update this [ComputerDetails]
- * @return a [Result] of the active [AddressTuple] and also call [ComputerDetails.update] if
- * [isUpdateThis] is true
+ * @return a [Result] of the [ComputerDetails] fetched
  */
+@Throws(java.io.IOException::class, IllegalStateException::class)
 @WorkerThread
-fun ComputerDetails.findActiveAddress(context : Context, timeoutMs : Long = 2000L, isUpdateThis : Boolean = true) : Result<AddressTuple> {
-    val ipAddresses = listOf(localAddress, manualAddress, remoteAddress, ipv6Address)
-        .filterNotNull()
+fun ComputerDetails.getActiveComputer(tag : String, context : Context, timeoutMs : Long = 2000L) : Result<ActiveComputer> {
+    val _tag = "$tag:getActiveComputer(${randomInt(0,100)})"
+    val startTime = now()
+    val ipAddresses = ipAddresses()
+
+    Timber.v("$_tag: checkActiveComputerDetails from ${ipAddresses}. Current active is ${activeAddress}")
     val allFutures = ipAddresses.map { address ->
         CompletableFuture.supplyAsync({
-            address to runCatching { pollForUpdatedComputerDetails(context, address) }
+            address to runCatching { checkActiveComputerDetails(_tag, context, address) }.doOnError {
+                Timber.w("$_tag: checkActiveComputerDetails at ${address} result in ${it.message}")
+            }
         }, pollingExecutor)
     }
+    var activeAddressAssigned = false
     val reachableFutures = allFutures.map { addressAndResult ->
-        CompletableFuture<AddressTuple>()
+        CompletableFuture<ActiveComputer>()
             .apply {
                 addressAndResult.thenAccept { (address, result) ->
-                    val computerDetails = result.getOrNull()
-                    if (result.isSuccess && computerDetails != null) {
-                        computerDetails.activeAddress = address // assign the activeAddress
-                        if(isUpdateThis) {
-                            update(computerDetails)
-                        }
-                        complete(address)
+                    val activeComputer = result.getOrNull()
+                    Timber.v("$_tag: testing address is $address, result isSuccess=${result.isSuccess}, activeAddress=${activeAddress}")
+                    if (result.isSuccess && activeComputer != null && !activeAddressAssigned) {
+                        activeAddressAssigned = true
+                        activeAddress = address // assign the activeAddress
+                        complete(activeComputer)
                     }
                 }
             }
     }
     val anyOfFuture = CompletableFuture.anyOf(*reachableFutures.toTypedArray())
-    val firstReachableAddress = try { anyOfFuture.get(timeoutMs+ 500, TimeUnit.MILLISECONDS) } catch (t : TimeoutException) { null }
-    return (firstReachableAddress as? AddressTuple)?.let { Result.success(it) } ?: Result.failure(IOException("Computer not reachable"))
+    val firstResult = try { anyOfFuture.get(timeoutMs+ 500, TimeUnit.MILLISECONDS) } catch (t : TimeoutException) { null }
+    Timber.v("$_tag: firstResult is ${firstResult} took ${now() - startTime}ms")
+    return (firstResult as? ActiveComputer)?.let { Result.success(it) } ?: Result.failure(IOException("Computer not reachable"))
 }
 
-private fun ComputerDetails.pollForUpdatedComputerDetails(context : Context, ipAddress : AddressTuple) : ComputerDetails {
+/**
+ * Test the [ipAddress] by creating a [NvHTTP], and then call [NvHTTP.getServerInfo]
+ * if there is no error, then create a [ActiveComputer]
+ */
+@Throws(java.io.IOException::class, XmlPullParserException::class)
+private fun ComputerDetails.checkActiveComputerDetails(tag : String, context : Context, ipAddress : AddressTuple) : ActiveComputer {
+    val _tag = "$tag:checkActiveComputerDetails:(${ipAddress})"
+    val logInfo = mutableMapOf<String, Any?>()
+    val _activeAddress : AddressTuple? = activeAddress
+    logInfo["state"] = state
+    logInfo["activeAddress"] = _activeAddress
+    val startTime = now()
     val portMatchesActiveAddress =
-        state == ComputerDetails.State.ONLINE && activeAddress != null && ipAddress.port == activeAddress.port
+        state == ComputerDetails.State.ONLINE && _activeAddress != null && ipAddress.port == _activeAddress.port
     val http = NvHTTP(
         ipAddress,
         if (portMatchesActiveAddress) httpsPort else 0,
@@ -65,14 +104,29 @@ private fun ComputerDetails.pollForUpdatedComputerDetails(context : Context, ipA
         PlatformBinding.getCryptoProvider(context))
     // If this PC is currently online at this address, extend the timeouts to allow more time for the PC to respond.
     val isLikelyOnline =
-        state == ComputerDetails.State.ONLINE && ipAddress == activeAddress
+        state == ComputerDetails.State.ONLINE && ipAddress == _activeAddress
+
+    /**
+     * ACTUAL API call to check if [ipAddress] is "active"
+     */
     val serverInfoXml = http.getServerInfo(isLikelyOnline)
-    if(BuildConfig.DEBUG) {
-        val state = NvHTTP.getXmlString(serverInfoXml, "state", false)
-        val currentGame = NvHTTP.getXmlString(serverInfoXml, "currentgame", false)
-        Timber.v("pollForUpdatedComputerDetails: state=$state, currentGame=$currentGame")
+    val fetchedComputerDetails = http.getComputerDetails(serverInfoXml)
+        .also {
+        if(BuildConfig.DEBUG) {
+            logInfo["state"]= NvHTTP.getXmlString(serverInfoXml, "state", false)
+            logInfo["currentgame"] = NvHTTP.getXmlString(serverInfoXml, "currentgame", false)
+        }
+        Timber.v("$_tag: ${logInfo.entries.joinToString { (k,v) -> "$k=$v" }} took ${now() - startTime}ms")
     }
-    return http.getComputerDetails(serverInfoXml)
+    // success, so we are confirmed that the cert and address are valid
+    fetchedComputerDetails.serverCert = serverCert
+    fetchedComputerDetails.activeAddress = ipAddress
+    update(fetchedComputerDetails)
+
+    return ActiveComputer(
+        computerDetails = this,
+        activeAddress = ipAddress,
+        http = http)
 }
 
 fun ComputerDetails.getRazerHostVersionInt() = razerHostVersion?.versionToLong()

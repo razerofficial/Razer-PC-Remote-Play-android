@@ -74,7 +74,7 @@ object RemotePlaySettingsPref : Krate {
     private const val CONNECTION_TERMINATED_UNGRACEFULLY_AT = "${NEURON}_connectionTerminatedUngracefullyAt"
     private const val KEY_LAST_REVIEW_REQUEST_AT = "${NEURON}_key_last_review_request_at"
     private const val KEY_LAST_REVIEW_COMPLETED_AT = "${NEURON}_key_last_review_completed_at"
-
+    private const val ONLY_USE_CURRENT_NATIVE_RES = "only_use_current_native_res"
 
     private fun getComputerMetaKey(uuid: String) = "${COMPUTER_META}_${uuid}"
 
@@ -89,6 +89,8 @@ object RemotePlaySettingsPref : Krate {
     var isOobeCompleted by booleanPref(KEY_IS_NEURON_OOBE_COMPLETED).withDefault(false)
 
     var isUseFallbackResolution by booleanPref(KEY_IS_USE_FALLBACK_RESOLUTION).withDefault(false)
+    var isNeuronInstalledEventSent by booleanPref(com.razer.neuron.shared.SharedConstants.KEY_IS_NEURON_INSTALLED_EVENT_SENT).withDefault(false)
+
     var fallbackResolution by stringPref(KEY_FALLBACK_RESOLUTION)
     
     private var manuallyUnpairedRaw by stringPref(MANUALLY_UNPAIRED)
@@ -150,6 +152,9 @@ object RemotePlaySettingsPref : Krate {
     var connectionTerminatedUngracefullyAt by longPref(CONNECTION_TERMINATED_UNGRACEFULLY_AT)
     var lastRequestReviewLaunchedAt by longPref(KEY_LAST_REVIEW_REQUEST_AT).withDefault(0L)
     var lastRequestReviewCompletedAt by longPref(KEY_LAST_REVIEW_COMPLETED_AT).withDefault(0L)
+
+    var isOnlyUseCurrentNativeRes by booleanPref(ONLY_USE_CURRENT_NATIVE_RES).withDefault(false)
+
 
     fun getComputerMeta(uuid: String): ComputerMeta? {
         val computerMetaJsonString = sharedPreferences.getString(getComputerMetaKey(uuid), "{}") ?: return null

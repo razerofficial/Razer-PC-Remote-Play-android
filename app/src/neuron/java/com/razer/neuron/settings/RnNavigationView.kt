@@ -6,6 +6,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.AttributeSet
 import android.view.KeyEvent
+import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewTreeObserver
@@ -13,6 +14,7 @@ import android.view.ViewTreeObserver.OnGlobalFocusChangeListener
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.view.Window
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.forEach
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.internal.NavigationMenuItemView
 import com.google.android.material.internal.NavigationMenuView
@@ -354,3 +356,19 @@ fun ViewTreeObserver.runOnceOnGlobalLayout(view : View, runnable: Runnable) {
     })
 }
 
+
+/**
+ * Convert all [MenuItem] into a single [List], but also inserting all the
+ * [MenuItem] in [android.view.SubMenu] to the result recursively.
+ */
+fun Menu.flatten(): List<MenuItem> {
+    val result = mutableListOf<MenuItem>()
+    forEach { item ->
+        if (item.hasSubMenu()) {
+            result.addAll(item.subMenu?.flatten() ?: emptyList())
+        } else {
+            result.add(item)
+        }
+    }
+    return result
+}

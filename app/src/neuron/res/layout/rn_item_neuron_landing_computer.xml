@@ -7,7 +7,7 @@
     android:elevation="0dp"
     android:layout_height="wrap_content"
     android:layout_width="155dp"
-    app:cardCornerRadius="@dimen/margin_2x"
+    app:cardCornerRadius="@dimen/m3_list_item_large_corner_radius"
     android:backgroundTint="@color/transparent"
     app:cardBackgroundColor="@color/transparent"
     app:cardForegroundColor="@color/transparent"
@@ -53,7 +53,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            style="@style/RnDeviceSettingsTitle"
+            style="@style/RnSettingsTitle"
             tools:text="@string/placeholder_long" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

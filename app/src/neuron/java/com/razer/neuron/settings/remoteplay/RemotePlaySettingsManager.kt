@@ -96,6 +96,12 @@ class RemotePlaySettingsManager(
     }
 
 
+    fun isOnlyUseCurrentNativeRes() = RemotePlaySettingsPref.isOnlyUseCurrentNativeRes
+
+    fun setOnlyUseCurrentNativeRes(isChecked: Boolean) {
+        RemotePlaySettingsPref.isOnlyUseCurrentNativeRes = isChecked
+    }
+
     fun setDisplayMode(displayMode: DisplayModeOption) {
         val previousDisplayMode = getDisplayMode()
         RemotePlaySettingsPref.displayMode = displayMode

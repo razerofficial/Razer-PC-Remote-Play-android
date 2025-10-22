@@ -34,3 +34,6 @@ ifeq (root,$(PRODUCT_FLAVOR))
     include $(BUILD_SYSTEM)/build-module.mk
 endif
 
+LOCAL_LDFLAGS += -Wl,-z,max-page-size=16384
+LOCAL_LDFLAGS += -Wl,-z,common-page-size=16384
+

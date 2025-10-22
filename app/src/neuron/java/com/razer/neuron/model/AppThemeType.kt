@@ -3,21 +3,31 @@ package com.razer.neuron.model
 import android.app.Activity
 import android.content.Context
 import android.content.res.Configuration
+import android.graphics.Color
 import android.os.Build
+import androidx.annotation.ColorInt
 import androidx.annotation.StringRes
 import androidx.annotation.StyleRes
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.app.AppCompatDelegate.NightMode
+import androidx.core.graphics.toColor
 import com.google.android.material.color.DynamicColors
 import com.limelight.R
 import com.razer.neuron.RnApp
 import com.razer.neuron.common.RnThemeManager
+import com.razer.neuron.common.colorSurface
+import com.razer.neuron.common.colorSurfaceContainerHighest
+import com.razer.neuron.common.colorSurfaceContainerLow
+import com.razer.neuron.common.colorSurfaceDim
 import com.razer.neuron.common.doOnError
+import com.razer.neuron.common.getMaterialColor
 import timber.log.Timber
 import com.razer.neuron.common.isActivityInDarkMode
+import com.razer.neuron.common.multiplyRgb
 
 import com.razer.neuron.utils.API_LEVEL31
 import com.razer.neuron.utils.isAboveOrEqual
+import okhttp3.internal.toHexString
 
 enum class AppThemeType(
     @StringRes
@@ -119,7 +129,7 @@ enum class AppThemeType(
     fun apply(activity: Activity) {
         if(activity !is DynamicThemeActivity) return
 
-        runCatching { activity.setTheme(activity.getThemeId()) }
+        runCatching { activity.setTheme( activity.getThemeId()) }
             .doOnError {
                 Timber.w(it)
             }
@@ -144,8 +154,6 @@ enum class AppThemeType(
 interface DynamicThemeActivity {
     val isThemeTransparentBackground get() = false
 
-    val isThemeFullscreen get() = false
-
     val isUseWhiteSystemBarIcons get() = RnApp.appContextOrNull?.isUseWhiteSystemBarIcons(appThemeType) ?: false
 
     val appThemeType get() = RnThemeManager.appThemeType()
@@ -166,4 +174,25 @@ fun Context.isSystemDarkMode() = when (resources.configuration.uiMode and Config
     Configuration.UI_MODE_NIGHT_YES -> true
     Configuration.UI_MODE_NIGHT_NO -> false
     else -> false
+}
+
+
+/**
+ * [AppThemeType.Razer] has messed up color, so we should not use [colorSurfaceContainerLow]
+ */
+@ColorInt
+fun Activity.getNavigationView3BackgroundColor(): Int {
+    val dynamicThemeActivity = (this as? DynamicThemeActivity) ?: return Color.TRANSPARENT
+    val context = this
+    val appTheme = dynamicThemeActivity.appThemeType
+    return when {
+        appTheme == AppThemeType.Razer -> context.colorSurfaceDim
+        appTheme == AppThemeType.Light || (appTheme == AppThemeType.System && !isActivityInDarkMode()) -> {
+            context.colorSurfaceContainerHighest
+        }
+        appTheme == AppThemeType.Dark || (appTheme == AppThemeType.System && isActivityInDarkMode()) -> {
+            context.colorSurface.toColor().multiplyRgb(0.66f).toArgb()
+        }
+        else -> Color.TRANSPARENT
+    }
 }

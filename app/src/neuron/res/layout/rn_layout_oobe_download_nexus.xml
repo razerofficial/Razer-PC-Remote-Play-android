@@ -14,20 +14,29 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.5" />
 
-
-    <ImageView
-        android:importantForAccessibility="no"
-        android:id="@+id/iv_left_image"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="@dimen/margin_14x"
-        android:layout_marginEnd="@dimen/margin_24x"
-        android:background="@drawable/bg_razer_edge"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintDimensionRatio="255:131"
         app:layout_constraintEnd_toStartOf="@+id/mid_line"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:importantForAccessibility="no"
+            android:id="@+id/iv_left_image"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintWidth_percent="0.75"
+            android:background="@drawable/bg_razer_edge"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="255:131"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 
 
     <ScrollView

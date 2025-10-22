@@ -35,17 +35,21 @@ fun isShowInAppReview() : Boolean {
 }
 
 suspend fun Activity.requestReview() {
-    Timber.v("requestReview: ReviewManagerFactory.create")
-    val reviewManager = ReviewManagerFactory.create(this)
-    reviewManager.requestReview().let {
-        RemotePlaySettingsPref.lastRequestReviewLaunchedAt = now()
-        val msg = "Requesting app review"
-        Timber.v("requestReview: review info obtained and launch. $msg")
-        debugToast(msg)
-        reviewManager.launchReviewFlow(this, it).addOnCompleteListener {
-            Timber.v("requestReview: Completed")
-            RemotePlaySettingsPref.lastRequestReviewCompletedAt = now()
+    try {
+        Timber.v("requestReview: ReviewManagerFactory.create")
+        val reviewManager = ReviewManagerFactory.create(this)
+        reviewManager.requestReview().let {
+            RemotePlaySettingsPref.lastRequestReviewLaunchedAt = now()
+            val msg = "Requesting app review"
+            Timber.v("requestReview: review info obtained and launch. $msg")
+            debugToast(msg)
+            reviewManager.launchReviewFlow(this, it).addOnCompleteListener {
+                Timber.v("requestReview: Completed")
+                RemotePlaySettingsPref.lastRequestReviewCompletedAt = now()
+            }
         }
+    } catch (t: Throwable) {
+        logAndRecordException(t)
     }
 }
 */

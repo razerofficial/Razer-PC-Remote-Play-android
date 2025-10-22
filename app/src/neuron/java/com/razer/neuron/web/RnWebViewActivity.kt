@@ -17,7 +17,6 @@ import com.limelight.R
 import com.limelight.databinding.RnActivityWebViewBinding
 import com.razer.neuron.common.BaseActivity
 import com.razer.neuron.common.toast
-import com.razer.neuron.extensions.hideNavigationBars
 import com.razer.neuron.model.DynamicThemeActivity
 import com.razer.neuron.utils.URL_STRING
 import java.net.URLDecoder
@@ -137,7 +136,6 @@ class RnWebViewActivity : BaseActivity(), DynamicThemeActivity {
         val title = intent?.extras?.getString(TITLE)
         toolbar.title = title
         toolbar.navigationContentDescription = title
-        toolbar.setNavigationIcon(R.drawable.ic_back)
         toolbar.setNavigationOnClickListener {
             onBackAction()
         }

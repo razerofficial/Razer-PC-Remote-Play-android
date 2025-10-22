@@ -56,7 +56,7 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
     private static final boolean USE_FRAME_RENDER_TIME = false;
     private static final boolean FRAME_RENDER_TIME_ONLY = USE_FRAME_RENDER_TIME && false;
 
-    private final String randomId = UUID.randomUUID().toString();
+    public final String randomId = UUID.randomUUID().toString();
     // Used on versions < 5.0
     private ByteBuffer[] legacyInputBuffers;
 

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:background="#000000">
+    tools:background="?attr/colorSurface">
 
 
     <ScrollView
@@ -22,7 +22,7 @@
             android:layout_height="wrap_content">
 
             <View
-                app:layout_constraintWidth_percent="0.7"
+                app:layout_constraintWidth_percent="0.75"
                 app:layout_constraintDimensionRatio="289:156"
                 android:id="@+id/mock_system_permission_dialog"
                 android:layout_width="0dp"

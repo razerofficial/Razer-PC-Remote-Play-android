@@ -7,40 +7,47 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
+import androidx.core.graphics.Insets
 import androidx.core.view.isGone
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.limelight.R
 import com.limelight.databinding.RnActivityMainBinding
 import com.razer.neuron.RnConstants
-import com.razer.neuron.settings.RnSettingsActivity
 import com.razer.neuron.common.BaseActivity
-import timber.log.Timber
 import com.razer.neuron.common.debugToast
+import com.razer.neuron.common.fitSystemWindows
+import com.razer.neuron.common.hideStatusBar
 import com.razer.neuron.common.materialAlertDialogTheme
-
+import com.razer.neuron.common.setCancelableExt
 import com.razer.neuron.extensions.applyTransition
 import com.razer.neuron.extensions.dismissSafely
 import com.razer.neuron.extensions.fadeOnStart
+import com.razer.neuron.extensions.getAppVersion
 import com.razer.neuron.extensions.gone
+import com.razer.neuron.extensions.hideNavigationBarsOnly
 import com.razer.neuron.extensions.openInBrowser
 import com.razer.neuron.extensions.toUriOrNull
 import com.razer.neuron.extensions.visible
 import com.razer.neuron.landing.RnLandingActivity
+import com.razer.neuron.managers.AnalyticsManager
 import com.razer.neuron.model.DynamicThemeActivity
+import com.razer.neuron.model.NeuronEvent
 import com.razer.neuron.nexus.NexusPackageStatus
 import com.razer.neuron.oobe.RnOobeActivity
+import com.razer.neuron.pref.RemotePlaySettingsPref
+import com.razer.neuron.settings.RnSettingsActivity
 import com.razer.neuron.startgame.RnStartGameView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @AndroidEntryPoint
 class RnMainActivity : BaseActivity(), RnStartGameView, DynamicThemeActivity {
-    override val isThemeFullscreen = true
     override fun getThemeId() = appThemeType.splashThemeId
     override val isUseWhiteSystemBarIcons = false
-
+    override val isRegisterSystemBarInsetsChange = true
     private var _binding: RnActivityMainBinding? = null
     private val binding get() = _binding!!
 
@@ -76,6 +83,27 @@ class RnMainActivity : BaseActivity(), RnStartGameView, DynamicThemeActivity {
         observe()
 
         viewModel.onCreate(intent ?: Intent())
+        sendNeuronInstalledEvent()
+    }
+
+
+    override fun onSystemBarInsetsChanged(insets : Insets) {
+        fitSystemWindows(isLayoutNoLimits = true)
+        hideNavigationBarsOnly()
+        hideStatusBar()
+    }
+
+    private fun sendNeuronInstalledEvent() {
+        if (!RemotePlaySettingsPref.isNeuronInstalledEventSent) {
+            this.getAppVersion(this.packageName)?.let {
+                val event = NeuronEvent.NeuronInstalled(
+                    versionName = it.versionName,
+                    versionCode = it.versionCode
+                )
+                AnalyticsManager.queueToSend(event)
+            }
+            RemotePlaySettingsPref.isNeuronInstalledEventSent = true
+        }
     }
 
     private fun observe() {
@@ -185,7 +213,7 @@ class RnMainActivity : BaseActivity(), RnStartGameView, DynamicThemeActivity {
     private fun showGetNexusDialog(title : String, message: String, buttonText : String = getString(R.string.rn_download)) {
         alertDialog.dismissSafely()
         alertDialog = MaterialAlertDialogBuilder(this, materialAlertDialogTheme())
-            .setCancelable(false)
+            .setCancelableExt(true) // just information, can be cancelled
             .setTitle(title)
             .setMessage(message)
             .setPositiveButton(buttonText) { _, p ->
@@ -193,6 +221,9 @@ class RnMainActivity : BaseActivity(), RnStartGameView, DynamicThemeActivity {
                 finishFromStartStream()
             }
             .setNegativeButton(R.string.rn_cancel) { _, p ->
+                viewModel.onUpdateNexusRejected()
+            }
+            .setOnCancelListener {
                 viewModel.onUpdateNexusRejected()
             }
             .show()

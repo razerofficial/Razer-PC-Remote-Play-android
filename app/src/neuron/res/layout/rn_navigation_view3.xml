@@ -1,0 +1,14 @@
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@drawable/bg_transparent"
+    tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout"
+    tools:theme="@style/AppTheme">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/nv3_recyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+</merge>
+
+

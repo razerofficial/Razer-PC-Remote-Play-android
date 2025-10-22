@@ -5,20 +5,30 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CompoundButton
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.map
 import com.limelight.R
 import com.limelight.databinding.RnFragmentRemotePlayBinding
 import com.limelight.preferences.PreferenceConfiguration.FormatOption
 import com.razer.neuron.common.debugToast
+import com.razer.neuron.common.showSingleChoiceItemsDialog
+import com.razer.neuron.common.updateCorners
 import com.razer.neuron.di.IoDispatcher
+import com.razer.neuron.extensions.Disposable
 import com.razer.neuron.extensions.FormatOptionMeta
+import com.razer.neuron.extensions.dismissSafely
 import com.razer.neuron.extensions.dpToPx
 import com.razer.neuron.extensions.getDisplayCutout
 import com.razer.neuron.extensions.getMeta
+import com.razer.neuron.extensions.getNativeResolutions
 import com.razer.neuron.extensions.gone
+import com.razer.neuron.extensions.isCurrentNativeResolutionAlreadyMax
 import com.razer.neuron.extensions.isHdrSupported
+import com.razer.neuron.extensions.setupSingleChoiceItemsDropdown
+import com.razer.neuron.extensions.setupSwitch
 import com.razer.neuron.extensions.visible
 import com.razer.neuron.extensions.visibleIf
 import com.razer.neuron.model.DisplayModeOption
@@ -26,6 +36,7 @@ import com.razer.neuron.model.FramePacingOption
 import com.razer.neuron.model.TouchScreenOption
 import com.razer.neuron.model.VideoFormatMetaData
 import com.razer.neuron.pref.RemotePlaySettingsPref
+import com.razer.neuron.settings.SettingsStackFragment
 import com.razer.neuron.utils.calculateVirtualDisplayMode
 import com.razer.neuron.utils.getDefaultDisplayRefreshRateHz
 import com.razer.neuron.utils.getStringExt
@@ -41,7 +52,9 @@ import kotlin.math.roundToInt
 
 
 @AndroidEntryPoint
-class RnRemotePlayFragment : Fragment() {
+class RnRemotePlayFragment : Fragment(), SettingsStackFragment {
+
+    override val fragmentTitle get() = getString(R.string.rn_settings_streaming_options)
 
     @Inject
     @IoDispatcher
@@ -71,44 +84,7 @@ class RnRemotePlayFragment : Fragment() {
             }
         }
 
-    private val framePacingOptionsMap
-        get() = mapOf(
-            FramePacingOption.LowLatency to binding.lowLatencyOption,
-            FramePacingOption.Balanced to binding.balancedOption,
-            FramePacingOption.SmoothestVideo to binding.smoothestOption
-        )
 
-    private val onFramePacingChangedListener =
-        CompoundButton.OnCheckedChangeListener { button, isChecked ->
-            Timber.v("OnCheckedChangeListener: $button, isChecked=${isChecked}")
-            if (isChecked) {
-                val framePacingOption =
-                    framePacingOptionsMap.entries.firstOrNull { (_, radioButton) -> radioButton.radioBtn == button }?.key
-                Timber.v("OnCheckedChangeListener: ${framePacingOption?.key}, isChecked=${isChecked}")
-                if (framePacingOption != null) {
-                    viewModel.setFramePacing(framePacingOption)
-                }
-            }
-        }
-
-    private val touchScreenOptionsMap
-        get() = mapOf(
-            TouchScreenOption.DirectTouch to binding.directTouchOption,
-            TouchScreenOption.VirtualTrackpad to binding.virtualTrackpadOption
-        )
-
-    private val onTouchScreenChangedListener =
-        CompoundButton.OnCheckedChangeListener { button, isChecked ->
-            Timber.v("OnCheckedChangeListener: $button, isChecked=${isChecked}")
-            if (isChecked) {
-                val touchScreenOption =
-                    touchScreenOptionsMap.entries.firstOrNull { (_, radioButton) -> radioButton.radioBtn == button }?.key
-                Timber.v("OnCheckedChangeListener: ${touchScreenOption}, isChecked=${isChecked}")
-                if (touchScreenOption != null) {
-                    viewModel.setTouchScreen(touchScreenOption)
-                }
-            }
-        }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -124,6 +100,7 @@ class RnRemotePlayFragment : Fragment() {
         setupDisplayMode()
         setupCropToSafeArea()
         setupLimitRefreshRate()
+        setupOnlyUseCurrentNativeRes()
         setupVideoBitrate()
         setupFramePacing()
         setupHDR()
@@ -131,7 +108,41 @@ class RnRemotePlayFragment : Fragment() {
         setupTouchScreen()
         setupAutoCloseGameCountDown()
         setupVideoFormat()
+        updateAllCorners()
     }
+
+    private fun updateAllCorners() = pillGroups.forEach { it.updateCorners() }
+
+    private val videoSettingsPill by lazy {
+        listOf(
+            binding.rowBitrate.root,
+            binding.rowHdr.root,
+        )
+    }
+
+    private val generalSettingsPill by lazy {
+        listOf(
+            binding.rowMuteHostPc.root,
+            binding.rowTouchScreen.root
+        )
+    }
+
+    private val advanceSettingsPill by lazy {
+        listOf(
+            binding.rowAutoCloseGameCountdownDropdown.root,
+            binding.rowLimitRefreshRate.root,
+            binding.rowOnlyUseCurrentNativeRes.root,
+            binding.rowLimitToSafeArea.root,
+            binding.rowStretchToFullScreen.root,
+            binding.rowFramePacing.root,
+            binding.rowVideoFormatDropdown.root,
+        )
+    }
+
+    private val pillGroups by lazy {
+        arrayOf(videoSettingsPill, generalSettingsPill, advanceSettingsPill)
+    }
+
 
     override fun onResume() {
         super.onResume()
@@ -139,8 +150,14 @@ class RnRemotePlayFragment : Fragment() {
     }
 
 
+    override fun onPause() {
+        super.onPause()
+        touchScreenDisposable?.dispose()
+        framePacingDisposable?.dispose()
+    }
+
     private fun DisplayModeOption.getDisplaySubtitleText() : String {
-        val virtualDisplayMode = calculateVirtualDisplayMode(requireContext(), isLimitRefreshRate = RemotePlaySettingsPref.isLimitRefreshRate).getOrNull()
+        val virtualDisplayMode = activity?.calculateVirtualDisplayMode(isLimitRefreshRate = RemotePlaySettingsPref.isLimitRefreshRate)?.getOrNull()
         val virtualResolution = virtualDisplayMode?.let { "${it.width}x${it.height}" } ?: ""
         val virtualRefreshRate = virtualDisplayMode?.refreshRate ?: ""
         return when(this) {
@@ -182,6 +199,7 @@ class RnRemotePlayFragment : Fragment() {
         binding.irbSeparateScreen.visibleIf {
             RemotePlaySettingsPref.isSeparateScreenDisplayEnabled
         }
+        updateAllCorners()
     }
 
 
@@ -190,72 +208,97 @@ class RnRemotePlayFragment : Fragment() {
         val window = activity?.window ?: return
         binding.rowLimitToSafeArea.root.visibleIf { context.getDisplayCutout(window).isNotEmpty() && selected == DisplayModeOption.PhoneOnlyDisplay }
         binding.rowStretchToFullScreen.root.visibleIf { context.getDisplayCutout(window).isNotEmpty() && selected == DisplayModeOption.DuplicateDisplay }
+        updateAllCorners()
     }
 
     private fun setupCropToSafeArea() {
         with(binding.rowLimitToSafeArea) {
-            tvTitle.text = getString(R.string.rn_setting_neuron_limit_to_safe_area)
-            tvSubtitle.text = getString(R.string.rn_setting_neuron_limit_to_safe_area_desc)
-            switchLayout.visible()
-            ivActionIcon.gone()
-            root.setOnClickListener {
-                switchAction.toggle()
-                viewModel.setCropDisplaySafeArea(switchAction.isChecked)
-            }
-            switchAction.setOnCheckedChangeListener { _, isChecked ->
-                viewModel.setCropDisplaySafeArea(isChecked)
-            }
+            setupSwitch(
+                viewLifecycleOwner = viewLifecycleOwner,
+                title = getString(R.string.rn_setting_neuron_limit_to_safe_area),
+                subtitle = getString(R.string.rn_setting_neuron_limit_to_safe_area_desc),
+                isChecked = viewModel.cropDisplaySafeAreaLiveData.value,
+                liveData = viewModel.cropDisplaySafeAreaLiveData,
+                onCheckedChangeListener = { _, isChecked ->
+                    viewModel.setCropDisplaySafeArea(isChecked)
+                }
+            )
         }
 
         with(binding.rowStretchToFullScreen) {
-            tvTitle.text = getString(R.string.rn_setting_neuron_stretch_to_full_screen)
-            tvSubtitle.text = getString(R.string.rn_setting_neuron_stretch_to_full_screen_desc)
-            switchLayout.visible()
-            ivActionIcon.gone()
             // we use ! here because the function setCropDisplaySafeArea is opposite
             // of the switch's text
-            root.setOnClickListener {
-                switchAction.toggle()
-                viewModel.setCropDisplaySafeArea(!switchAction.isChecked)
-            }
-            switchAction.setOnCheckedChangeListener { _, isChecked ->
-                // we use ! here because the function setCropDisplaySafeArea is opposite
-                // of the switch's text
-                viewModel.setCropDisplaySafeArea(!isChecked)
-            }
-        }
-
-        viewModel.cropDisplaySafeAreaLiveData.observe(viewLifecycleOwner) { isChecked ->
-            with(binding.rowLimitToSafeArea) {
-                switchAction.isChecked = isChecked
-            }
-            with(binding.rowStretchToFullScreen) {
-                // we use ! here because the function setCropDisplaySafeArea is opposite
-                // of the switch's text
-                switchAction.isChecked = !isChecked
-            }
+            setupSwitch(
+                viewLifecycleOwner = viewLifecycleOwner,
+                title = getString(R.string.rn_setting_neuron_stretch_to_full_screen),
+                subtitle = getString(R.string.rn_setting_neuron_stretch_to_full_screen_desc),
+                isChecked = (viewModel.cropDisplaySafeAreaLiveData.value != true),
+                liveData = viewModel.cropDisplaySafeAreaLiveData.map { !it },
+                onCheckedChangeListener = { _, isChecked ->
+                    viewModel.setCropDisplaySafeArea(!isChecked)
+                }
+            )
         }
     }
 
     private fun setupLimitRefreshRate() {
         //BAA-2345
         binding.rowLimitRefreshRate.root.visibleIf { (context?.getDefaultDisplayRefreshRateHz() ?: 0) > 60f }
+        updateAllCorners()
         with(binding.rowLimitRefreshRate) {
-            tvTitle.text = getStringExt(R.string.rn_setting_neuron_limit_refresh_title)
-            tvSubtitle.gone()
+            setupSwitch(
+                viewLifecycleOwner = viewLifecycleOwner,
+                title = getString(R.string.rn_setting_neuron_limit_refresh_title),
+                isChecked = viewModel.limitRefreshRateLiveData.value == true,
+                liveData = viewModel.limitRefreshRateLiveData,
+                onCheckedChangeListener = { _, isChecked ->
+                    viewModel.setCropDisplaySafeArea(!isChecked)
+                }
+            )
+        }
+    }
+
+
+    /**
+     * BAA-2656
+     *
+     */
+    private fun setupOnlyUseCurrentNativeRes() {
+        /**
+         * "can we set it so we only show that option if there’s a difference between native resolution and active screen resolution?"
+         */
+        fun isSettingNecessary() = !(activity?.let { isCurrentNativeResolutionAlreadyMax(window = it.window) } ?: false)
+        binding.rowOnlyUseCurrentNativeRes.root.visibleIf { isSettingNecessary() }
+        with(binding.rowOnlyUseCurrentNativeRes) {
+            fun updateSubtitle() {
+                val window = activity?.window ?: return
+                val nativeRes = getNativeResolutions(window = window, isOnlyUseCurrentNativeRes = switchAction.isChecked).maxByOrNull { it.pixelsCount } ?: return
+                tvSubtitle.text = "${nativeRes.width}x${nativeRes.height}"
+            }
+            tvTitle.text = getString(R.string.rn_setting_neuron_only_use_current_native_resolution)
+            updateSubtitle()
             switchLayout.visible()
-            ivActionIcon.gone()
+            ivActionStartIcon.gone()
             root.setOnClickListener {
                 switchAction.toggle()
-                viewModel.setLimitRefreshRate(switchAction.isChecked)
+                viewModel.setOnlyUseCurrentNativeRes(switchAction.isChecked)
             }
             switchAction.setOnCheckedChangeListener { _, isChecked ->
-                viewModel.setLimitRefreshRate(isChecked)
+                viewModel.setOnlyUseCurrentNativeRes(isChecked)
+                updateSubtitle()
             }
         }
-
-        viewModel.limitRefreshRateLiveData.observe(viewLifecycleOwner) { isChecked ->
-            with(binding.rowLimitRefreshRate) {
+        viewModel.displayModeLiveData.observe(viewLifecycleOwner) { option ->
+            /**
+             * Since we only use phone fullscreen if [DisplayModeOption.isUsesVirtualDisplay], so
+             * we should also check this
+             */
+            val willUseNativeResolution = option.isUsesVirtualDisplay
+            binding.rowOnlyUseCurrentNativeRes.root.visibleIf { willUseNativeResolution && isSettingNecessary() }
+            updateAllCorners()
+        }
+        viewModel.onlyUseCurrentNativeRes.observe(viewLifecycleOwner) { isChecked ->
+            with(binding.rowOnlyUseCurrentNativeRes) {
                 switchAction.isChecked = isChecked
             }
         }
@@ -278,172 +321,162 @@ class RnRemotePlayFragment : Fragment() {
         fun BitrateRateSettings.levelToBitrate(level: Float) = range() * (level / levels)
         fun BitrateRateSettings.levelToCoerceString(level: Float) = coerceBitrateToString(levelToBitrate(level).roundToInt())
         fun BitrateRateSettings.bitrateToLevel() = rate.toFloat()/range()*levels
+        val bitrateSlider = binding.rowBitrate.slider
+        binding.rowBitrate.tvTitle.text = getString(R.string.rn_setting_neuron_video_bitrate)
         var currentSettings : BitrateRateSettings? = null
         viewModel.bitrateSettingsLiveData.observe(viewLifecycleOwner) { bitRateSettings ->
             currentSettings = bitRateSettings
             Timber.v("setupVideoBitrate: bitRateSetting=$bitRateSettings")
-            binding.bitrateSlider.contentDescription = bitRateSettings.coerceBitrateToString()
-            binding.bitrateSlider.valueFrom = 0f
-            binding.bitrateSlider.valueTo = levels
-            binding.bitrateSlider.value = bitRateSettings.bitrateToLevel()
+            bitrateSlider.contentDescription = bitRateSettings.coerceBitrateToString()
+            bitrateSlider.valueFrom = 0f
+            bitrateSlider.valueTo = levels
+            bitrateSlider.value = bitRateSettings.bitrateToLevel()
             // we cannot use KEY_STEP directly since
             // 1. min value is 500 (which is less than KEY_STEP)
             // 2. Between max and min there are too many steps
-            binding.bitrateSlider.setLabelFormatter { level ->
+            bitrateSlider.setLabelFormatter { level ->
                 bitRateSettings.levelToCoerceString(level)
             }
         }
-        binding.bitrateSlider.addOnChangeListener { _ ,level, fromUser ->
+        bitrateSlider.addOnChangeListener { _ ,level, fromUser ->
             if (fromUser) {
                 currentSettings?.let {
                     val bitrate = it.levelToBitrate(level).roundToInt()
-                    binding.bitrateSlider.contentDescription = it.levelToCoerceString(level)
+                    bitrateSlider.contentDescription = it.levelToCoerceString(level)
                     Timber.v("bitrateSlider:addOnChangeListener level=$level rate=${it.coerceBitrateToString(bitrate = bitrate)}")
                     viewModel.setBitrateSettings(bitrate)
                 }
             }
         }
-        // This should be handled by the Android Material 3 package, can remove this logic when Google fix it.
-        binding.bitrateSlider.setOnFocusChangeListener { _, hasFocus ->
-            if (hasFocus) {
-                binding.bitrateSlider.thumbWidth = dpToPx(2f).toInt()
-            } else {
-                binding.bitrateSlider.thumbWidth = dpToPx(4f).toInt()
-            }
-        }
+        updateAllCorners()
     }
 
-    private fun setupFramePacing() {
-        viewModel.framePacingLiveData.observe(viewLifecycleOwner) { framePacing ->
-            binding.lowLatencyOption.update(
-                title = getStringExt(R.string.rn_setting_neuron_low_latency),
-                isChecked = framePacing == FramePacingOption.LowLatency
-            )
-            binding.balancedOption.update(
-                title = getStringExt(R.string.rn_setting_neuron_balanced),
-                isChecked = framePacing == FramePacingOption.Balanced
-            )
-            binding.smoothestOption.update(
-                title = getStringExt(R.string.rn_setting_neuron_smoothest_video),
-                isChecked = framePacing == FramePacingOption.SmoothestVideo
-            )
-        }
-        framePacingOptionsMap.values.forEach { option ->
-            option.onCheckedChangeListener = onFramePacingChangedListener
-        }
+    private fun FramePacingOption.displayNameRes() = when(this) {
+        FramePacingOption.LowLatency -> R.string.rn_setting_neuron_low_latency
+        FramePacingOption.Balanced -> R.string.rn_setting_neuron_balanced
+        FramePacingOption.SmoothestVideo -> R.string.rn_setting_neuron_smoothest_video
     }
+
+    private fun FramePacingOption.displayName() = getString(displayNameRes())
+
+    private var framePacingDialog : AlertDialog? = null
+
+    private var framePacingDisposable : Disposable? = null
+
+    private fun setupFramePacing() {
+        val activity = activity ?: return
+        framePacingDisposable?.dispose()
+        binding.rowFramePacing.setupSingleChoiceItemsDropdown(
+            viewLifecycleOwner = activity,
+            title = getStringExt(R.string.rn_setting_neuron_frame_pacing),
+            subtitle = null,
+            options = { FramePacingOption.entries },
+            selectedItem = { viewModel.framePacingLiveData.value },
+            liveData = viewModel.framePacingLiveData,
+            displayName = { it.displayName() },
+            onUserSelectItem = {
+                viewModel.setFramePacing(it)
+            }
+        )
+        updateAllCorners()
+    }
+
 
     private fun updateHDRSwitch(displayModeOption: DisplayModeOption? = null) {
         //BAA-2345
-        binding.rowHdr.root.visibleIf { (context?.isHdrSupported() ?: false) && displayModeOption == DisplayModeOption.DuplicateDisplay }
+        binding.rowHdr.root.visibleIf { (context?.isHdrSupported() ?: false) && displayModeOption?.allowHdrOption == true }
+        updateAllCorners()
     }
 
     private fun setupHDR() {
         with(binding.rowHdr) {
-            tvTitle.text = getStringExt(R.string.rn_setting_neuron_hdr_title)
-            tvSubtitle.text = getStringExt(R.string.rn_setting_neuron_hdr_subtitle)
-            switchLayout.visible()
-            ivActionIcon.gone()
-            root.setOnClickListener {
-                switchAction.toggle()
-                viewModel.setEnableHdr(switchAction.isChecked)
-            }
-            switchAction.setOnCheckedChangeListener { _, isChecked ->
-                viewModel.setEnableHdr(isChecked)
-            }
-        }
-
-        viewModel.hdrLiveData.observe(viewLifecycleOwner) { isChecked ->
-            with(binding.rowHdr) {
-                switchAction.isChecked = isChecked
-            }
+            setupSwitch(
+                viewLifecycleOwner = viewLifecycleOwner,
+                title = getStringExt(R.string.rn_setting_neuron_hdr_title),
+                subtitle = "${getStringExt(R.string.rn_setting_neuron_hdr_subtitle_line1)} ${
+                    getStringExt(
+                        R.string.rn_setting_neuron_hdr_subtitle_line2
+                    )
+                }",
+                isChecked = viewModel.hdrLiveData.value,
+                liveData = viewModel.hdrLiveData,
+                onCheckedChangeListener = { _, isChecked ->
+                    viewModel.setEnableHdr(isChecked)
+                }
+            )
         }
     }
 
     private fun updateMuteSpeakersSwitch(displayModeOption: DisplayModeOption? = null) {
         // disable since BAA-2345
         binding.rowMuteHostPc.root.visibleIf { displayModeOption == DisplayModeOption.DuplicateDisplay }
+        updateAllCorners()
     }
 
     private fun setupMuteHostPc() {
         with(binding.rowMuteHostPc) {
-            tvTitle.text = getStringExt(R.string.rn_setting_neuron_mute_host_pc_title)
-            tvSubtitle.gone()
-            switchLayout.visible()
-            ivActionIcon.gone()
-            root.setOnClickListener {
-                switchAction.toggle()
-                viewModel.setMuteHostPc(switchAction.isChecked)
-            }
-            switchAction.setOnCheckedChangeListener { _, isChecked ->
-                viewModel.setMuteHostPc(isChecked)
-            }
-        }
-        viewModel.muteHostPcLiveData.observe(viewLifecycleOwner) { isChecked ->
-            with(binding.rowMuteHostPc) {
-                switchAction.isChecked = isChecked
-            }
+            setupSwitch(
+                viewLifecycleOwner = viewLifecycleOwner,
+                title = getStringExt(R.string.rn_setting_neuron_mute_host_pc_title),
+                isChecked = viewModel.muteHostPcLiveData.value,
+                liveData = viewModel.muteHostPcLiveData,
+                onCheckedChangeListener = { _, isChecked ->
+                    viewModel.setMuteHostPc(isChecked)
+                }
+            )
         }
     }
+
+
+    private fun TouchScreenOption.displayNameRes() = when(this) {
+        TouchScreenOption.VirtualTrackpad -> R.string.rn_setting_neuron_virtual_trackpad
+        TouchScreenOption.DirectTouch -> R.string.rn_setting_neuron_direct_touch
+    }
+
+    private fun TouchScreenOption.displayName() = getString(displayNameRes())
+
+    private var touchScreenDisposable : Disposable? = null
 
     private fun setupTouchScreen() {
-        viewModel.touchScreenOptionLiveData.observe(viewLifecycleOwner) { touchScreen ->
-            binding.virtualTrackpadOption.update(
-                title = getStringExt(R.string.rn_setting_neuron_virtual_trackpad),
-                isChecked = touchScreen == TouchScreenOption.VirtualTrackpad
-            )
-            binding.directTouchOption.update(
-                title = getStringExt(R.string.rn_setting_neuron_direct_touch),
-                isChecked = touchScreen == TouchScreenOption.DirectTouch
-            )
-        }
-        touchScreenOptionsMap.values.forEach { option ->
-            option.onCheckedChangeListener = onTouchScreenChangedListener
-        }
-    }
+        val activity = activity ?: return
 
+        binding.rowTouchScreen.setupSingleChoiceItemsDropdown(
+            viewLifecycleOwner = activity,
+            title = getStringExt(R.string.rn_setting_neuron_touch_screen),
+            subtitle = null,
+            options = { TouchScreenOption.entries },
+            selectedItem = { viewModel.touchScreenOptionLiveData.value },
+            liveData = viewModel.touchScreenOptionLiveData,
+            displayName = { getString(it.displayNameRes()) },
+            onUserSelectItem = {
+                viewModel.setTouchScreen(it)
+            }
+        )
+
+        updateAllCorners()
+    }
 
 
     private fun setupAutoCloseGameCountDown() {
-        with(binding.rowAutoCloseGameCountdownDropdown) {
-            tvTitle.text = getString(R.string.rn_setting_neuron_autoclose_countdown_title)
-            tvSubtitle.text = getString(R.string.rn_setting_neuron_autoclose_countdown_subtitle)
-            ivActionIcon.gone()
-            layoutDropdownMenu.visible()
-
-            val ddbv = ddbvDropdownMenu
-            val names = resources.getStringArray(R.array.auto_close_games_names)
-            val values = resources.getIntArray(R.array.auto_close_games_values).toTypedArray()
-            require(names.size == values.size) { "auto_close_games_names not match auto_close_games_values" }
-            ddbv.itemObjects = names.mapIndexed { index, s -> values[index] to s }
-
-            val initialValue = viewModel.autoCloseGameCountDownLiveData.value ?: error("Not init")
-
-            fun setter(value : Int) {
-                val selectedValue = values.minBy { abs(it - value) } // find the closet match (should equal to initialValue)
-                val selectedName = names[values.indexOf(selectedValue)]
-                ddbv.setSelectedItem(selectedValue, selectedName)
+        val names = resources.getStringArray(R.array.auto_close_games_names)
+        val values = resources.getIntArray(R.array.auto_close_games_values).toTypedArray().toList()
+        require(names.size == values.size) { "auto_close_games_names not match auto_close_games_values" }
+        fun displayName(value : Int) = values.indexOf(value).takeIf { it > -1 }?.let { names.getOrNull(it) } ?: value.toString()
+        binding.rowAutoCloseGameCountdownDropdown.setupSingleChoiceItemsDropdown(
+            viewLifecycleOwner = viewLifecycleOwner,
+            title = getString(R.string.rn_setting_neuron_autoclose_countdown_title),
+            subtitle = getString(R.string.rn_setting_neuron_autoclose_countdown_subtitle),
+            options = { values },
+            selectedItem = { viewModel.autoCloseGameCountDownLiveData.value ?: values[0] },
+            liveData = viewModel.autoCloseGameCountDownLiveData,
+            displayName = ::displayName,
+            onUserSelectItem = {
+                    value ->
+                viewModel.setAutoCloseGameCountDown(value)
             }
-            setter(initialValue)
-            ddbv.onItemClickedListener = {
-                value ->
-                if(value is Int) {
-                    viewModel.setAutoCloseGameCountDown(value)
-                    true
-                } else {
-                    debugToast("Value is not int")
-                    false
-                }
-            }
-            viewModel.autoCloseGameCountDownLiveData.observe(viewLifecycleOwner) {
-                value ->
-                setter(value)
-            }
-            root.setOnClickListener {
-                ddbv.showMenu()
-            }
-        }
+        )
     }
+
 
     private fun setupVideoFormat() {
         lifecycleScope.launch {
@@ -461,6 +494,7 @@ class RnRemotePlayFragment : Fragment() {
      * 4. Else show the UI for supported format
      */
     private fun setupVideoFormatDropdown(videoFormatMetaData : VideoFormatMetaData) {
+        Timber.v("setupVideoFormatDropdown: $videoFormatMetaData")
         fun FormatOptionMeta.isSupported() = when (this) {
             FormatOptionMeta.AUTO -> true
             FormatOptionMeta.AV1 -> videoFormatMetaData.isAV1Supported
@@ -479,41 +513,21 @@ class RnRemotePlayFragment : Fragment() {
 
         // show UI
         binding.rowVideoFormatDropdown.root.visible()
-        with(binding.rowVideoFormatDropdown) {
-            tvTitle.text = getString(R.string.rn_setting_neuron_video_format_title)
-            tvSubtitle.text = getString(R.string.rn_setting_neuron_video_format_subtitle)
-            ivActionIcon.gone()
-            layoutDropdownMenu.visible()
-            val ddbv = ddbvDropdownMenu
-            val names = supportedFormats.map { getString(it.displayText) }
-            val values = supportedFormats.map { it.formatOption }
-            ddbv.itemObjects = names.mapIndexed { index, s -> values[index] to s }
-            val savedValue = viewModel.videoFormatOptionLiveData.value?.takeIf { it.getMeta()?.isSupported() == true }
-            val initialValue = savedValue ?: run {
-                FormatOptionMeta.default.formatOption.also {
-                    viewModel.setVideoFormatOption(it)
-                }
+        val default = FormatOptionMeta.default
+        binding.rowVideoFormatDropdown.setupSingleChoiceItemsDropdown(
+            viewLifecycleOwner = viewLifecycleOwner,
+            title = getString(R.string.rn_setting_neuron_video_format_title),
+            subtitle = getString(R.string.rn_setting_neuron_video_format_subtitle),
+            options = { supportedFormats },
+            selectedItem = { viewModel.videoFormatOptionLiveData.value?.getMeta() ?: default },
+            liveData = viewModel.videoFormatOptionLiveData.map { it.getMeta() ?: default },
+            displayName = { getString(it.displayText) },
+            onUserSelectItem = { value ->
+                viewModel.setVideoFormatOption(value.formatOption)
             }
-            fun setter(value : FormatOption) = ddbv.setSelectedItem(value, value.getMeta()?.let { getString(it.displayText) } ?: value.name)
-            setter(initialValue)
-            ddbv.onItemClickedListener = {
-                    value ->
-                if(value is FormatOption) {
-                    viewModel.setVideoFormatOption(value)
-                    true
-                } else {
-                    debugToast("Value is not FormatOption")
-                    false
-                }
-            }
-            viewModel.videoFormatOptionLiveData.observe(viewLifecycleOwner) {
-                    value ->
-                setter(value)
-            }
-            root.setOnClickListener {
-                ddbv.showMenu()
-            }
-        }
+        )
+        updateAllCorners()
     }
+
 
 }

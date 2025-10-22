@@ -1,13 +1,10 @@
 package com.razer.neuron.settings.devices
 
 import android.annotation.SuppressLint
-import android.graphics.Point
 import android.graphics.Rect
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import android.widget.PopupWindow
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
@@ -17,21 +14,21 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.limelight.R
-import com.limelight.databinding.RnDevicePopupMenuBinding
-import com.limelight.databinding.RnDevicePopupMenuItemBinding
 import com.limelight.databinding.RnItemNeuronSettingsActionBinding
-import com.limelight.databinding.RnItemNeuronSettingsComputerBinding
 import com.limelight.databinding.RnItemNeuronSettingsGroupHeaderBinding
 import com.limelight.databinding.RnItemNeuronSettingsHeaderBinding
 import com.limelight.databinding.RnItemNeuronSettingsLoadingBinding
 import com.limelight.nvstream.http.ComputerDetails
 import com.razer.neuron.RnApp
+import com.razer.neuron.common.updateCorners
+import com.razer.neuron.exceptions.PopupMenuHelper
+import com.razer.neuron.exceptions.dismissSafely
 import com.razer.neuron.extensions.dimenResToPx
-import com.razer.neuron.extensions.dpToPx
 import com.razer.neuron.extensions.gone
+import com.razer.neuron.common.pillBackground
 import com.razer.neuron.extensions.visible
 import com.razer.neuron.extensions.visibleIf
-import com.razer.neuron.model.getHostVariant
+import timber.log.Timber
 import kotlin.math.roundToInt
 
 
@@ -89,6 +86,10 @@ class DeviceItemAdapter(
         })
     }
 
+    private fun getItemOrNull(position: Int) : DeviceItem? {
+        return if(itemCount > 0 && position in 0 until itemCount) getItem(position) else null
+    }
+
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
@@ -119,7 +120,7 @@ class DeviceItemAdapter(
             )
 
             TYPE_COMPUTER -> ComputerViewHolder(
-                RnItemNeuronSettingsComputerBinding.inflate(
+                RnItemNeuronSettingsActionBinding.inflate(
                     LayoutInflater.from(parent.context),
                     parent,
                     false
@@ -145,8 +146,8 @@ class DeviceItemAdapter(
         when (holder.itemViewType) {
             TYPE_COMPUTER_HEADER -> (holder as HeaderViewHolder).bind()
             TYPE_COMPUTER_GROUP_HEADER -> (holder as GroupHeaderViewHolder).bind(getItem(position), position)
-            TYPE_COMPUTER -> (holder as ComputerViewHolder).bind(getItem(position))
-            TYPE_ACTION -> (holder as ComputerActionViewHolder).bind(getItem(position))
+            TYPE_COMPUTER -> (holder as ComputerViewHolder).bind(getItem(position), position)
+            TYPE_ACTION -> (holder as ComputerActionViewHolder).bind(getItem(position), position)
             TYPE_LOADING -> (holder as LoadingViewHolder).bind()
 
         }
@@ -214,62 +215,79 @@ class DeviceItemAdapter(
         if (length >= 4) substring(length - 4) else this
     }
 
+    private fun View.updateCorners(position: Int) {
+        val previous = getItemOrNull(position - 1)
+        val next = getItemOrNull(position + 1)
+        val isFirstInGroup = when(getItemOrNull(position - 1)) {
+            is DeviceItem.ActionItem,
+            is DeviceItem.Computer -> false
+            else -> true
+        }
+        val isLastInGroup = when(getItemOrNull(position + 1)) {
+            is DeviceItem.ActionItem,
+            is DeviceItem.Computer -> false
+            else -> true
+        }
+        updateCorners(isFirst = isFirstInGroup, isLast = isLastInGroup)
+    }
 
-    private inner class ComputerViewHolder(val binding: RnItemNeuronSettingsComputerBinding) :
+
+    private inner class ComputerViewHolder(val binding: RnItemNeuronSettingsActionBinding) :
         RecyclerView.ViewHolder(binding.root) {
         @SuppressLint("SetTextI18n")
-        fun bind(data: DeviceItem) {
+        fun bind(data: DeviceItem, position : Int) {
             val computerDetails = (data as? DeviceItem.Computer)?.computerDetails ?: return
             val nameExtra = computerDetails.last4UuidChars()?.run { "($this)" } ?: ""
-            binding.tvComputerTitle.text = "${computerDetails.name} ${if(data.hasDuplicateComputerName()) nameExtra else ""}".trimEnd()
+            binding.pillBackground()?.updateCorners(position = position)
+            binding.tvTitle.text = "${computerDetails.name} ${if(data.hasDuplicateComputerName()) nameExtra else ""}".trimEnd()
             val isOnline = computerDetails.state == ComputerDetails.State.ONLINE
             val isOffline = computerDetails.state == ComputerDetails.State.OFFLINE
             val isPaired = data.isPaired()
 
-            binding.tvComputerSubtitle.visible()
-            binding.ivComputerIcon.alpha = 1f
+            binding.tvSubtitle.visible()
+            binding.ivActionStartIcon.imageTintList = null
+            binding.ivActionStartIcon.visible()
+            binding.ivActionStartIcon.alpha = 1f
             if(isOnline) {
-                binding.tvComputerSubtitle.text = itemView.resources.getString(R.string.rn_discovery_state_pc_online)
+                binding.tvSubtitle.text = itemView.resources.getString(R.string.rn_discovery_state_pc_online)
                 if (computerDetails.offlineCount > 0) {
                     // some visual indication that it is trying to poll the computer
                     // but hide the subtitle
-                    binding.ivComputerIcon.alpha = 0.66f
-                    binding.tvComputerSubtitle.gone()
+                    binding.ivActionStartIcon.alpha = 0.66f
+                    binding.tvSubtitle.gone()
                 }
             } else if(isOffline) {
                 // since it is offline we can say it is offline
                 // icon will also indicate this
-                binding.tvComputerSubtitle.gone()
+                binding.tvSubtitle.gone()
             } else {
                 // hide the subtitle since it is not paired and we don't know
                 // if it is online or not
-                binding.tvComputerSubtitle.gone()
+                binding.tvSubtitle.gone()
             }
 
 
-            binding.ivComputerIcon.setImageResource(
+            binding.ivActionStartIcon.setImageResource(
                 if (isPaired) {
                     // for paired, we only show offline if we are sure
-                    if (isOnline) R.drawable.ic_neuron_computer_online_paired else R.drawable.ic_neuron_computer_offline_paired
+                    if (isOnline) R.drawable.ic_neuron_computer_online_paired_padding else R.drawable.ic_neuron_computer_offline_paired_padding
                 } else {
                     // for unpaired, we only show online if we are sure
-                    if (isOnline) R.drawable.ic_neuron_computer_online else R.drawable.ic_neuron_computer_offline
+                    if (isOnline) R.drawable.ic_neuron_computer_online_padding else R.drawable.ic_neuron_computer_offline_padding
                 }
             )
 
-
-            itemView.setOnClickListener { binding.ivActionMenu.performClick() }
-            binding.ivActionMenu.setOnClickListener { v ->
+            binding.ivActionEndIcon.setImageResource(R.drawable.ic_neuron_settings_overflow_3dots_padding)
+            binding.ivActionEndIcon.visible()
+            itemView.setOnClickListener {
                 val menuItems = data.actions.map { it.toMenuItem() }
-                val popupWindowHeight = dimenResToPx(R.dimen.settings_device_popup_item_height) * data.actions.size
                 popupWindow?.dismissSafely()
-                popupWindow = PopupMenuHelper.create(v,
-                    yOffset = -1*(((popupWindowHeight / 2).roundToInt()) + v.height / 2),
-                    menuItems = menuItems) {
+                popupWindow = PopupMenuHelper.createAndShow(anchorView = binding.ivActionEndIcon, popupPosition = PopupMenuHelper.PopupPosition.EndTopToStartTopOfAnchor, menuItems = menuItems) {
                     listener?.onComputerActionClicked(computerDetails, it.item)
                     true
                 }
             }
+
         }
     }
 
@@ -285,9 +303,11 @@ class DeviceItemAdapter(
         RecyclerView.ViewHolder(binding.root) {
         private val switchLayout by lazy { binding.switchLayout }
         private val switchAction by lazy { binding.switchAction }
-        private val actionIcon by lazy { binding.ivActionIcon }
-        fun bind(data: DeviceItem) {
+        private val actionIcon by lazy { binding.ivActionStartIcon }
+        fun bind(data: DeviceItem, position : Int) {
             if(data !is DeviceItem.ActionItem) return
+            Timber.v("updateCorners: position=$position, data=$data")
+            binding.pillBackground()?.updateCorners(position = position)
             itemView.setOnClickListener {
                 when(data) {
                     is DeviceItem.SwitchItem -> {
@@ -316,6 +336,7 @@ class DeviceItemAdapter(
                 is DeviceItem.SelectTheme -> data.bind()
                 else -> error("${data.javaClass.simpleName} bind impl found")
             }
+
         }
 
         private fun DeviceItem.SelectTheme.bind() {
@@ -342,30 +363,20 @@ class DeviceItemAdapter(
             super.getItemOffsets(outRect, view, parent, state)
             val position = parent.getChildAdapterPosition(view)
             if (position == -1) return
-            val first = position == 0
             val last = position == (parent.adapter?.itemCount ?: 0) - 1
-            val adapter = parent.adapter ?: return
-            val itemViewType = adapter.getItemViewType(position)
-            val previousItemViewType = (position - 1).takeIf { it >= 0 }?.let { adapter.getItemViewType(it) }
-            when (itemViewType) {
-                TYPE_COMPUTER_GROUP_HEADER -> {
-                    outRect.top = dimenResToPx(R.dimen.margin_5x).roundToInt()
-                    outRect.bottom = dimenResToPx(R.dimen.margin_2x).roundToInt()
-                }
-                else -> Unit
-            }
-            if (first) {
-                outRect.top += dimenResToPx(R.dimen.settings_title_margin_top).roundToInt()
-            }
             if (last) {
                 outRect.bottom += dimenResToPx(R.dimen.margin_4x).roundToInt()
             }
         }
     }
 
-    private class DiffItemCallback : DiffUtil.ItemCallback<DeviceItem>() {
+    class DiffItemCallback : DiffUtil.ItemCallback<DeviceItem>() {
         override fun areItemsTheSame(oldItem: DeviceItem, newItem: DeviceItem) = oldItem.isItemTheSame(newItem)
-        override fun areContentsTheSame(oldItem: DeviceItem, newItem: DeviceItem) = oldItem.isContentTheSame(newItem)
+        override fun areContentsTheSame(oldItem: DeviceItem, newItem: DeviceItem) : Boolean {
+            val isContentTheSame = oldItem.isContentTheSame(newItem)
+            return false // due to pillBackground, even if isContentTheSame is true, we still need a redraw
+        }
+
     }
 
     private fun toIterator() = object : Iterator<DeviceItem> {
@@ -377,62 +388,3 @@ class DeviceItemAdapter(
         }
     }
 }
-
-
-object PopupMenuHelper {
-
-    class MenuItem<T>(val item : T, val text : CharSequence)
-
-    fun <T> create(
-        anchorView: View,
-        xOffset: Int = 0,
-        yOffset: Int = 0,
-        menuItems: List<MenuItem<T>>,
-        onMenuItemClicked : (MenuItem<T>) -> Boolean
-    ): PopupWindow {
-        val context = anchorView.context
-        val inflater = LayoutInflater.from(anchorView.context)
-        val binding = RnDevicePopupMenuBinding.inflate(inflater, null, false)
-
-        val p = Rect().apply { anchorView.getGlobalVisibleRect(this) }.run { Point(left, bottom) }
-        p.x += (-1 * dpToPx(195f)).roundToInt() + xOffset
-        p.y += yOffset
-
-        return PopupWindow(context).apply {
-            contentView = binding.root
-            elevation = dimenResToPx(R.dimen.margin_4x)
-            width = LinearLayout.LayoutParams.WRAP_CONTENT
-            height = LinearLayout.LayoutParams.WRAP_CONTENT
-            isFocusable = true
-            setBackgroundDrawable(null)
-            animationStyle = R.style.RnPopupWindowAnimation
-            binding.llMenuItems.removeAllViews()
-            menuItems.forEachIndexed {
-                i, menuItem ->
-                binding.llMenuItems.addView(RnDevicePopupMenuItemBinding.inflate(inflater, null, false).run {
-                    val textView = root
-                    textView.text = menuItem.text
-                    textView.setOnClickListener {
-                        if(onMenuItemClicked(menuItem)) {
-                            dismissSafely()
-                        }
-                    }
-                    if(i == 0) {
-                       textView.isFocusedByDefault = true
-                    }
-                    textView
-                })
-            }
-            showAtLocation(binding.root, Gravity.TOP or Gravity.START, p.x, p.y)
-        }
-    }
-}
-
-
-
-fun PopupWindow?.dismissSafely() = runCatching {
-    this?.dismiss()
-}
-
-
-

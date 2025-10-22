@@ -4,11 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    tools:background="#000000"
     android:background="@drawable/bg_transparent">
 
     <TextView
-        android:layout_marginStart="@dimen/m3_sys_item_padding_start"
-        android:layout_marginEnd="@dimen/m3_sys_item_padding_end"
+        style="@style/RnRemotePlayGroupTitle"
         android:id="@+id/tv_header_subtitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -31,13 +31,14 @@
         android:paddingVertical="@dimen/m3_subheader_progress_bar_v_padding"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/tv_header_subtitle"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/tv_header_subtitle"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_height="0dp">
         <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:layout_gravity="center_vertical"
             android:id="@+id/pb_header_loading"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             app:indicatorSize="@dimen/m3_subheader_progress_bar_size"
             tools:progress="50"
             app:trackThickness="@dimen/m3_subheader_progress_bar_track_thickness"

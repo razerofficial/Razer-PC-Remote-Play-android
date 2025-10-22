@@ -11,10 +11,11 @@ enum class DisplayModeOption(
     /**
      * True if this display mode uses a virtual display
      */
-    val isUsesVirtualDisplay : Boolean) {
-    DuplicateDisplay("PcDisplay", isUsesVirtualDisplay = false),
+    val isUsesVirtualDisplay : Boolean,
+    val allowHdrOption : Boolean = false) {
+    DuplicateDisplay("PcDisplay", isUsesVirtualDisplay = false, allowHdrOption = true),
     SeparateDisplay("SeparateDisplay", isUsesVirtualDisplay = true),
-    PhoneOnlyDisplay("PhoneOnlyDisplay", isUsesVirtualDisplay = true);
+    PhoneOnlyDisplay("PhoneOnlyDisplay", isUsesVirtualDisplay = true, allowHdrOption = true);
 
     companion object {
         val default by lazy {

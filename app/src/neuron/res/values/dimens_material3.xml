@@ -21,16 +21,34 @@
     <!--region material design specific measurement. Don't put Neuron UI dimen here-->
     <dimen name="m3_navigation_view_padding_horizontal">@dimen/margin_3x</dimen>
     <dimen name="m3_navigation_view_top_margin_offset">14dp</dimen>
-    <dimen name="m3_sys_action_bar_textsize">21sp</dimen>
-    <dimen name="m3_sys_item_title_textsize">19sp</dimen> <!--Pixel uses 20sp -->
+    <dimen name="m3_sys_action_bar_textsize">20sp</dimen>
+    <dimen name="m3_sys_item_title_textsize">16sp</dimen> <!--Pixel uses 20sp in M3, but in M3Ex it is closer to 16sp but a different font -->
+    <dimen name="m3_sys_item_title_line_height">18sp</dimen> <!-- should be 2sp more than m3_sys_item_title_textsize -->
     <dimen name="m3_sys_item_margin_top">@dimen/margin_6x</dimen>
     <dimen name="m3_sys_item_margin_end">@dimen/margin_6x</dimen>
     <dimen name="m3_sys_item_switch_margin_start">@dimen/margin_4x</dimen>
-    <dimen name="m3_sys_item_padding_start">@dimen/margin_6x</dimen>
+    <dimen name="m3_sys_header_padding_start">8dp</dimen>
+    <dimen name="m3_sys_header_padding_end">@dimen/m3_sys_header_padding_start</dimen>
+    <dimen name="m3_sys_header_padding_top">8dp</dimen>
+    <dimen name="m3_sys_header_padding_bottom">8dp</dimen>
+    <dimen name="m3_sys_header_margin_start">16dp</dimen> <!-- standard m3 ex margin -->
+    <dimen name="m3_sys_header_margin_end">@dimen/m3_sys_header_margin_start</dimen> <!-- standard m3 ex margin -->
+    <dimen name="m3_sys_header_margin_top">16dp</dimen>  <!-- standard m3 ex margin -->
+    <dimen name="m3_sys_header_margin_bottom">@dimen/m3_divider_size</dimen>
+
+
+    <dimen name="m3_sys_nav_padding_start">@dimen/margin_4x</dimen>
+    <dimen name="m3_sys_nav_padding_end">@dimen/margin_4x</dimen>
+    <dimen name="m3_sys_nav_padding_vertical">@dimen/margin_4x</dimen>
+    <dimen name="m3_sys_item_padding_start">@dimen/margin_4x</dimen>
     <dimen name="m3_sys_item_padding_vertical">16dp</dimen>
     <dimen name="m3_sys_item_padding_end">@dimen/margin_4x</dimen>
-    <dimen name="m3_navigation_view_drawer_max_width">280dp</dimen>
-    <dimen name="m3_small_settings_item_min_height">68dp</dimen>
+    <dimen name="m3_sys_item_large_image_size">40dp</dimen>
+    <dimen name="m3_sys_item_icon_size">28dp</dimen>
+    <dimen name="m3_sys_item_action_icon_size">24dp</dimen>
+    <dimen name="m3_sys_item_large_image_padding_start">16dp</dimen>
+    <dimen name="m3_sys_item_large_image_padding_end">12dp</dimen>
+    <dimen name="m3_small_settings_item_min_height">72dp</dimen>
     <dimen name="m3_small_settings_item_loading_height">74dp</dimen>
     <dimen name="m3_divider_size">1dp</dimen>
     <dimen name="m3_subheader_progress_bar_size">14dp</dimen>
@@ -45,5 +63,15 @@
     <dimen name="m3_button_dropdown_end_padding">11dp</dimen>
     <dimen name="m3_button_dropdown_icon_size">20dp</dimen>
     <dimen name="m3_button_dropdown_text_size">15sp</dimen>
+    <dimen name="m3_list_item_large_corner_radius">20dp</dimen>
+    <dimen name="m3_list_item_small_corner_radius">2dp</dimen>
+    <dimen name="m3_list_item_divider_height">2dp</dimen>
+    <dimen name="m3_ex_toolbar_nav_icon_content_start_with_navigation">72dp</dimen>
+    <dimen name="m3_ex_toolbar_nav_icon_margin_start">8dp</dimen>
+    <dimen name="m3_ex_toolbar_nav_icon_circle_size">40dp</dimen>
+    <dimen name="m3_ex_divider_size">1dp</dimen>
+
+    <dimen name="m3_edittext_activity_margin_start">56dp</dimen> <!-- Used by activity where start of an EditText needs to align to the start of the activity (To be adjust for portrait)-->
+    <dimen name="m3_edittext_activity_margin_end">0dp</dimen>
     <!--endregion-->
 </resources>

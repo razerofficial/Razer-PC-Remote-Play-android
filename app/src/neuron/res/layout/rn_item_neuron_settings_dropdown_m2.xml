@@ -5,14 +5,16 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:focusable="false"
+    android:paddingStart="@dimen/m3_sys_item_padding_start"
+    android:paddingEnd="@dimen/m3_sys_item_padding_end"
     style="@style/RnSettingsItem">
 
     <ImageView
         android:importantForAccessibility="no"
-        android:id="@+id/iv_action_icon"
+        android:id="@+id/iv_action_start_icon"
         android:layout_width="24dp"
         android:layout_height="24dp"
-        style="@style/RnDeviceSettingsIcon"
+        style="@style/RnSettingsIcon"
         android:layout_marginVertical="@dimen/margin_1x"
         android:layout_marginEnd="@dimen/m3_sys_item_margin_end"
         android:src="@drawable/ic_settings_add"
@@ -27,7 +29,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintStart_toEndOf="@+id/iv_action_icon"
+        app:layout_constraintStart_toEndOf="@+id/iv_action_start_icon"
         app:layout_constraintEnd_toStartOf="@+id/layout_dropdown_menu"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -37,7 +39,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="@style/TextAppearance.Material3.Item.Title"
-            style="@style/RnDeviceSettingsTitle"
+            style="@style/RnSettingsTitle"
             tools:text="@string/placeholder_short" />
 
         <TextView
@@ -45,7 +47,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="@style/TextAppearance.Material3.Item.Subtitle"
-            style="@style/RnDeviceSettingsSubtitle"
+            style="@style/RnSettingsSubtitle"
             tools:text="@string/placeholder_long" />
 
     </LinearLayout>

@@ -7,7 +7,9 @@ import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.limelight.R
 import com.limelight.computers.ComputerDatabaseManager
+import com.razer.neuron.common.debugToast
 import com.razer.neuron.di.IoDispatcher
 import com.razer.neuron.di.UnexpectedExceptionHandler
 import com.razer.neuron.model.AppAction
@@ -36,8 +38,8 @@ class RnSettingsViewModel
         _settingsGroupLiveData
     }
 
-    private val _currentSettingsItemLiveData = MutableLiveData(defaultItem)
-    val currentSettingsItemLiveData: LiveData<SettingsItem> by lazy {
+    private val _currentSettingsItemLiveData = MutableLiveData(SelectedSettingsItem(defaultItem))
+    val currentSettingsItemLiveData: LiveData<SelectedSettingsItem> by lazy {
         _currentSettingsItemLiveData
     }
 
@@ -51,9 +53,22 @@ class RnSettingsViewModel
         setupSettingsGroup()
     }
 
+    /**
+     * Add more to field values [SettingsItem] if needed
+     */
     fun navigationTo(itemId: Int) {
-        val settingsItem = SettingsItem.getSettingsItemById(itemId) ?: return
-        _currentSettingsItemLiveData.value = settingsItem
+        val settingsItem : SettingsItem = when(itemId) {
+            R.id.menu_item_computers -> SettingsItem.COMPUTERS
+            R.id.menu_item_appearance -> SettingsItem.APPEARANCE
+            R.id.menu_item_streaming_options -> SettingsItem.STREAMING_OPTIONS
+            R.id.menu_item_about -> SettingsItem.ABOUT
+            R.id.menu_item_dev_options -> SettingsItem.DEV_OPTIONS
+            else -> {
+                debugToast("Unknown itemId: $itemId")
+                null
+            }
+        } ?: return
+        _currentSettingsItemLiveData.value = SelectedSettingsItem(settingsItem, true)
     }
 
     private fun setupSettingsGroup() {
@@ -107,3 +122,5 @@ class RnSettingsViewModel
         }
     }
 }
+
+data class SelectedSettingsItem(val item : SettingsItem, val autoScroll : Boolean = false)

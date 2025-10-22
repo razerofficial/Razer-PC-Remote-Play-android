@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/RnSettingsItem"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_transparent"
+    android:paddingStart="@dimen/m3_sys_item_padding_start"
+    android:paddingEnd="@dimen/m3_sys_item_padding_end"
+    tools:background="#000000">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/pill_background"
+        android:background="@drawable/m3_ex_pill_single_background"
+        android:foreground="@drawable/m3_ex_pill_single_ripple"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:addStatesFromChildren="true"
+        android:paddingStart="@dimen/m3_sys_item_padding_start"
+        android:paddingEnd="@dimen/m3_sys_item_padding_end"
+        android:orientation="vertical"
+        android:paddingVertical="@dimen/m3_sys_item_padding_vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/tv_slider_value"
+            android:id="@+id/tv_title"
+            style="@style/RnSettingsTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Material3.Item.Title"
+            tools:text="@string/placeholder_short" />
+
+        <TextView
+            android:visibility="gone"
+            tools:visibility="visible"
+            app:layout_constraintTop_toBottomOf="@+id/tv_title"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:id="@+id/tv_subtitle"
+            style="@style/RnSettingsSubtitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Material3.Item.Subtitle"
+            tools:text="@string/placeholder_long" />
+
+        <TextView
+            android:visibility="gone"
+            android:layout_marginEnd="@dimen/margin_4x"
+            android:id="@+id/tv_slider_value"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            style="@style/RnSettingsTitle"
+            android:textAppearance="@style/TextAppearance.Material3.Item.Title"
+            android:text="@string/rn_setting_neuron_video_bitrate"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+        <com.google.android.material.slider.Slider
+            app:layout_constraintTop_toBottomOf="@+id/tv_subtitle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:id="@+id/slider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/RnSlider"
+            android:splitTrack="false"
+            app:labelBehavior="floating" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -3,25 +3,20 @@ package com.razer.neuron.common
 import android.content.Context
 import android.util.AttributeSet
 import android.util.Size
-import android.view.Gravity
 import android.view.LayoutInflater
-import android.view.MenuItem
-import android.widget.PopupMenu
+import android.widget.PopupWindow
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.view.updatePaddingRelative
 import com.limelight.R
 import com.limelight.databinding.RnDropdownButtonViewBinding
-import com.razer.neuron.extensions.dimenResToPx
-import kotlin.math.roundToInt
+import com.razer.neuron.exceptions.PopupMenuHelper
 
 /**
- * A implementation of a button with a [PopupMenu] dropdown menu, matching the design of dropdown
+ * A implementation of a button with a [PopupWindow] dropdown menu, matching the design of dropdown
  * button used by Google Pixel.
  */
 class DropdownButtonView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
-) : ConstraintLayout(context, attrs, defStyleAttr), PopupMenu.OnMenuItemClickListener,
-    PopupMenu.OnDismissListener {
+) : ConstraintLayout(context, attrs, defStyleAttr) {
     private val binding = RnDropdownButtonViewBinding.inflate(LayoutInflater.from(context), this)
 
     private val tvTitle by lazy { binding.ddbvTvTitle }
@@ -39,7 +34,7 @@ class DropdownButtonView @JvmOverloads constructor(
             tvTitle.text = value
         }
 
-    private var currentPopupMenu : PopupMenu? = null
+    private var popupWindow : PopupWindow? = null
 
     /**
      * Set all available item for this dropdown
@@ -47,9 +42,9 @@ class DropdownButtonView @JvmOverloads constructor(
     var itemObjects = listOf<Pair<Any, CharSequence>>()
 
     /**
-     * True if [PopupMenu] is not dismissed
+     * True if [PopupWindow] is not dismissed
      */
-    val isPopupMenuShowing get() = currentPopupMenu != null
+    val isPopupWindowShowing get() = popupWindow != null
 
     private var selectedItemObject : Any? = null
 
@@ -59,18 +54,15 @@ class DropdownButtonView @JvmOverloads constructor(
 
 
 
-    override fun onMenuItemClick(item: MenuItem?): Boolean {
-        item ?: return false
-        return item.findItemObjectByTitle()?.let {
-            (itemObject, text) ->
-            setSelectedItem(itemObject, text)
-            onItemClickedListener?.invoke(itemObject) ?: false
-        } ?: false
+    private fun onMenuItemClick(menuItem: PopupMenuHelper.MenuItem<Pair<Any,CharSequence>>?): Boolean {
+        menuItem ?: return false
+        setSelectedItem(menuItem.item.first, menuItem.item.second)
+        return onItemClickedListener?.invoke(menuItem.item.first) ?: false
     }
 
-    override fun onDismiss(menu: PopupMenu?) {
-        if(menu == currentPopupMenu) {
-            currentPopupMenu = null
+    private fun onDismiss(popupWindow: PopupWindow?) {
+        if(popupWindow == this.popupWindow) {
+            this.popupWindow = null
         }
     }
 
@@ -82,53 +74,33 @@ class DropdownButtonView @JvmOverloads constructor(
         return Size(measuredWidth, measuredHeight)
     }
 
-    private fun MenuItem.findItemObjectByTitle() = itemObjects.firstOrNull { title?.toString() == it.second.toString() }
 
-    private fun getItemObject(menuItem : MenuItem) = menuItem.findItemObjectByTitle()?.first
 
-    private fun getItemText(menuItem : MenuItem) = menuItem.findItemObjectByTitle()?.second
-
-    fun setSelectedItem(itemObject : Any, itemText : CharSequence) {
+    fun setSelectedItem(itemObject : Any?, itemText : CharSequence) {
         text = itemText
         selectedItemObject = itemObject
     }
 
 
     /**
-     * Show a [PopupMenu]
+     * Show a [PopupWindow]
      *
      * Set a custom [OnClickListener] if you want to call [showMenu] manually
      */
-    fun showMenu(gravity: Int = Gravity.RIGHT): PopupMenu {
-        return PopupMenu(context, this, gravity).apply {
-            currentPopupMenu = this
-            itemObjects.forEach { (_, itemText) ->
-                menu.add(itemText)
-            }
-            showAndAddListeners()
+    fun showMenu(): PopupWindow {
+        val menuItems = itemObjects.map {
+                itemObject ->
+            PopupMenuHelper.MenuItem(itemObject, itemObject.second)
         }
-    }
-
-    private fun PopupMenu.showAndAddListeners() {
-        setOnMenuItemClickListener(this@DropdownButtonView)
-        show()
-        /// add a bit of margin to popup menu
-        if(listOf(dropdownOffsetStartPx, dropdownOffsetTopPx, dropdownOffsetEndPx, dropdownOffsetBottomPx).any { it != null }) {
-            post {
-                updatePaddingRelative(
-                    start = dropdownOffsetStartPx ?: paddingStart,
-                    top = dropdownOffsetTopPx ?: paddingTop,
-                    end = dropdownOffsetEndPx ?: paddingEnd,
-                    bottom = dropdownOffsetBottomPx ?: paddingBottom
-                )
+        return PopupMenuHelper.createAndShow(anchorView = this, popupPosition = PopupMenuHelper.PopupPosition.FitScreenVerticalOfAnchor, menuItems = menuItems) {
+            menuItem ->
+            onMenuItemClick(menuItem = menuItem)
+        }.apply {
+            setOnDismissListener {
+                onDismiss(this)
             }
         }
     }
-
-    var dropdownOffsetStartPx: Int? = null
-    var dropdownOffsetTopPx: Int? = dimenResToPx(R.dimen.margin_1x).roundToInt()
-    var dropdownOffsetEndPx: Int? = null
-    var dropdownOffsetBottomPx: Int? = dimenResToPx(R.dimen.margin_1x).roundToInt()
 }
 
 

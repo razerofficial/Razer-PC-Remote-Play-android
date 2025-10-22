@@ -8,6 +8,8 @@
     android:defaultFocusHighlightEnabled="false">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/content"
+        android:layout_gravity="top|center_horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="@dimen/settings_title_margin_top">

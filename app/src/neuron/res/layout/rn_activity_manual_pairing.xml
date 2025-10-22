@@ -2,19 +2,35 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:fitsSystemWindows="true"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     style="@style/RnSettingBackground">
 
+    <View
+        android:layout_marginStart="@dimen/m3_edittext_activity_margin_start"
+        android:id="@+id/start_margin"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_width="0dp"
+        android:layout_height="0dp"/>
+
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/top_tool_bar"
+        style="@style/RnM3ExToolbar"
         android:background="@android:color/transparent"
         android:touchscreenBlocksFocus="false"
-        android:layout_marginStart="@dimen/margin_2x"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:titleTextAppearance="@style/TextAppearance.Material3.Toolbar.Title"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_mid"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".62" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/til_ip_address"
@@ -22,11 +38,13 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@+id/top_tool_bar"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/til_port"
-        android:layout_marginStart="@dimen/margin_6x"
-        android:layout_marginEnd="@dimen/margin_9x"
+        app:layout_constraintStart_toStartOf="@+id/start_margin"
+        app:layout_constraintEnd_toStartOf="@+id/guideline_mid"
+        android:layout_marginStart="@dimen/margin_4x"
+        android:layout_marginEnd="@dimen/margin_4x"
         android:hint="@string/rn_hint_input_pc_ip_address"
+        app:helperText="@string/rn_ip_helper_text"
+        app:endIconMode="clear_text"
         app:errorEnabled="true">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -41,17 +59,19 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/til_port"
         style="@style/RnTextInputLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintWidth_percent="0.18"
+        app:layout_constraintStart_toEndOf="@+id/guideline_mid"
         app:layout_constraintTop_toBottomOf="@+id/top_tool_bar"
-        app:layout_constraintEnd_toStartOf="@+id/btn_add"
-        android:layout_marginStart="@dimen/margin_6x"
-        android:layout_marginEnd="@dimen/margin_9x"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="@dimen/margin_8x"
         android:hint="@string/rn_hint_input_pc_port"
+        app:helperText="@string/rn_port_helper_text"
+        app:endIconMode="clear_text"
         app:errorEnabled="true">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -69,15 +89,15 @@
         android:id="@+id/btn_add"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        style="@style/RnButtonStyle"
-        android:layout_marginEnd="@dimen/margin_9x"
-        android:layout_marginBottom="@dimen/margin_4x"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/til_ip_address"
-        app:layout_constraintBottom_toBottomOf="@+id/til_ip_address"
+        style="@style/RnButtonStyle.Outlined"
+        android:layout_marginEnd="@dimen/margin_8x"
+        app:layout_constraintEnd_toEndOf="@+id/top_tool_bar"
+        app:layout_constraintTop_toTopOf="@+id/top_tool_bar"
+        app:layout_constraintBottom_toBottomOf="@+id/top_tool_bar"
         android:text="@string/rn_add"
         tools:visibility="visible"
         android:focusable="true" />
+
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/loading_layout_container"

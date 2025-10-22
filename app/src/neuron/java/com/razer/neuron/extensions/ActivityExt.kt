@@ -3,17 +3,15 @@ package com.razer.neuron.extensions
 import android.app.Activity
 import android.app.Dialog
 import android.os.Build
-import android.os.Handler
-import android.os.Looper
 import android.transition.Fade
 import android.view.View
-import android.view.View.OnSystemUiVisibilityChangeListener
 import android.view.Window
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import com.razer.neuron.common.logWarningOnError
 import timber.log.Timber
 
 
@@ -65,8 +63,6 @@ fun Activity.setDrawIntoSafeArea(isDrawIntoSafeArea : Boolean) {
 
 }
 
-
-
 fun Activity.hideStatusBar() {
     WindowInsetsControllerCompat(
         window,
@@ -74,17 +70,41 @@ fun Activity.hideStatusBar() {
     ).hide(WindowInsetsCompat.Type.statusBars())
 }
 
+fun Activity.showNavigationBarsOnly() = window.showNavigationBarsOnly()
+fun Activity.hideNavigationBarsOnly() = window.hideNavigationBarsOnly()
+fun Activity.fitSystemWindows(isHideNavigationBar : Boolean = true) = window.fitSystemWindows(isHideNavigationBar = isHideNavigationBar)
 
-fun Activity.hideNavigationBars() {
-    WindowCompat.setDecorFitsSystemWindows(window, false)
-    WindowInsetsControllerCompat(window, window.decorView).let { controller ->
+
+/**
+ * [Window.fitSystemWindows] will hide other system bars also (intentional or not)
+ *
+ * Therefore [hideNavigationBarsOnly] will only hide the navigation bar
+ */
+fun Window.hideNavigationBarsOnly() = runCatching {
+    WindowInsetsControllerCompat(this, this.decorView).let { controller ->
         controller.hide(WindowInsetsCompat.Type.navigationBars())
         controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
     }
-    window.setFlags(
+}.logWarningOnError()
+
+fun Window.showNavigationBarsOnly() = runCatching {
+    WindowInsetsControllerCompat(this, this.decorView).let { controller ->
+        controller.show(WindowInsetsCompat.Type.navigationBars())
+        controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_DEFAULT
+    }
+}.logWarningOnError()
+
+
+
+fun Window.fitSystemWindows(isHideNavigationBar : Boolean = true) = runCatching {
+    WindowCompat.setDecorFitsSystemWindows(this, false)
+    if(isHideNavigationBar) {
+        hideNavigationBarsOnly()
+    }
+    this.setFlags(
         WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
     )
-}
+}.logWarningOnError()
 
 
 fun Activity.hideSystemUI(mainContainer: View) {

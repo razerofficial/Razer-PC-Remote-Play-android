@@ -24,6 +24,7 @@ import com.limelight.nvstream.http.ComputerDetails
 import com.razer.neuron.common.BaseControllerActivity
 import com.razer.neuron.common.ComputerServiceHelper
 import com.razer.neuron.common.materialAlertDialogTheme
+import com.razer.neuron.common.setCancelableExt
 import com.razer.neuron.common.toast
 import com.razer.neuron.di.IoDispatcher
 import com.razer.neuron.extensions.dismissSafely
@@ -173,6 +174,8 @@ class RnLandingActivity : BaseControllerActivity(), LandingItemAdapter.Listener,
                 else -> false
             }
         }
+
+        binding.topToolBar.navigationIcon = null
         supportActionBar?.setDisplayShowTitleEnabled(false)
         binding.topToolBar.setDescendantsUnfocusableUntilLayout()
     }
@@ -216,7 +219,7 @@ class RnLandingActivity : BaseControllerActivity(), LandingItemAdapter.Listener,
     private fun showPinDialog(pinCode: String, computerName : String) {
         pinCodeDialog.dismissSafely()
         pinCodeDialog = MaterialAlertDialogBuilder(this, materialAlertDialogTheme())
-            .setCancelable(true)
+            .setCancelableExt(false) // don't want user to accidentally cancelled this dialog
             .setTitle(getString(R.string.rn_pin_code_title, computerName))
             .setView(LayoutInflater.from(this).inflate(R.layout.rn_layout_pin_code, null).apply {
                 findViewById<TextView>(R.id.tv_pin_code).text = pinCode

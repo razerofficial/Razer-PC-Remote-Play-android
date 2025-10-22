@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+  <item
+      android:bottom="2.4dp"
+      android:left="2.4dp"
+      android:right="2.4dp"
+      android:top="2.4dp"
+      android:drawable="@drawable/ic_appearance">
+  </item>
+
+</layer-list>

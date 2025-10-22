@@ -43,17 +43,11 @@
     <string name="conn_error_title">연결 오류</string>
     <string name="rn_unsupported_native_resolution_title">지원되지 않는 해상도</string>
     <string name="rn_unsupported_native_resolution_msg"><![CDATA[이 장치에서는 기본 해상도(%1$s)가 스트리밍에 지원되지 않습니다. 이를 해결하기 위해 <b>스트리밍 디스플레이 모드</b> 설정이 <b>PC 디스플레이 복제</b>로 변경되었습니다. <br/><br/>다른 해상도를 사용하려면 Android 장치의 설정에서 <b>디스플레이 크기</b> 배율을 변경해 보세요.]]></string>
-    <string name="rn_settings_appearance">모양</string>
     <string name="rn_add_computer_manually_subtitle">호스트 컴퓨터의 IP 주소를 입력합니다.</string>
     <string name="rn_warning_unable_to_pair">페어링할 수 없음</string>
     <string name="rn_settings">설정</string>
     <string name="rn_searching">검색 중...</string>
-    <string name="rn_theme_title">테마</string>
-    <string name="rn_theme_system">시스템 기본 설정</string>
-    <string name="rn_theme_light">밝게</string>
-    <string name="rn_theme_dark">어둡게</string>
     <string name="rn_theme_razer">Razer</string>
-    <string name="rn_theme_dialog_title">테마 선택</string>
     <string name="rn_apply_and_restart">적용하고 다시 시작</string>
     <string name="rn_restarting">앱 다시 시작 중</string>
     <string name="rn_dismiss">취소</string>
@@ -70,10 +64,8 @@
     <string name="rn_all_computers">모든 컴퓨터</string>
     <string name="rn_settings_computers">컴퓨터</string>
     <string name="rn_add">추가</string>
-    <string name="rn_hint_input_pc_ip_address">IP 주소</string>
     <string name="rn_discovery_state_pc_online">이용 가능</string>
     <string name="rn_pair">페어링</string>
-    <string name="rn_paired_computers">페어링된 컴퓨터</string>
     <string name="rn_nexus_content_provider_permission_name">페어링 중</string>
     <string name="rn_pin_code_subtitle">PIN 코드:</string>
     <string name="rn_pin_code_title">스트리밍 PC에서 입력\n%1$s</string>
@@ -85,9 +77,10 @@
     <string name="rn_setting_neuron_display_mode">디스플레이 모드</string>
     <string name="rn_setting_neuron_stretch_to_full_screen_desc">PC의 동영상 스트림이 장치 화면을 가득 채우도록 강제 전송합니다.</string>
     <string name="rn_setting_neuron_hdr_title">HDR 허용</string>
-    <string name="rn_setting_neuron_hdr_subtitle">PC에 연결된 디스플레이에 HDR이 활성화되어 있어야 합니다.</string>
+    <string name="rn_setting_neuron_hdr_subtitle_line1">더 나은 대비, 밝기, 색 범위로 시각적 효과를 향상시킵니다.</string>
     <string name="rn_all_computers_subtitle">PC를 페어링하려면 PC가 모바일 장치와 동일한 네트워크에 있어야 합니다. PC에 &hostlabel; v11.0.+가 설치되어 있고 Razer ID로 로그인했는지 확인합니다.</string>
     <string name="rn_setting_neuron_frame_pacing">프레임 페이싱</string>
+    <string name="rn_setting_neuron_hdr_subtitle_line2">PC에 연결된 디스플레이에 HDR이 활성화되어 있어야 합니다.</string>
     <string name="rn_setting_neuron_general_settings">일반 설정</string>
     <string name="rn_setting_neuron_advanced_settings">고급 설정</string>
     <string name="rn_setting_neuron_mute_host_pc_title">스트리밍 중 호스트 PC의 스피커 음소거</string>
@@ -101,6 +94,7 @@
     <string name="rn_settings_display_mode_duplicate_desc">PC에 연결된 디스플레이가 모바일 장치로 스트리밍됩니다.</string>
     <string name="rn_setting_neuron_limit_refresh_title">새로고침 빈도 60Hz로 제한</string>
     <string name="rn_settings_display_mode_phone_only_desc_x_resolution_x_refresh_rate">PC에서 장치의 해상도(%1$s)와 재생률(%2$sHz)에 맞는 가상 디스플레이를 생성하여 장치로 스트리밍합니다.\n\n스트리밍 중에는 PC에 연결된 모든 화면이 일시적으로 비활성화됩니다.</string>
+    <string name="rn_settings_display_mode_separate_desc_x_resolution_x_refresh_rate">에서 별도 디스플레이 %1$s(%2$sHz)</string>
     <string name="rn_unpair">페어링 해제</string>
     <string name="rn_warning_could_not_connect_to_host">호스트에 연결할 수 없습니다</string>
     <string name="rn_setting_neuron_autoclose_countdown_title">게임 자동 종료</string>
@@ -111,9 +105,6 @@
     <string name="auto_close_never">안 함</string>
     <string name="rn_settings_display_mode_phone_only_2_lines">장치최적화됨</string>
     <string name="rn_settings_display_mode_separate">별도의 디스플레이</string>
-    <string name="rn_unpaired_computers">페어링되지 않은 컴퓨터</string>
-    <string name="rn_settings_display_mode_separate_desc_x_resolution_x_refresh_rate">%1$s를 %2$sHz에서 별도로 표시</string>
-    <string name="rn_manually_pair">수동으로 페어링</string>
     <string name="rn_device_page_pc_pair">페어링</string>
     <string name="rn_device_page_pc_unpair">페어링 해제</string>
     <string name="rn_download">다운로드</string>
@@ -144,17 +135,6 @@
     <string name="rn_remote_play_settings_localized">PC 리모트 플레이</string>
     <string name="rn_setting_neuron_video_settings">동영상 설정</string>
     <string name="rn_pairing_hint">&hostlabel;가 실행 중인지 확인하세요.</string>
-    <string name="rn_setting_neuron_video_format_title">비디오 코덱</string>
-    <string name="rn_setting_neuron_video_format_subtitle">스트리밍에 사용되는 비디오 코덱을 지정하세요.</string>
-    <string name="rn_video_format_auto">자동</string>
-    <string name="rn_prompt_quit_existing_session_title">스트리밍 세션 진행 중</string>
-    <string name="rn_prompt_quit_existing_session_msg"><![CDATA[<b>%1$s</b>이(가) 이미 <b>%2$s</b>에서 스트리밍 중입니다. 현재 세션을 교체하시겠습니까? 저장되지 않은 데이터는 모두 손실됩니다.]]></string>
-    <string name="rn_replace">교체</string>
-    <string name="rn_reconnecting_to_x">%1$s에 다시 연결 중 \u2026</string>
-    <string name="rn_tap_to_cancel">탭하여 취소</string>
-    <string name="rn_overlay_title">PC 키</string>
-    <string name="rn_warning_missing_address">IP 주소가 없습니다.</string>
-    <string name="rn_warning_missing_port">포트 없습니다.</string>
 
     <!-- Failed to start error message, part 1  -->
     <string name="failed_to_start_msg_with_param">연결 오류 %1$s.</string>
@@ -174,18 +154,44 @@
     <string name="conn_stage_input_stream_establishment">입력 스트림 설정</string>
 
     <!-- Failed to start error message, part 3  -->
-    <string name="conn_error_code_5031">호스트의 동시 스트림 제한에 도달했습니다. 기존 스트림을 중지하거나 &hostlabel; 설정 UI에서 "채널" 값을 늘리십시오.</string>
-    <string name="conn_error_code_5032">비디오 캡처/인코딩을 초기화하지 못했습니다. 디스플레이가 연결되어 있고 켜져 있습니까?</string>
-    <string name="conn_error_code_5033">다시 시작할 실행 중인 앱이 없습니다.</string>
-    <string name="conn_error_code_5034">종료하기 전에 모든 세션을 연결 해제해야 합니다.</string>
-    <string name="conn_error_code_5037">호스트 PC에서 비디오 인코더를 시작할 수 없습니다. GPU 및 CPU 드라이버가 최신 상태인지 확인하세요.</string>
-    <string name="conn_error_code_5038">비디오 인코더를 시작하지 못했습니다. 다른 비디오 코덱을 시도하거나 호스트 PC를 다시 시작하세요.</string>
-    <string name="conn_error_code_5039"><![CDATA[PC에 연결된 디스플레이를 찾을 수 없습니다. 모니터의 전원이 켜져 있는지 확인하거나 표시 모드를 <b>전화 전용</b>으로 변경하세요.]]></string>
+    <string name="conn_error_code_5031">호스트의 동시 스트리밍 제한에 도달했습니다. 기존 스트리밍을 중지하거나 &hostlabel; 설정 UI에서 ‘채널’ 값을 늘리세요.</string>
+    <string name="conn_error_code_5032">비디오 캡처/인코딩을 초기화하지 못했습니다. 디스플레이가 연결되어 있고 켜져 있나요?</string>
+    <string name="conn_error_code_5033">다시 시작할 실행 중인 앱 없음</string>
+    <string name="conn_error_code_5034">종료하기 전에 모든 세션의 연결을 끊어야 합니다.</string>
+    <string name="conn_error_code_5037">호스트 PC에서 동영상 인코더를 시작할 수 없습니다. GPU 및 CPU 드라이버가 업데이트되었는지 확인하세요.</string>
+    <string name="conn_error_code_5038">동영상 인코더를 시작하지 못했습니다. 다른 동영상 코덱을 사용해 보거나 호스트 PC를 다시 시작하세요.</string>
+    <string name="conn_error_code_5039"><![CDATA[PC에 연결된 디스플레이를 찾을 수 없습니다. 모니터가 켜져 있는지 확인하거나 디스플레이 모드를 <b>휴대폰 전용</b>으로 변경하세요.]]></string>
     <string name="conn_error_code_5040">Razer 가상 디스플레이가 올바르게 로드되지 않았습니다. 호스트 PC를 다시 시작하세요.</string>
 
     <string name="open_source_notice">오픈 소스 소프트웨어 공지사항</string>
 
     <string name="rn_fallback_display_mode_and_video_res_msg"><![CDATA[<br/><br/>설정 <b>디스플레이 모드</b>가 <b>PC 디스플레이 복제</b> 및 720p로 되돌아갔습니다. 나중에 다시 시도해 주세요.]]></string>
     <string name="rn_fallback_video_res_msg"><![CDATA[<br/><br/>비디오 해상도가 720p로 변경되었습니다. 나중에 다시 시도해 주세요.]]></string>
+
+    <string name="rn_setting_neuron_video_format_subtitle">스트리밍에 사용되는 동영상 코덱을 지정합니다.</string>
+    <string name="rn_settings_appearance">모양</string>
+    <string name="rn_theme_title">테마</string>
+    <string name="rn_theme_light">밝게</string>
+    <string name="rn_theme_dark">어둡게</string>
+    <string name="rn_theme_system">시스템 기본 설정</string>
+    <string name="rn_theme_dialog_title">테마 선택</string>
+    <string name="rn_paired_computers">페어링된 PC</string>
+    <string name="rn_unpaired_computers">페어링 해제된 PC</string>
+    <string name="rn_manually_pair">수동 페어링</string>
+    <string name="rn_prompt_quit_existing_session_title">스트리밍 세션 진행 중</string>
+    <string name="rn_prompt_quit_existing_session_msg"><![CDATA[<b>%1$s</b>이 <b>%2$s</b>에서 이미 스트리밍 중입니다. 현재 세션을 교체하시겠습니까 저장되지 않은 모든 데이터는 손실됩니다.]]></string>
+    <string name="rn_replace">교체</string>
+    <string name="rn_reconnecting_to_x">%1$s에 다시 연결 중...</string>
+    <string name="rn_tap_to_cancel">탭하여 취소</string>
+    <string name="rn_overlay_title">PC 키</string>
+    <string name="rn_video_format_auto">자동</string>
+    <string name="rn_setting_neuron_video_format_title">동영상 코덱</string>
+    <string name="rn_warning_missing_address">IP 주소가 누락되었습니다.</string>
+    <string name="rn_warning_missing_port">포트가 누락되었습니다.</string>
+    <string name="rn_hint_input_pc_ip_address">IP 주소</string>
     <string name="rn_hint_input_pc_port">포트</string>
+    <string name="rn_invalid_ip_address_format">잘못된 IP입니다. 유효한 IP를 입력하세요 (예: 192.168.0.1)</string>
+    <string name="rn_invalid_port_range">잘못된 포트입니다. 유효한 포트를 입력하세요 (예: 51337)</string>
+    <string name="rn_ip_helper_text">IP 주소를 입력하세요 (예: 192.168.0.1)</string>
+    <string name="rn_port_helper_text">포트를 입력하세요 (예: 51337)</string>
 </resources>

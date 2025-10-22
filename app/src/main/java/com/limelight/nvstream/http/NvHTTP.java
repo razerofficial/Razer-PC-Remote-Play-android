@@ -1,5 +1,7 @@
 package com.limelight.nvstream.http;
 
+import android.util.Log;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -494,27 +496,29 @@ public class NvHTTP {
         return openHttpConnectionToString(client, baseUrl, path, null);
     }
 
+
     private String openHttpConnectionToString(OkHttpClient client, HttpUrl baseUrl, String path, String query) throws IOException {
-        String tag = "openHttpConnectionToString("+Math.abs(new Random().nextInt(1000))+"): ";
+        String throttleKey = path;
+        String tag = "openHttpConnection:"+path;
         boolean isImportant = !path.equals("serverinfo");
+        long minIntervalMs = isImportant ? -1L : 5000L;
         try {
-            if (verbose && isImportant) {
-                LimeLog.info(tag + getCompleteUrl(baseUrl, path, query));
+            if (verbose) {
+                LimeLog.throttle(Log.VERBOSE, tag, throttleKey+"1", minIntervalMs, getCompleteUrl(baseUrl, path, query));
             }
 
             ResponseBody resp = openHttpConnection(client, baseUrl, path, query);
             String respString = resp.string();
             resp.close();
 
-            if (verbose && isImportant) {
-                LimeLog.info(tag + respString);
+            if (verbose) {
+                LimeLog.throttle(Log.VERBOSE, tag,throttleKey+"2", minIntervalMs, respString);
             }
 
             return respString;
         } catch (IOException e) {
-            if (verbose && isImportant) {
-                LimeLog.warning(tag + e.getMessage());
-                e.printStackTrace();
+            if (verbose) {
+                LimeLog.throttle(Log.VERBOSE, tag,throttleKey+"3", minIntervalMs, e);
             }
             
             throw e;

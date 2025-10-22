@@ -43,17 +43,11 @@
     <string name="conn_error_title">Error de conexión</string>
     <string name="rn_unsupported_native_resolution_title">Resolución no compatible</string>
     <string name="rn_unsupported_native_resolution_msg"><![CDATA[La resolución nativa de %1$s no es compatible para streaming en este dispositivo. Para solucionarlo, se ha cambiado la configuración del <b>Modo de visualización del streaming</b> a <b>Duplicar pantalla del PC</b>. <br/><br/>Si quieres probar otras resoluciones, puedes probar a cambiar el escalado de <b>Tamaño de pantalla</b> en los ajustes de tu dispositivo Android.]]></string>
-    <string name="rn_settings_appearance">Aspecto</string>
     <string name="rn_add_computer_manually_subtitle">Introduce la dirección IP del ordenador anfitrión.</string>
     <string name="rn_warning_unable_to_pair">No se puede sincronizar</string>
     <string name="rn_settings">Ajustes</string>
     <string name="rn_searching">Buscando...</string>
-    <string name="rn_theme_title">Tema</string>
-    <string name="rn_theme_system">Valores predeterminados del sistema</string>
-    <string name="rn_theme_light">Claro</string>
-    <string name="rn_theme_dark">Oscuro</string>
     <string name="rn_theme_razer">Razer</string>
-    <string name="rn_theme_dialog_title">Elige un tema</string>
     <string name="rn_apply_and_restart">Aplicar y reiniciar</string>
     <string name="rn_restarting">Reiniciando la aplicación</string>
     <string name="rn_dismiss">Descartar</string>
@@ -70,10 +64,8 @@
     <string name="rn_all_computers">Todos los ordenadores</string>
     <string name="rn_settings_computers">Ordenadores</string>
     <string name="rn_add">Añadir</string>
-    <string name="rn_hint_input_pc_ip_address">Dirección IP</string>
     <string name="rn_discovery_state_pc_online">Disponible</string>
     <string name="rn_pair">Sincronizar</string>
-    <string name="rn_paired_computers">Ordenadores sincronizados</string>
     <string name="rn_nexus_content_provider_permission_name">Sincronizando</string>
     <string name="rn_pin_code_subtitle">Código PIN:</string>
     <string name="rn_pin_code_title">Introduce en el PC del streaming\n%1$s</string>
@@ -85,9 +77,10 @@
     <string name="rn_setting_neuron_display_mode">Modo de pantalla</string>
     <string name="rn_setting_neuron_stretch_to_full_screen_desc">Fuerza el flujo de vídeo de tu PC para que ocupe toda la pantalla de tu dispositivo.</string>
     <string name="rn_setting_neuron_hdr_title">Permitir HDR</string>
-    <string name="rn_setting_neuron_hdr_subtitle">Requiere que la pantalla conectada a tu PC tenga el HDR activado.</string>
+    <string name="rn_setting_neuron_hdr_subtitle_line1">Mejora los gráficos con mayor contraste, brillo y rango de color.</string>
     <string name="rn_all_computers_subtitle">Para sincronizar un PC, debe estar en la misma red que tu dispositivo móvil. Asegúrate de que tu PC tenga instalado &hostlabel; v11.0.+ y hayas iniciado sesión con tu Razer ID.</string>
     <string name="rn_setting_neuron_frame_pacing">Sincronización de fotogramas</string>
+    <string name="rn_setting_neuron_hdr_subtitle_line2">Requiere que la pantalla conectada a tu PC tenga el HDR activado.</string>
     <string name="rn_setting_neuron_general_settings">Ajustes generales</string>
     <string name="rn_setting_neuron_advanced_settings">Configuración avanzada</string>
     <string name="rn_setting_neuron_mute_host_pc_title">Silencia los altavoces del PC anfitrión mientras retransmites</string>
@@ -101,6 +94,7 @@
     <string name="rn_settings_display_mode_duplicate_desc">La pantalla conectada de tu PC se retransmitirá a tu dispositivo móvil.</string>
     <string name="rn_setting_neuron_limit_refresh_title">Limitar la frecuencia de actualización a 60 Hz</string>
     <string name="rn_settings_display_mode_phone_only_desc_x_resolution_x_refresh_rate">Tu PC creará una pantalla virtual que coincida con la resolución de tu dispositivo y la frecuencia de actualización de %1$s a %2$sHz y la retransmitirá a tu dispositivo.\n\nCualquier pantalla conectada a tu PC se desactivará temporalmente durante la retransmisión.</string>
+    <string name="rn_settings_display_mode_separate_desc_x_resolution_x_refresh_rate">Pantalla independiente %1$s a %2$s Hz</string>
     <string name="rn_unpair">Desincronizar</string>
     <string name="rn_warning_could_not_connect_to_host">No se ha podido conectar al anfitrión</string>
     <string name="rn_setting_neuron_autoclose_countdown_title">Salir automáticamente de los juegos</string>
@@ -111,9 +105,6 @@
     <string name="auto_close_never">Nunca</string>
     <string name="rn_settings_display_mode_phone_only_2_lines">Dispositivo\noptimizado</string>
     <string name="rn_settings_display_mode_separate">Pantalla independiente</string>
-    <string name="rn_unpaired_computers">Computadoras no emparejadas</string>
-    <string name="rn_settings_display_mode_separate_desc_x_resolution_x_refresh_rate">Pantalla separada %1$s a %2$sHz</string>
-    <string name="rn_manually_pair">Emparejar Manualmente</string>
     <string name="rn_device_page_pc_pair">Sincronizar</string>
     <string name="rn_device_page_pc_unpair">Desincronizar</string>
     <string name="rn_download">Descargar</string>
@@ -144,17 +135,6 @@
     <string name="rn_remote_play_settings_localized">Juego en remoto en PC</string>
     <string name="rn_setting_neuron_video_settings">Ajustes de vídeo</string>
     <string name="rn_pairing_hint">Asegúrese de que &hostlabel; se esté ejecutando.</string>
-    <string name="rn_setting_neuron_video_format_title">Códec de vídeo</string>
-    <string name="rn_setting_neuron_video_format_subtitle">Especifique el códec de video utilizado para la transmisión.</string>
-    <string name="rn_video_format_auto">Automático</string>
-    <string name="rn_prompt_quit_existing_session_title">Sesión de transmisión en curso</string>
-    <string name="rn_prompt_quit_existing_session_msg"><![CDATA[<b>%1$s</b> ya está transmitiendo en <b>%2$s</b>, ¿desea reemplazar la sesión actual? Todos los datos no guardados se perderán.]]></string>
-    <string name="rn_replace">Reemplazar</string>
-    <string name="rn_reconnecting_to_x">Reconectando a %1$s \u2026</string>
-    <string name="rn_tap_to_cancel">Toca para cancelar</string>
-    <string name="rn_overlay_title">Teclas de PC</string>
-    <string name="rn_warning_missing_address">Falta la dirección IP.</string>
-    <string name="rn_warning_missing_port">Falta el puerto.</string>
 
     <!-- Failed to start error message, part 1  -->
     <string name="failed_to_start_msg_with_param">Error al iniciar %1$s.</string>
@@ -174,18 +154,44 @@
     <string name="conn_stage_input_stream_establishment">establecimiento del flujo de entrada</string>
 
     <!-- Failed to start error message, part 3  -->
-    <string name="conn_error_code_5031">Se ha alcanzado el límite de streams simultáneos del host. Detenga un stream existente o aumente el valor de "Canales" en la interfaz de usuario de Configuración de &hostlabel;.</string>
-    <string name="conn_error_code_5032">No se pudo inicializar la captura/codificación de video. ¿Hay una pantalla conectada y encendida?</string>
-    <string name="conn_error_code_5033">No hay ninguna aplicación en ejecución para reanudar.</string>
-    <string name="conn_error_code_5034">Todas las sesiones deben desconectarse antes de salir.</string>
-    <string name="conn_error_code_5037">El PC anfitrión no pudo iniciar el codificador de video. Asegúrese de que sus controladores de GPU y CPU estén actualizados.</string>
-    <string name="conn_error_code_5038">El codificador de video no pudo iniciarse. Intente con un códec de video diferente o reinicie el PC anfitrión.</string>
-    <string name="conn_error_code_5039"><![CDATA[No se encontró una pantalla conectada a su PC. Asegúrese de que su monitor esté encendido o cambie el modo de pantalla a <b>Solo teléfono</b>.]]></string>
-    <string name="conn_error_code_5040">La pantalla virtual de Razer no se cargó correctamente. Reinicie su PC anfitrión.</string>
+    <string name="conn_error_code_5031">Se ha alcanzado el límite de transmisiones simultáneas del anfitrión. Detén una transmisión existente o aumenta el valor de "Canales" en la interfaz de usuario de ajustes de &hostlabel;.</string>
+    <string name="conn_error_code_5032">Error al inicializar la captura/codificación de vídeo. ¿Hay una pantalla conectada y encendida?</string>
+    <string name="conn_error_code_5033">No se puede reanudar la aplicación en ejecución.</string>
+    <string name="conn_error_code_5034">Todas las sesiones se deben desconectar antes de salir.</string>
+    <string name="conn_error_code_5037">El PC anfitrión no ha podido iniciar el codificador de vídeo. Asegúrate de que los controladores de tu GPU y CPU estén actualizados.</string>
+    <string name="conn_error_code_5038">No se ha podido iniciar el codificador de vídeo. Prueba con otro códec de vídeo o reinicia el PC anfitrión.</string>
+    <string name="conn_error_code_5039"><![CDATA[No se ha encontrado ninguna pantalla conectada a tu PC. Asegúrate de que el monitor esté encendido o cambia el modo de visualización a <b>Solo teléfono</b>.]]></string>
+    <string name="conn_error_code_5040">La pantalla virtual Razer no se ha cargado correctamente. Reinicia tu PC anfitrión.</string>
 
     <string name="open_source_notice">Aviso sobre el software de código abierto</string>
 
     <string name="rn_fallback_display_mode_and_video_res_msg"><![CDATA[<br/><br/>La configuración <b>Modo de visualización</b> ha sido revertida a <b>Duplicar pantalla del PC</b> y 720p, por lo que, por favor, inténtelo de nuevo más tarde.]]></string>
     <string name="rn_fallback_video_res_msg"><![CDATA[<br/><br/>La resolución de vídeo ha sido cambiada a 720p, por lo que, por favor, inténtelo de nuevo más tarde.]]></string>
+
+    <string name="rn_setting_neuron_video_format_subtitle">Especifique el códec de vídeo utilizado para el streaming.</string>
+    <string name="rn_settings_appearance">Aspecto</string>
+    <string name="rn_theme_title">Tema</string>
+    <string name="rn_theme_light">Claro</string>
+    <string name="rn_theme_dark">Oscuro</string>
+    <string name="rn_theme_system">Valores predeterminados del sistema</string>
+    <string name="rn_theme_dialog_title">Elige un tema</string>
+    <string name="rn_paired_computers">PC sincronizado</string>
+    <string name="rn_unpaired_computers">PC desincronizado</string>
+    <string name="rn_manually_pair">Sincronización manual</string>
+    <string name="rn_prompt_quit_existing_session_title">Sesión de streaming en curso</string>
+    <string name="rn_prompt_quit_existing_session_msg"><![CDATA[<b>%1$s</b> ya está transmitiendo en <b>%2$s</b>. ¿Quieres reemplazar la sesión actual? Todos los datos no guardados se perderán.]]></string>
+    <string name="rn_replace">Reemplazar</string>
+    <string name="rn_reconnecting_to_x">Reconectando con %1$s...</string>
+    <string name="rn_tap_to_cancel">Pulsa para cancelar</string>
+    <string name="rn_overlay_title">Claves PC</string>
+    <string name="rn_video_format_auto">Automático</string>
+    <string name="rn_setting_neuron_video_format_title">Códec de vídeo</string>
+    <string name="rn_warning_missing_address">Falta la dirección IP.</string>
+    <string name="rn_warning_missing_port">Falta un puerto.</string>
+    <string name="rn_hint_input_pc_ip_address">Dirección IP</string>
     <string name="rn_hint_input_pc_port">Puerto</string>
+    <string name="rn_invalid_ip_address_format">IP inválida. Introduzca una válida (ej.: 192.168.0.1)</string>
+    <string name="rn_invalid_port_range">Puerto no válido. Introduzca uno válido (ej.: 51337)</string>
+    <string name="rn_ip_helper_text">Introduzca dirección IP (ej.: 192.168.0.1)</string>
+    <string name="rn_port_helper_text">Introduzca puerto (ej.: 51337)</string>
 </resources>

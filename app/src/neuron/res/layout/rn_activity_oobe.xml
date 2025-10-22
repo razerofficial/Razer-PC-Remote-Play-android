@@ -2,15 +2,26 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:fitsSystemWindows="false"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     style="@style/RnOobeBackground">
 
 
+    <View
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:id="@+id/system_bar_start"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"/>
+
     <include
         android:id="@+id/layout_tos"
         layout="@layout/rn_layout_oobe_tos"
-        android:layout_width="match_parent"
+        app:layout_constraintStart_toEndOf="@+id/system_bar_start"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
         android:visibility="gone"
         tools:visibility="visible" />
@@ -18,7 +29,9 @@
     <include
         android:id="@+id/layout_permissions"
         layout="@layout/rn_layout_oobe_permissions"
-        android:layout_width="match_parent"
+        app:layout_constraintStart_toEndOf="@+id/system_bar_start"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
         android:visibility="gone"
         tools:visibility="visible" />
@@ -26,7 +39,9 @@
     <include
         android:id="@+id/layout_download_nexus"
         layout="@layout/rn_layout_oobe_download_nexus"
-        android:layout_width="match_parent"
+        app:layout_constraintStart_toEndOf="@+id/system_bar_start"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
         android:visibility="gone"
         tools:visibility="gone" />
@@ -34,7 +49,9 @@
     <include
         android:id="@+id/layout_display_modes"
         layout="@layout/rn_layout_oobe_display_modes"
-        android:layout_width="match_parent"
+        app:layout_constraintStart_toEndOf="@+id/system_bar_start"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
         android:visibility="gone"
         tools:visibility="gone" />

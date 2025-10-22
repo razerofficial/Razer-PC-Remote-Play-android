@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@id/menu_top_bar_settings"
-        android:icon="@drawable/ic_landing_settings"
+        android:icon="@drawable/ic_landing_settings_padding"
         android:title="@string/rn_settings"
         app:showAsAction="always" />
 </menu>

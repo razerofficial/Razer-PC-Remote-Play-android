@@ -10,7 +10,6 @@ import com.google.common.cache.CacheBuilder
 import com.limelight.Game
 import com.limelight.NeuronBridge
 import com.limelight.R
-import com.limelight.binding.PlatformBinding
 import com.limelight.computers.ComputerDatabaseManager
 import com.limelight.nvstream.http.ComputerDetails
 import com.limelight.nvstream.http.NvApp
@@ -19,8 +18,6 @@ import com.limelight.nvstream.http.toResolution
 import com.limelight.nvstream.http.toResolutionString
 import com.razer.neuron.common.debugToast
 import timber.log.Timber
-
-
 import com.razer.neuron.di.IoDispatcher
 import com.razer.neuron.di.UnexpectedExceptionHandler
 import com.razer.neuron.extensions.connectivityManager
@@ -30,7 +27,8 @@ import com.razer.neuron.game.RnGameError.Companion.EXTRA_LAST_STREAM_ERROR_TIMES
 import com.razer.neuron.game.RnGameError.Companion.EXTRA_RECOVERY_COUNT
 import com.razer.neuron.game.helpers.RnGameIntentHelper
 import com.razer.neuron.game.helpers.RnStreamError
-import com.razer.neuron.main.findActiveAddress
+import com.razer.neuron.main.ActiveComputer
+import com.razer.neuron.main.getActiveComputer
 import com.razer.neuron.main.isAutoRestartSupported
 import com.razer.neuron.model.DisplayModeOption
 import com.razer.neuron.pref.RemotePlaySettingsPref
@@ -38,6 +36,7 @@ import com.razer.neuron.shared.SharedConstants
 import com.razer.neuron.utils.getDeviceNickName
 import com.razer.neuron.utils.getStringExt
 import com.razer.neuron.utils.now
+import com.razer.neuron.utils.randomInt
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
@@ -48,6 +47,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.IOException
 import java.util.LinkedList
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -291,7 +291,7 @@ class RnGameErrorViewModel
     @WorkerThread
     @Throws(IllegalArgumentException::class, IllegalStateException::class)
     private fun maybePromptReplaceSessionOrQuit(streamError : RnStreamError, gameIntent: Intent?) : RnGameErrorModel.Navigation {
-        val tag = "checkCurrentSession"
+        val tag = "maybePromptReplaceSessionOrQuit"
         requireNotNull(gameIntent) { "Missing game intent" }
         if(gameIntent.isReplaceSession()) {
             debugToast("Already tried replace session")
@@ -303,8 +303,9 @@ class RnGameErrorViewModel
 
         Timber.v("$tag: computerDetailsUuid $computerDetailsUuid")
         Timber.v("$tag: $appId ($appName)")
-        val (computerDetails, http) = runCatching { findComputerDetails(computerDetailsUuid) }.getOrNull() ?: error("Computer not found")
-
+        val activeComputer = runCatching { getActiveComputer(computerDetailsUuid) }.getOrNull() ?: error("Computer not found")
+        val computerDetails = activeComputer.computerDetails
+        val http = activeComputer.http
         val runningGameId = computerDetails.runningGameId
         val runningGameDevice = computerDetails.runningGameDevice
         var runningGame : NvApp? = null
@@ -348,13 +349,13 @@ class RnGameErrorViewModel
                             gameIntent.getIntExtra(Game.EXTRA_APP_ID, 0).takeIf { it > 0 })
                     val appName = gameIntent.getStringExtra(Game.EXTRA_APP_NAME)
 
-                    pollServerInfo(
+                    checkActiveComputerForDuration(
                         streamError = streamError,
                         gameIntent = gameIntent,
                         computerUuid = computerDetailsUuid,
-                        appId = appId,
-                        appName = appName,
-                        maxDurationMs = if (appContext.connectivityManager().isDefaultNetworkActive) 30000 else 8000
+                        minAliveCountRequired = 4,
+                        intervalMs = 1000,
+                        timeoutDurationMs = if (appContext.connectivityManager().isDefaultNetworkActive) 30000 else 8000
                     )
                 }
             }
@@ -368,7 +369,7 @@ class RnGameErrorViewModel
             RnGameErrorModel.Navigation.FinishAndRestartGame(null).emit()
         } catch (t : Throwable) {
             /**
-             * Some other unforeseen error during the [pollServerInfo] or other issue
+             * Some other unforeseen error during the [checkActiveComputerForDuration] or other issue
              *
              * So we show the original error
              */
@@ -377,73 +378,64 @@ class RnGameErrorViewModel
     }
 
     /**
-     * Get the latest [ComputerDetails] and [NvHTTP]
+     * 1. Check existing cache [computerDetailsCache] to find get a [ComputerDetails]
+     * 2. Or just call [ComputerDatabaseManager.getComputerByUUID]
+     * 3. Call [ComputerDetails.updateActiveAddress] to update the [ComputerDetails.activeAddress] field
+     * 4. Update [ComputerDatabaseManager] and [computerDetailsCache] (if [ComputerDetails.activeAddress] was found)
+     * 5. Use [NvHTTP.getComputerDetails] regardless to get the latest [ComputerDetails] and [NvHTTP]
      */
-    private fun findComputerDetails(computerUuid : String) : Pair<ComputerDetails, NvHTTP> {
-        var computerDetails = computerDatabaseManager.getComputerByUUID(computerUuid)
-        var activeAddressResult = computerDetails.findActiveAddress(appContext, isUpdateThis = true)
-        Timber.v("findComputerDetails: ${activeAddressResult.getOrNull()} ${activeAddressResult.exceptionOrNull()}")
-        if(activeAddressResult.isFailure) {
-            val cachedComputer = computerDetailsCache.getIfPresent(computerUuid)
-            if(cachedComputer != null) {
-                Timber.v("findComputerDetails: cachedComputer found for ${computerDetails?.name} $computerUuid")
-                // will update computerDetails.activeAddress
-                val newActiveAddress = cachedComputer.findActiveAddress(appContext, isUpdateThis = true).getOrNull()
-                if(newActiveAddress != null) {
-                    Timber.v("findComputerDetails: cachedComputer newActiveAddress ${newActiveAddress}")
-                    computerDetails.activeAddress = newActiveAddress
-                    computerDetails.httpsPort = cachedComputer.httpsPort
-                }
-            } else {
-                Timber.w("findComputerDetails: No cachedComputer found for ${computerDetails?.name} $computerUuid")
-            }
+    @Throws(IOException::class, IllegalStateException::class)
+    private fun getActiveComputer(computerUuid : String) : ActiveComputer {
+        val computerDetails = computerDetailsCache.getIfPresent(computerUuid) ?: computerDatabaseManager.getComputerByUUID(computerUuid)
+        val tag = "ViewModel.getActiveComputer(${randomInt(0, 100)}):${computerDetails.name}"
+        val result = computerDetails.getActiveComputer(tag, appContext)
+        Timber.v("$tag: ${result.getOrNull()} ${result.exceptionOrNull() ?: ""}")
+        if(result.isSuccess) {
+            Timber.v("$tag: Updating cachedComputer since we found active address")
+            onComputerDetailsUpdated(computerDetails) // update cache
+            computerDatabaseManager.updateComputer(computerDetails) // update db
         }
-
-        val httpsPort = computerDetails.httpsPort
-        val activeAddress = computerDetails.activeAddress
-        val serverCert = computerDetails.serverCert
-        val http = NvHTTP(
-            activeAddress,
-            httpsPort,
-            null,
-            serverCert,
-            PlatformBinding.getCryptoProvider(appContext))
-        computerDetails = http.getComputerDetails(true)
-        computerDetails.activeAddress = activeAddress
-        computerDetails.serverCert = serverCert
-        return computerDetails to http
+        return result.getOrNull() ?: result.exceptionOrNull()?.let { throw it } ?: error("No result and no error?")
     }
 
 
     /**
+     * Make sure that the [computerUuid] is active for at least [minAliveCountRequired] checks
+     * for a maximum wait of [timeoutDurationMs].
+     *
      * Poll [NvHTTP.getServerInfo] and see if we can [emit] some [RnGameErrorModel.Navigation]
      */
-    private suspend fun pollServerInfo(
+    private suspend fun checkActiveComputerForDuration(
         streamError : RnStreamError,
         gameIntent: Intent,
         computerUuid: String,
-        appId : Int,
-        appName : String?,
-        maxDurationMs : Long,
-        intervalMs : Long = 2000) {
+        minAliveCountRequired : Int,
+        timeoutDurationMs : Long,
+        intervalMs : Long) {
+        val tag = "checkActiveComputerForDuration"
         // give it some times first
         val start = now()
         val devicename = appContext.getDeviceNickName()
         val originalComputerName = computerDatabaseManager.getComputerByUUID(computerUuid)?.name ?: computerUuid
         var aliveCount = 0
-        while((now() - start) < maxDurationMs) {
-            val pollResult = kotlin.runCatching { findComputerDetails(computerUuid) }.getOrNull()
-            val computerDetails = pollResult?.first
+        var checkCount = 0;
+        while((now() - start) < timeoutDurationMs) {
+            Timber.v("$tag: checkCount=$checkCount ($aliveCount of $minAliveCountRequired) getActiveComputer")
+            val activeComputer = kotlin.runCatching { getActiveComputer(computerUuid) }.getOrNull()
+            val computerDetails = activeComputer?.computerDetails
             if(computerDetails != null) {
                 require(computerDetails.isAutoRestartSupported()) { "Host does not support auto restart, so no polling needed" }
                 aliveCount++
                 val isNoClientStreaming = computerDetails.runningGameDevice?.isBlank() ?: true
+                val isThisDeviceStreaming = computerDetails.runningGameDevice == devicename
                 val isAnotherDeviceStreaming = computerDetails.runningGameDevice?.takeIf { it.isNotBlank() }?.let { it != devicename } ?: false
+                Timber.v("$tag: aliveCount=$aliveCount, runningGameDevice=${computerDetails.runningGameDevice} (isThisDeviceStreaming=$isThisDeviceStreaming)")
                 if(isAnotherDeviceStreaming) {
                     debugToast("Session was taken over by another client")
                     break
                 }
-                if(aliveCount >= 4 && isNoClientStreaming) {
+                if(aliveCount >= minAliveCountRequired && (isNoClientStreaming || isThisDeviceStreaming)) {
+                    Timber.v("$tag: SUCCESS! minAliveCountRequired reached. isNoClientStreaming=$isNoClientStreaming, isThisDeviceStreaming=$isThisDeviceStreaming")
                     // start the game now, no need to keep polling
                     updateIntentHostAndPort(gameIntent, computerDetails)
                     emitRelaunchGame(gameIntent)
@@ -453,6 +445,7 @@ class RnGameErrorViewModel
                 // let ui know we are reconnecting
                 RnGameErrorModel.Navigation.Reconnecting(streamError = streamError, computerName = originalComputerName).emit()
             }
+            checkCount++
             // wait interval (eg 1s)
             delay(intervalMs)
         }

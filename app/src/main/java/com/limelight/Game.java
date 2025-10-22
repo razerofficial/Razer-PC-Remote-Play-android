@@ -31,7 +31,6 @@ import com.limelight.preferences.PreferenceConfiguration;
 import com.limelight.ui.GameGestures;
 import com.limelight.ui.StreamView;
 import com.limelight.utils.Dialog;
-import com.limelight.utils.ServerHelper;
 import com.limelight.utils.ShortcutHelper;
 import com.limelight.utils.SpinnerDialog;
 import com.limelight.utils.UiHelper;
@@ -81,6 +80,7 @@ import android.widget.Toast;
 import androidx.activity.ComponentActivity;
 
 import java.io.ByteArrayInputStream;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.cert.CertificateException;
@@ -152,7 +152,7 @@ public class Game extends ComponentActivity implements SurfaceHolder.Callback,
     private int requestedNotificationOverlayVisibility = View.GONE;
     protected TextView performanceOverlayView;
 
-    private MediaCodecDecoderRenderer decoderRenderer;
+    protected MediaCodecDecoderRenderer decoderRenderer;
     private boolean reportedCrash;
 
     private WifiManager.WifiLock highPerfWifiLock;
@@ -228,7 +228,7 @@ public class Game extends ComponentActivity implements SurfaceHolder.Callback,
 
         // Read the stream preferences
         prefConfig = PreferenceConfiguration.readPreferences(this);
-        NeuronBridge.updatePreferenceConfiguration(getWindow(), prefConfig, getIntent());
+        NeuronBridge.updatePreferenceConfiguration(this, prefConfig, getIntent());
         tombstonePrefs = Game.this.getSharedPreferences("DecoderTombstone", 0);
 
         // Enter landscape unless we're on a square screen
@@ -502,6 +502,7 @@ public class Game extends ComponentActivity implements SurfaceHolder.Callback,
                 config,
                 prefConfig,
                 PlatformBinding.getCryptoProvider(this), serverCert);
+        conn.context.activity = new WeakReference<>(this);
         controllerHandler = new ControllerHandler(this, conn, this, prefConfig);
         keyboardTranslator = new KeyboardTranslator();
 
@@ -801,6 +802,9 @@ public class Game extends ComponentActivity implements SurfaceHolder.Callback,
         WindowManager.LayoutParams windowLayoutParams = getWindow().getAttributes();
         float displayRefreshRate;
 
+        int currentPhysicalWidth = display.getMode().getPhysicalWidth();
+        int currentPhysicalHeight = display.getMode().getPhysicalHeight();
+        boolean isOnlyUseCurrentNativeRes = NeuronBridge.isMatchStreamViewResolutionToCurrentWindow();
         // On M, we can explicitly set the optimal display mode
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             Display.Mode bestMode = display.getMode();
@@ -818,8 +822,8 @@ public class Game extends ComponentActivity implements SurfaceHolder.Callback,
                 boolean resolutionFitsStream = candidate.getPhysicalWidth() >= prefConfig.width &&
                         candidate.getPhysicalHeight() >= prefConfig.height;
 
-                LimeLog.info("Examining display mode: "+candidate.getPhysicalWidth()+"x"+
-                        candidate.getPhysicalHeight()+"x"+candidate.getRefreshRate());
+                LimeLog.info("Examining display mode: " + candidate.getPhysicalWidth() + "x" +
+                        candidate.getPhysicalHeight() + "x" + candidate.getRefreshRate());
 
                 if (candidate.getPhysicalWidth() > 4096 && prefConfig.width <= 4096) {
                     // Avoid resolutions options above 4K to be safe
@@ -839,6 +843,12 @@ public class Game extends ComponentActivity implements SurfaceHolder.Callback,
                 // Make sure the resolution doesn't regress unless if it's over 60 FPS
                 // where we may need to reduce resolution to achieve the desired refresh rate.
                 if (resolutionReduced && !(prefConfig.fps > 60 && resolutionFitsStream)) {
+                    continue;
+                }
+
+                if (isOnlyUseCurrentNativeRes
+                        && (candidate.getPhysicalWidth() != currentPhysicalWidth || candidate.getPhysicalHeight() != currentPhysicalHeight)) {
+                    // if user only wants to use current resolution, we should not change it.
                     continue;
                 }
 

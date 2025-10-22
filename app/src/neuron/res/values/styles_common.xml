@@ -1,16 +1,26 @@
 <resources>
 
-=
-
     <style name="RnTextButtonStyle" parent="Widget.Material3.Button.TextButton" />
 
-    <style name="RnButtonStyle" parent="Widget.Material3.Button">
+    <style name="RnButtonStyle.Filled" parent="Widget.Material3.Button">
         <item name="android:gravity">center|center_vertical</item>
         <item name="android:textAppearance">@style/TextAppearance.Material3.LabelLarge</item>
         <item name="android:paddingHorizontal">@dimen/margin_4x</item>
         <item name="android:maxLines">1</item>
         <item name="android:textColor">@color/m3_primary_container_button_foreground_color_selector</item>
         <item name="android:backgroundTint">@color/m3_primary_container_button_background_color_selector</item>
+    </style>
+
+    <style name="RnButtonStyle.Outlined" parent="Widget.Material3.Button.OutlinedButton"/>
+    <style name="RnButtonStyle.TextButton" parent="Widget.Material3.Button.TextButton"/>
+    <style name="RnButtonStyle" parent="RnButtonStyle.Filled"/>
+    <style name="RnButtonStyle.Outlined.ExtraSmall" parent="RnButtonStyle.Outlined">
+        <item name="android:paddingHorizontal">@dimen/margin_3x</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:textSize">14sp</item>
+        <item name="iconPadding">8dp</item>
+        <item name="iconSize">20dp</item>
+        <item name="android:minHeight">30dp</item>
     </style>
 
     <style name="RnButtonHintStyle" parent="Widget.Material3.Button">
@@ -36,7 +46,6 @@
         <item name="itemTextAppearanceActiveBoldEnabled">false</item>
         <item name="itemTextColor">@color/rn_navigation_view_item_foreground_color</item>
         <item name="itemIconTint">@color/rn_navigation_view_item_foreground_color</item>
-        <item name="android:background">@android:color/transparent</item>
     </style>
 
     <style name="RnTextInputLayout" parent="Widget.Material3.TextInputLayout.OutlinedBox"/>
@@ -47,6 +56,9 @@
     <style name="RnAlertDialogDefault" parent="ThemeOverlay.Material3.Dialog.Alert">
         <!--This will disable the focus effect by the bottom button layout -->
         <item name="android:defaultFocusHighlightEnabled">false</item>
+        <item name="buttonBarPositiveButtonStyle">@style/RnAlertDialogButtonStyle.Positive</item>
+        <item name="buttonBarNegativeButtonStyle">@style/RnAlertDialogButtonStyle.Negative</item>
+        <item name="buttonBarNeutralButtonStyle">@style/RnAlertDialogButtonStyle.Neutral</item>
     </style>
     <style name="RnAlertDialogNoElevationOverlay" parent="RnAlertDialogDefault">
         <!--
@@ -54,24 +66,20 @@
          -->
         <item name="elevationOverlayEnabled">false</item>
     </style>
-    <style name="RnAlertDialogInverse" parent="RnAlertDialogNoElevationOverlay">
-        <!--
-            We use parent RnAlertDialogNoElevationOverlay because design team
-            actually WANTS the overlay color that bends with dialog's base color
-        -->
-        <item name="colorSurface">?attr/colorSurfaceInverse</item>
-        <item name="colorOnSurface">?attr/colorOnSurfaceInverse</item>
-        <item name="materialAlertDialogBodyTextStyle">@style/RnAlertDialogMessageTextStyle</item>
-        <item name="buttonBarPositiveButtonStyle">@style/RnAlertDialogButtonStyle</item>
-        <item name="buttonBarNegativeButtonStyle">@style/RnAlertDialogButtonStyle</item>
-        <item name="buttonBarNeutralButtonStyle">@style/RnAlertDialogButtonStyle</item>
+
+
+    <style name="RnAlertDialogButtonStyle.Neutral" parent="Widget.Material3.Button.TextButton.Dialog">
     </style>
-    <style name="RnAlertDialogMessageTextStyle" parent="TextAppearance.Material3.BodyMedium">
-        <item name="android:textColor">?attr/colorOnSurfaceInverse</item>
+    <style name="RnAlertDialogButtonStyle.Positive" parent="Widget.Material3.Button">
+        <item name="android:paddingHorizontal">20dp</item>
+        <item name="android:minWidth">0dp</item>
     </style>
-    <style name="RnAlertDialogButtonStyle" parent="Widget.Material3.Button.TextButton.Dialog">
-        <item name="android:textColor">?attr/colorPrimaryInverse</item>
+    <style name="RnAlertDialogButtonStyle.Negative" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:minWidth">0dp</item>
+        <item name="android:paddingHorizontal">20dp</item>
+        <item name="android:layout_marginEnd">8dp</item>
     </style>
+
     <!--endregion-->
 
 
@@ -100,4 +108,21 @@
         <item name="android:popupBackground">@drawable/bg_dropdown_button</item>
     </style>
     <!--endregion-->
+
+
+    <style name="RnSwitch" parent="Widget.Material3.CompoundButton.MaterialSwitch">
+        <item name="thumbIcon">@drawable/m3_ic_switch_thumb_icon</item>
+        <item name="thumbIconTint">@color/m3_switch_thumb_icon_tint</item>
+    </style>
+
+
+    <style name="RnM3ExToolbar" parent="Widget.Material3.Toolbar">
+        <item name="android:layout_marginStart">@dimen/m3_ex_toolbar_nav_icon_margin_start</item>
+        <item name="contentInsetStartWithNavigation">@dimen/m3_ex_toolbar_nav_icon_content_start_with_navigation</item>
+        <item name="navigationIcon">@drawable/m3_ex_toolbar_back_arrow_circle_icon</item>
+        <item name="navigationContentDescription">@string/rn_back</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="titleTextAppearance">@style/TextAppearance.Material3.Toolbar.Title</item>
+    </style>
+
 </resources>

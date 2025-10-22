@@ -33,7 +33,7 @@
         app:layout_constraintStart_toEndOf="@+id/progressbar_loading"
         app:layout_constraintTop_toTopOf="parent"
         android:textAppearance="@style/TextAppearance.Material3.Item.Subtitle"
-        style="@style/RnDeviceSettingsSubtitle"
+        style="@style/RnSettingsSubtitle"
         tools:text="@string/placeholder_long" />
 
 

@@ -15,12 +15,15 @@ import com.razer.neuron.common.RnThemeManager
 import timber.log.Timber
 import com.razer.neuron.common.debugToast
 import com.razer.neuron.common.showSingleChoiceItemsDialog
+import com.razer.neuron.common.updateCorners
 
 import com.razer.neuron.extensions.dismissSafely
 import com.razer.neuron.extensions.gone
+import com.razer.neuron.common.pillBackground
 import com.razer.neuron.extensions.visible
 import com.razer.neuron.model.AppThemeType
 import com.razer.neuron.pref.RemotePlaySettingsPref
+import com.razer.neuron.settings.SettingsStackFragment
 import com.razer.neuron.utils.getStringExt
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
@@ -28,7 +31,8 @@ import kotlinx.coroutines.launch
 
 
 @AndroidEntryPoint
-class RnAppearanceFragment : Fragment() {
+class RnAppearanceFragment : Fragment(), SettingsStackFragment{
+    override val fragmentTitle get() = getString(R.string.rn_settings_appearance)
 
     private lateinit var binding: RnFragmentAppearanceBinding
 
@@ -58,12 +62,15 @@ class RnAppearanceFragment : Fragment() {
     }
 
     private fun setupUI() {
-        binding.btnTheme.ivActionIcon.gone()
+        binding.btnTheme.ivActionStartIcon.gone()
+        binding.btnTheme.ivActionEndIcon.setImageResource(R.drawable.ic_chevron_right)
+        binding.btnTheme.ivActionEndIcon.visible()
         binding.btnTheme.tvTitle.text = getStringExt(R.string.rn_theme_title)
         binding.btnTheme.tvSubtitle.text = getStringExt(RemotePlaySettingsPref.appThemeType.title)
         binding.btnTheme.root.setOnClickListener {
             viewModel.onThemeClicked()
         }
+        binding.btnTheme.pillBackground()?.updateCorners(0, (binding.btnTheme.root.parent as? ViewGroup)?.childCount ?: 1)
     }
 
     private fun observe() {

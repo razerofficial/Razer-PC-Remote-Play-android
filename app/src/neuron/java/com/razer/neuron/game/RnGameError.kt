@@ -9,6 +9,7 @@ import android.os.IBinder
 import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.graphics.Insets
 import androidx.lifecycle.lifecycleScope
 import com.limelight.R
 import com.limelight.computers.ComputerManagerService
@@ -16,6 +17,8 @@ import com.limelight.nvstream.http.ComputerDetails
 import com.razer.neuron.common.BaseActivity
 import com.razer.neuron.common.ComputerServiceHelper
 import com.razer.neuron.common.debugToast
+import com.razer.neuron.common.fitSystemWindows
+import com.razer.neuron.common.hideStatusBar
 import timber.log.Timber
 
 import com.razer.neuron.common.logAndRecordException
@@ -24,6 +27,7 @@ import com.razer.neuron.common.toast
 import com.razer.neuron.extensions.applyTransition
 import com.razer.neuron.extensions.defaultJson
 import com.razer.neuron.extensions.getParcelableExtraExt
+import com.razer.neuron.extensions.hideNavigationBarsOnly
 import com.razer.neuron.extensions.setDrawIntoSafeArea
 import com.razer.neuron.game.helpers.RnGameView
 import com.razer.neuron.game.helpers.RnStreamError
@@ -52,9 +56,9 @@ import kotlin.jvm.Throws
  */
 @AndroidEntryPoint
 class RnGameError : BaseActivity(), DynamicThemeActivity {
-    override val isThemeFullscreen = true
     override fun getThemeId() = appThemeType.splashThemeId
     override val isUseWhiteSystemBarIcons = false
+    override val isRegisterSystemBarInsetsChange = true
 
     private val isCropToSafeArea get() = RemotePlaySettingsPref.isCropDisplaySafeArea
     private val isVirtualDisplayMode get() = RemotePlaySettingsPref.displayMode.isUsesVirtualDisplay
@@ -202,6 +206,14 @@ class RnGameError : BaseActivity(), DynamicThemeActivity {
         }
     }
 
+    override fun onSystemBarInsetsChanged(insets : Insets) {
+        fitSystemWindows(isLayoutNoLimits = true)
+        hideNavigationBarsOnly()
+        hideStatusBar()
+    }
+
+
+
     override fun finish() {
         super.finish()
         if (currentInstance?.get() == this) {
@@ -242,6 +254,7 @@ class RnGameError : BaseActivity(), DynamicThemeActivity {
         view.showAlert(
             title = getString(R.string.rn_prompt_quit_existing_session_title),
             message = getString(R.string.rn_prompt_quit_existing_session_msg, currentDevice, currentGame),
+            isCancelable = false,
             posBtnText = getString(R.string.rn_replace),
             onPosClicked = {
                viewModel.onUserReplaceSession(gameIntent)
@@ -270,7 +283,7 @@ class RnGameError : BaseActivity(), DynamicThemeActivity {
         lifecycleScope.launch {
             delay(500)
             if (title != null && message != null) {
-                view.showAlert(title, message)
+                view.showAlert(title, message, isCancelable = true)
             } else {
                 error("Missing title/message")
             }
@@ -297,18 +310,20 @@ class RnGameError : BaseActivity(), DynamicThemeActivity {
                 view.showAlert(
                     title = title,
                     message = message,
+                    isCancelable = true,
                     posBtnText = getString(R.string.rn_retry),
                     onPosClicked = {
                         startActivity(restartGameIntent)
                         finish()
                     },
-                    negBtnText = getString(R.string.rn_dismiss)
+                    negBtnText = getString(R.string.rn_dismiss),
                 )
             }
             helpWebsiteUrl != null -> {
                 view.showAlert(
                     title = title,
                     message = message,
+                    isCancelable = true,
                     posBtnText = getString(R.string.help),
                     onPosClicked = {
                         openInAppBrowser(Web.Custom(helpWebsiteUrl, title))
@@ -320,7 +335,8 @@ class RnGameError : BaseActivity(), DynamicThemeActivity {
             else -> {
                 view.showAlert(
                     title = title,
-                    message = message
+                    message = message,
+                    isCancelable = true,
                 )
             }
         }

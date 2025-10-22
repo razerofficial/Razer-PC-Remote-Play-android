@@ -4,30 +4,90 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    tools:background="#000000"
+    android:background="@drawable/bg_transparent"
+    android:paddingStart="@dimen/m3_sys_item_padding_start"
+    android:paddingEnd="@dimen/m3_sys_item_padding_end"
     style="@style/RnSettingsItem">
 
-    <ImageView
-        android:importantForAccessibility="no"
-        android:id="@+id/iv_action_icon"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        style="@style/RnDeviceSettingsIcon"
-        android:layout_marginVertical="@dimen/margin_1x"
-        android:layout_marginEnd="@dimen/m3_sys_item_margin_end"
-        android:src="@drawable/ic_settings_add"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/content_container"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+    <!--
+    We don't set paddingStart as it can vary, depending if
+    we are using iv_action_start_large_image or not.
+
+    Instead change children visibility of start_layout so that
+    the margin can be visible or not.
+
+    If both iv_action_start_large_image and iv_action_start_icon are
+    "gone", then the "minWidth" provide  a minimal start margin for the row
+    -->
+
+    <include layout="@layout/m3_ex_pill_background_layout"/>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/start_layout"
+        android:background="@drawable/bg_transparent"
+        android:foreground="@drawable/bg_transparent"
+        android:layout_marginStart="@dimen/m3_sys_item_padding_start"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/pill_background"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <FrameLayout
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <!--
+                large image view 40dp x 40dp
+                40dp + 12dp = 52dp
+            -->
+            <ImageView
+                android:layout_marginEnd="@dimen/margin_3x"
+                android:visibility="gone"
+                android:importantForAccessibility="no"
+                android:id="@+id/iv_action_start_large_image"
+                android:layout_width="@dimen/m3_sys_item_large_image_size"
+                android:layout_height="@dimen/m3_sys_item_large_image_size"
+                tools:visibility="visible"/>
+
+            <!--large image view 28dp x 28dp-->
+            <!--
+                To match the large image
+                (6dp + 28dp + 6dp) + 12dp = 40dp + 12dp
+                6dp + 28dp + 18dp = 40dp + 12dp
+            -->
+            <ImageView
+                android:visibility="gone"
+                tools:visibility="visible"
+                android:importantForAccessibility="no"
+                android:id="@+id/iv_action_start_icon"
+                android:layout_width="@dimen/m3_sys_item_icon_size"
+                android:layout_height="@dimen/m3_sys_item_icon_size"
+                style="@style/RnSettingsIcon"
+                android:layout_marginVertical="6dp"
+                android:layout_marginStart="6dp"
+                android:layout_marginEnd="18dp"
+                android:src="@drawable/ic_settings_add"/>
+
+        </FrameLayout>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <LinearLayout
         android:paddingVertical="@dimen/m3_sys_item_padding_vertical"
+        android:layout_marginEnd="@dimen/m3_sys_item_padding_end"
         android:id="@+id/content_container"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintStart_toEndOf="@+id/iv_action_icon"
-        app:layout_constraintEnd_toStartOf="@+id/switch_layout"
+        app:layout_constraintStart_toEndOf="@+id/start_layout"
+        app:layout_constraintEnd_toStartOf="@+id/end_barrier"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -36,7 +96,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="@style/TextAppearance.Material3.Item.Title"
-            style="@style/RnDeviceSettingsTitle"
+            style="@style/RnSettingsTitle"
             tools:text="@string/placeholder_short" />
 
         <TextView
@@ -44,25 +104,69 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="@style/TextAppearance.Material3.Item.Subtitle"
-            style="@style/RnDeviceSettingsSubtitle"
+            style="@style/RnSettingsSubtitle"
             tools:text="@string/placeholder_long" />
 
     </LinearLayout>
+
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/end_barrier"
+        app:constraint_referenced_ids="switch_layout, iv_action_end_icon, layout_dropdown_menu"
+        app:barrierDirection="start"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"/>
 
     <FrameLayout
         tools:visibility="visible"
         android:visibility="gone"
         android:id="@+id/switch_layout"
-        android:layout_marginStart="@dimen/m3_sys_item_switch_margin_start"
-        app:layout_constraintStart_toEndOf="@+id/content_container"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="@dimen/m3_sys_item_padding_end"
+        app:layout_constraintEnd_toEndOf="@+id/pill_background"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
         <com.google.android.material.materialswitch.MaterialSwitch
+            style="@style/RnSwitch"
+            tools:checked="true"
             android:id="@+id/switch_action"
             android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </FrameLayout>
+
+
+    <ImageView
+        android:importantForAccessibility="no"
+        tools:visibility="gone"
+        android:layout_marginEnd="@dimen/m3_sys_item_padding_end"
+        app:layout_constraintEnd_toEndOf="@+id/pill_background"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:visibility="gone"
+        style="@style/RnSettingsIcon"
+        android:src="@drawable/ic_chevron_right"
+        android:id="@+id/iv_action_end_icon"
+        android:layout_width="@dimen/m3_sys_item_action_icon_size"
+        android:layout_height="@dimen/m3_sys_item_action_icon_size"/>
+
+    <FrameLayout
+        tools:visibility="gone"
+        android:visibility="gone"
+        android:addStatesFromChildren="true"
+        android:background="@drawable/transparent_selector"
+        android:id="@+id/layout_dropdown_menu"
+        android:layout_marginEnd="@dimen/m3_sys_item_padding_end"
+        app:layout_constraintEnd_toEndOf="@+id/pill_background"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintWidth_min="@dimen/m3_default_dropdown_menu_width"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <com.razer.neuron.common.DropdownButtonView
+            android:id="@+id/ddbv_dropdown_menu"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
     </FrameLayout>
 

@@ -1,14 +1,26 @@
 package com.razer.neuron.utils
 
+import android.content.Context
+import android.graphics.Point
 import android.os.Build
+import android.util.Size
+import android.view.Gravity
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewParent
+import android.widget.FrameLayout
+import android.widget.ScrollView
 import androidx.annotation.StringRes
 import androidx.core.view.children
+import androidx.core.view.doOnLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.razer.neuron.RnApp
+import com.razer.neuron.common.logWarningOnError
+import com.razer.neuron.extensions.dpToPx
+import com.razer.neuron.extensions.windowManager
+import kotlin.jvm.Throws
+import kotlin.math.roundToInt
 
 fun getStringExt(@StringRes id: Int): String {
     return RnApp.appContext.getString(id)
@@ -221,3 +233,42 @@ fun KeyEvent.isKeyCodeEnter() = when (keyCode) {
     KeyEvent.KEYCODE_DPAD_CENTER -> true
     else -> false
 }
+
+
+/**
+ * Get actual windows display size
+ */
+fun Context.getWindowSize(): Size {
+    val point = Point()
+    with(windowManager()) {
+        if (isAboveOrEqual(API_LEVEL31)) {
+            val windowMetrics = currentWindowMetrics
+            point.x = windowMetrics.bounds.width()
+            point.y = windowMetrics.bounds.height()
+        } else {
+            @Suppress("DEPRECATION")
+            defaultDisplay?.getRealSize(point)
+        }
+    }
+    return Size(point.x, point.y)
+}
+
+
+
+/**
+ */
+fun View.doOnLayoutOnce(action: (View) -> Unit = {}) = doOnLayout(action)
+
+/**
+ * This is used to vertically center a view inside [ScrollView] or just let it scroll (l.e. top)
+ */
+@Throws(IllegalArgumentException::class)
+fun ViewGroup.setGravityForCenterOrVerticalScroll() = runCatching {
+    val parentView = parent as? View ?: error("View has no parent")
+    require(height > 0) { "View has not been layout yet" }
+    require(parentView.height > 0) { "Parent has not been layout yet" }
+    val layoutParams = layoutParams
+    check(layoutParams is FrameLayout.LayoutParams) { "View's parent must be subclass of FrameLayout (e.g. scrollview)" }
+    layoutParams.gravity =
+        if (height > parentView.height) (Gravity.TOP or Gravity.CENTER_HORIZONTAL) else Gravity.CENTER
+}.logWarningOnError()

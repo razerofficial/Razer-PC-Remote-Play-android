@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <solid android:color="?attr/colorSurfaceContainer" />
+    <size
+        android:width="@dimen/m3_ex_toolbar_nav_icon_circle_size"
+        android:height="@dimen/m3_ex_toolbar_nav_icon_circle_size" />
+</shape>

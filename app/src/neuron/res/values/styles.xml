@@ -1,3 +1,36 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
+    <style name="ShapeAppearance.Material3.MediumComponent.ListItem.Top" parent="ShapeAppearance.Material3.MediumComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">@dimen/m3_list_item_large_corner_radius</item>
+        <item name="cornerSizeTopRight">@dimen/m3_list_item_large_corner_radius</item>
+        <item name="cornerSizeBottomLeft">@dimen/m3_list_item_small_corner_radius</item>
+        <item name="cornerSizeBottomRight">@dimen/m3_list_item_small_corner_radius</item>
+    </style>
+
+    <style name="ShapeAppearance.Material3.MediumComponent.ListItem.Mid" parent="ShapeAppearance.Material3.MediumComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">@dimen/m3_list_item_small_corner_radius</item>
+        <item name="cornerSizeTopRight">@dimen/m3_list_item_small_corner_radius</item>
+        <item name="cornerSizeBottomLeft">@dimen/m3_list_item_small_corner_radius</item>
+        <item name="cornerSizeBottomRight">@dimen/m3_list_item_small_corner_radius</item>
+    </style>
+
+    <style name="ShapeAppearance.Material3.MediumComponent.ListItem.Bottom" parent="ShapeAppearance.Material3.MediumComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">@dimen/m3_list_item_small_corner_radius</item>
+        <item name="cornerSizeTopRight">@dimen/m3_list_item_small_corner_radius</item>
+        <item name="cornerSizeBottomLeft">@dimen/m3_list_item_large_corner_radius</item>
+        <item name="cornerSizeBottomRight">@dimen/m3_list_item_large_corner_radius</item>
+    </style>
+
+
+    <style name="ShapeAppearance.Material3.MediumComponent.ListItem.Single" parent="ShapeAppearance.Material3.MediumComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">@dimen/m3_list_item_large_corner_radius</item>
+        <item name="cornerSizeTopRight">@dimen/m3_list_item_large_corner_radius</item>
+        <item name="cornerSizeBottomLeft">@dimen/m3_list_item_large_corner_radius</item>
+        <item name="cornerSizeBottomRight">@dimen/m3_list_item_large_corner_radius</item>
+    </style>
+
 </resources>

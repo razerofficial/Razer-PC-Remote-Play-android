@@ -9,6 +9,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.limelight.R
 import com.razer.neuron.RnApp
 import com.razer.neuron.common.materialAlertDialogTheme
+import com.razer.neuron.common.setCancelableExt
 import com.razer.neuron.extensions.dismissSafely
 import com.razer.neuron.extensions.toHtmlSpanned
 import com.razer.neuron.isShowVerboseErrorMessage
@@ -68,7 +69,7 @@ interface RnStartGameView {
         val message = getString(R.string.rn_resume_or_quit_msg, startGameName)
         Timber.v("StartOrQuit.handle: $message")
         alertDialog = MaterialAlertDialogBuilder(activity, materialAlertDialogTheme())
-            .setCancelable(false)
+            .setCancelableExt(false) // it is related to start game flow, we must make user choose
             .setTitle(title)
             .setMessage(HtmlCompat.fromHtml(message, HtmlCompat.FROM_HTML_MODE_LEGACY))
             .setPositiveButton(R.string.applist_menu_resume) { _, p ->
@@ -91,7 +92,7 @@ interface RnStartGameView {
                 R.string.rn_currently_running_game), startGameName)
         Timber.v("AskToQuitRunningGame.handle: $message")
         alertDialog = MaterialAlertDialogBuilder(activity, materialAlertDialogTheme())
-            .setCancelable(false)
+            .setCancelableExt(false) // it is related to start game flow, we must make user choose
             .setTitle(title)
             .setMessage(HtmlCompat.fromHtml(message, HtmlCompat.FROM_HTML_MODE_LEGACY))
             .setPositiveButton(R.string.rn_quit_and_start) { _, p ->
@@ -108,7 +109,7 @@ interface RnStartGameView {
         alertDialog.dismissSafely()
         val message = getString(R.string.rn_prompt_quit_existing_session_msg, startGameName, runningGameDeviceNickName).toHtmlSpanned()
         alertDialog = MaterialAlertDialogBuilder(activity, materialAlertDialogTheme())
-            .setCancelable(false)
+            .setCancelableExt(false) // it is related to start game flow, we must make user choose
             .setTitle(getString(R.string.rn_prompt_quit_existing_session_title))
             .setMessage(message)
             .setPositiveButton(R.string.rn_replace) { _, p ->
@@ -135,10 +136,13 @@ interface RnStartGameView {
             message += throwable.message
         }
         alertDialog = MaterialAlertDialogBuilder(activity, materialAlertDialogTheme())
-            .setCancelable(false)
+            .setCancelableExt(true) // just information, pressing cancel should be the same as positive/dismiss
             .setTitle(getString(R.string.conn_error_title))
             .setMessage(message)
             .setPositiveButton(R.string.rn_dismiss) { _, p ->
+                finishFromStartStream()
+            }
+            .setOnCancelListener {
                 finishFromStartStream()
             }
             .show()

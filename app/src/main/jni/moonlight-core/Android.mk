@@ -56,7 +56,8 @@ endif
 LOCAL_LDLIBS := -llog
 
 LOCAL_STATIC_LIBRARIES := libopus libssl libcrypto cpufeatures
-LOCAL_LDFLAGS += -Wl,--exclude-libs,ALL
+LOCAL_LDFLAGS += -Wl,-z,max-page-size=16384,--exclude-libs,ALL
+LOCAL_LDFLAGS += -Wl,-z,common-page-size=16384
 
 LOCAL_BRANCH_PROTECTION := standard
 

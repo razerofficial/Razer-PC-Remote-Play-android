@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.razer.neuron.RnApp
 import com.razer.neuron.common.debugToast
 import com.razer.neuron.di.IoDispatcher
 import com.razer.neuron.di.UnexpectedExceptionHandler
@@ -107,8 +108,11 @@ class RnOobeViewModel
 
     fun onPpClicked() = RnOobeModel.Navigation.Pp.emit()
 
+    /**
+     * When button is clicked (by finger on screen)
+     */
     fun onDownloadNexusClicked() =
-        RnOobeModel.Navigation.DownloadNexus(true, appContext.getNexusPackageStatus()).emit()
+        RnOobeModel.Navigation.DownloadNexus(RnOobeModel.DownloadNexusReason.UserTriggered, appContext.getNexusPackageStatus()).emit()
 
     fun onPermissionRequestResult(result: PermissionChecker.Result) {
         nextStateOrFinish()
@@ -200,7 +204,7 @@ class RnOobeViewModel
                         val nexusPackageStatus = appContext.getNexusPackageStatus()
                         val navigation =
                             if (focusPermission == OobePermission.NexusContentProvider && nexusPackageStatus != NexusPackageStatus.ValidVersion) {
-                                RnOobeModel.Navigation.DownloadNexus(false, nexusPackageStatus)
+                                RnOobeModel.Navigation.DownloadNexus(RnOobeModel.DownloadNexusReason.NexusContentProvider, nexusPackageStatus)
                             } else {
                                 RnOobeModel.Navigation.RequestPermission(focusPermission)
                             }
@@ -232,7 +236,8 @@ class RnOobeViewModel
                     currentState.setAsCompleted()
                 } else if (appAction == AppAction.Download) {
                     isContinue = false
-                    RnOobeModel.Navigation.DownloadNexus(true, appContext.getNexusPackageStatus())
+                    // when user presses A on controller to download
+                    RnOobeModel.Navigation.DownloadNexus(RnOobeModel.DownloadNexusReason.UserTriggered, appContext.getNexusPackageStatus())
                         .emit()
                 }
 
@@ -255,7 +260,7 @@ class RnOobeViewModel
 
 
     private suspend fun allIntroStates(): List<RnOobeModel.State.Intro> {
-        val virtualDisplayMode = calculateVirtualDisplayMode(appContext, RemotePlaySettingsPref.isLimitRefreshRate).getOrNull()
+        val virtualDisplayMode = RnApp.lastResumed?.calculateVirtualDisplayMode(RemotePlaySettingsPref.isLimitRefreshRate)?.getOrNull()
         val displayModesInfo = mapOf(
             DisplayModeOption.DuplicateDisplay to "",
             DisplayModeOption.SeparateDisplay to virtualDisplayMode?.format(),
@@ -380,13 +385,17 @@ class RnOobeModel {
         object Finish : Navigation("main")
 
         class DownloadNexus(
-            val isUserTriggered: Boolean,
+            val reason: DownloadNexusReason,
             val nexusPackageStatus: NexusPackageStatus
         ) : Navigation("download_nexus")
 
         object Tos : Navigation("tos")
         object Pp : Navigation("pp")
 
+    }
+
+    enum class DownloadNexusReason {
+        UserTriggered, NexusContentProvider
     }
 
     sealed class State(val id: String, val buttonHints: Set<ButtonHint> = emptySet()) {

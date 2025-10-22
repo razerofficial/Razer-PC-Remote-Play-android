@@ -2,42 +2,54 @@
     <style name="RnDeviceTextOnBackground">
         <item name="android:textColor">?attr/colorOnSurface</item>
     </style>
-    <style name="RnDeviceSettingsIcon">
+    <style name="RnSettingsIcon">
         <item name="android:tint">?attr/colorOnSurface</item>
     </style>
-    <style name="RnDeviceSettingsTitle">
+    <style name="RnSettingsTitle">
         <item name="android:textColor">?attr/colorOnSurface</item>
     </style>
-    <style name="RnDeviceSettingsSubtitle">
+    <style name="RnSettingsSubtitle">
         <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
     </style>
-    <style name="RnDeviceSettingsErrorTitle">
+    <style name="RnSettingsErrorTitle">
         <item name="android:textColor">?attr/colorError</item>
     </style>
 
     <style name="RnSettingsItem">
+        <item name="android:layout_marginBottom">@dimen/m3_list_item_divider_height</item>
         <item name="android:minHeight">@dimen/m3_small_settings_item_min_height</item>
-        <item name="android:paddingStart">@dimen/m3_sys_item_padding_start</item>
-        <item name="android:paddingEnd">@dimen/m3_sys_item_padding_end</item>
-        <item name="android:foreground">?android:attr/selectableItemBackground</item>
     </style>
+
+
     <style name="RnPopupWindowMenuItem">
         <item name="android:textAppearance">@style/TextAppearance.Material3.BodyMedium</item>
         <item name="android:foreground">?android:attr/selectableItemBackground</item>
         <item name="android:gravity">start|center_vertical</item>
         <item name="android:paddingHorizontal">@dimen/margin_4x</item>
         <item name="android:paddingVertical">@dimen/margin_4x</item>
-        <item name="android:width">195dp</item>
+        <item name="android:width">@dimen/m3_popup_window_menu_item_width</item>
         <item name="android:maxLines">2</item>
         <item name="android:ellipsize">end</item>
     </style>
     <style name="RnPopupWindowMenu">
         <item name="android:background">@drawable/bg_dropdown_button</item>
     </style>
-    <style name="RnPopupWindowAnimation">
-        <item name="android:windowEnterAnimation">@anim/popup_enter_anim</item>
-        <item name="android:windowExitAnimation">@anim/popup_exit_anim</item>
+    <style name="RnPopupWindowAnimation"/>
+    <style name="RnPopupWindowAnimation.DropDownFromEnd">
+        <item name="android:windowEnterAnimation">@anim/m3_enter_from_top_end</item>
+        <item name="android:windowExitAnimation">@anim/m3_exit_to_top_end</item>
     </style>
+
+    <style name="RnPopupWindowAnimation.DropDown">
+        <item name="android:windowEnterAnimation">@anim/m3_enter_from_top</item>
+        <item name="android:windowExitAnimation">@anim/m3_exit_to_top</item>
+    </style>
+
+    <style name="RnPopupWindowAnimation.PushUp">
+        <item name="android:windowEnterAnimation">@anim/m3_enter_from_bottom</item>
+        <item name="android:windowExitAnimation">@anim/m3_exit_to_bottom</item>
+    </style>
+
     <style name="RnDeviceProgress">
         <item name="android:layout_width">20dp</item>
         <item name="android:layout_height">20dp</item>

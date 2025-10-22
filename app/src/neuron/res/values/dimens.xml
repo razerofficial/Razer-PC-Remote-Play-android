@@ -4,5 +4,8 @@
 
 
     <dimen name="settings_title_margin_top">@dimen/margin_4x</dimen>
-    <dimen name="settings_device_popup_item_height">48dp</dimen>
+    <dimen name="m3_popup_window_menu_item_height_estimated">48dp</dimen>
+    <dimen name="m3_popup_window_menu_item_width">195dp</dimen>
+
+
 </resources>

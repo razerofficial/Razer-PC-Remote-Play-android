@@ -43,17 +43,11 @@
     <string name="conn_error_title">Anslutningsfel</string>
     <string name="rn_unsupported_native_resolution_title">Upplösning som inte stöds</string>
     <string name="rn_unsupported_native_resolution_msg"><![CDATA[Den ursprungliga upplösningen på %1$s stöds inte för strömning på den här enheten. För att åtgärda detta har inställningen för <b>Visningsläge för strömning</b> ändrats till <b>Duplicerad datorskärm</b>. <br/><br/>Om du vill prova andra upplösningar kan du prova att ändra skalan för <b>Skärmstorlek</b> i inställningarna på din Android-enhet.]]></string>
-    <string name="rn_settings_appearance">Utseende</string>
     <string name="rn_add_computer_manually_subtitle">Ange IP-adressen för värddatorn.</string>
     <string name="rn_warning_unable_to_pair">Det gick inte att parkoppla</string>
     <string name="rn_settings">Inställningar</string>
     <string name="rn_searching">Söker \u2026</string>
-    <string name="rn_theme_title">Tema</string>
-    <string name="rn_theme_system">Systemets standard</string>
-    <string name="rn_theme_light">Ljus</string>
-    <string name="rn_theme_dark">Mörk</string>
     <string name="rn_theme_razer">Razer</string>
-    <string name="rn_theme_dialog_title">Välj ett tema</string>
     <string name="rn_apply_and_restart">Tillämpa och starta om</string>
     <string name="rn_restarting">Startar om appen</string>
     <string name="rn_dismiss">Avbryt</string>
@@ -70,10 +64,8 @@
     <string name="rn_all_computers">Alla datorer</string>
     <string name="rn_settings_computers">Datorer</string>
     <string name="rn_add">Lägg till</string>
-    <string name="rn_hint_input_pc_ip_address">IP-adress</string>
     <string name="rn_discovery_state_pc_online">Tillgängligt</string>
     <string name="rn_pair">Parkoppla</string>
-    <string name="rn_paired_computers">Parkopplade datorer</string>
     <string name="rn_nexus_content_provider_permission_name">Parkopplar</string>
     <string name="rn_pin_code_subtitle">PIN-kod:</string>
     <string name="rn_pin_code_title">Skriv in på den strömmande datorn\n%1$s</string>
@@ -85,9 +77,10 @@
     <string name="rn_setting_neuron_display_mode">Visningsläge</string>
     <string name="rn_setting_neuron_stretch_to_full_screen_desc">Tvinga videoströmmen från din dator att fylla enhetens skärm.</string>
     <string name="rn_setting_neuron_hdr_title">Tillåt HDR</string>
-    <string name="rn_setting_neuron_hdr_subtitle">Kräver att den anslutna skärmen på din dator har HDR aktiverat.</string>
+    <string name="rn_setting_neuron_hdr_subtitle_line1">Förbättrar bilderna med bättre kontrast, ljusstyrka och färgomfång.</string>
     <string name="rn_all_computers_subtitle">Om du vill koppla ihop en dator måste den vara ansluten till samma nätverk som din mobila enhet. Kontrollera att &hostlabel; v11.0.+ är installerat på din dator och att du är inloggad med ditt Razer ID.</string>
     <string name="rn_setting_neuron_frame_pacing">Ramtempo</string>
+    <string name="rn_setting_neuron_hdr_subtitle_line2">Kräver att den anslutna skärmen på din dator har HDR aktiverat.</string>
     <string name="rn_setting_neuron_general_settings">Allmänna inställningar</string>
     <string name="rn_setting_neuron_advanced_settings">Avancerade inställningar</string>
     <string name="rn_setting_neuron_mute_host_pc_title">Stäng av värddatorns högtalare när du strömmar</string>
@@ -101,6 +94,7 @@
     <string name="rn_settings_display_mode_duplicate_desc">Den anslutna skärmen på din dator strömmas till din mobila enhet.</string>
     <string name="rn_setting_neuron_limit_refresh_title">Begränsa uppdateringsfrekvensen till 60 Hz</string>
     <string name="rn_settings_display_mode_phone_only_desc_x_resolution_x_refresh_rate">Din dator skapar en virtuell skärm som matchar enhetens upplösning och uppdateringsfrekvens på %1$s vid %2$s Hz och strömmar den till din enhet.\n\nAlla skärmar som är anslutna till din dator kommer att stängas av tillfälligt under strömningen.</string>
+    <string name="rn_settings_display_mode_separate_desc_x_resolution_x_refresh_rate">Separat bildskärm %1$s på %2$s Hz</string>
     <string name="rn_unpair">Ta bort parkoppling</string>
     <string name="rn_warning_could_not_connect_to_host">Det gick inte att ansluta till värden</string>
     <string name="rn_setting_neuron_autoclose_countdown_title">Avsluta spel automatiskt</string>
@@ -111,9 +105,6 @@
     <string name="auto_close_never">Aldrig</string>
     <string name="rn_settings_display_mode_phone_only_2_lines">Enhet\noptimerad</string>
     <string name="rn_settings_display_mode_separate">Separat bildskärm</string>
-    <string name="rn_unpaired_computers">Oparade datorer</string>
-    <string name="rn_settings_display_mode_separate_desc_x_resolution_x_refresh_rate">Separat skärm %1$s vid %2$sHz</string>
-    <string name="rn_manually_pair">Manuellt Par</string>
     <string name="rn_device_page_pc_pair">Parkoppla</string>
     <string name="rn_device_page_pc_unpair">Ta bort parkoppling</string>
     <string name="rn_download">Ladda ned</string>
@@ -144,17 +135,6 @@
     <string name="rn_remote_play_settings_localized">PC-fjärrspel</string>
     <string name="rn_setting_neuron_video_settings">Videoinställningar</string>
     <string name="rn_pairing_hint">Se till att &hostlabel; körs.</string>
-    <string name="rn_setting_neuron_video_format_title">Videokodek</string>
-    <string name="rn_setting_neuron_video_format_subtitle">Ange videokodeken som används för streaming.</string>
-    <string name="rn_video_format_auto">Automatisk</string>
-    <string name="rn_prompt_quit_existing_session_title">Streaming-session pågår</string>
-    <string name="rn_prompt_quit_existing_session_msg"><![CDATA[<b>%1$s</b> streamar redan på <b>%2$s</b>. Vill du ersätta den aktuella sessionen? All osparad data kommer att gå förlorad.]]></string>
-    <string name="rn_replace">Ersätt</string>
-    <string name="rn_reconnecting_to_x">Återansluter till %1$s \u2026</string>
-    <string name="rn_tap_to_cancel">Tryck för att avbryta</string>
-    <string name="rn_overlay_title">PC-tangenter</string>
-    <string name="rn_warning_missing_address">Saknad IP-adress.</string>
-    <string name="rn_warning_missing_port">Saknad port.</string>
 
     <!-- Failed to start error message, part 2  -->
     <string name="conn_stage_none">ingen</string>
@@ -171,17 +151,43 @@
     <string name="conn_stage_input_stream_establishment">inmatningsströmsupprättande</string>
 
     <!-- Failed to start error message, part 3  -->
-    <string name="conn_error_code_5031">Värdens gräns för samtidiga strömmar har nåtts. Stoppa en befintlig ström eller öka värdet för "Kanaler" i &hostlabel;-inställningarna.</string>
-    <string name="conn_error_code_5032">Misslyckades med att initiera videoinspelning/kodning. Är en skärm ansluten och påslagen?</string>
-    <string name="conn_error_code_5033">Ingen aktiv app att återuppta.</string>
-    <string name="conn_error_code_5034">Alla sessioner måste kopplas från innan avslutning.</string>
-    <string name="conn_error_code_5037">Värd-PC:n kunde inte starta videoenkodaren. Se till att dina GPU- och CPU-drivrutiner är uppdaterade.</string>
-    <string name="conn_error_code_5038">Videoenkodaren misslyckades med att starta. Försök med en annan videokodek eller starta om värd-PC:n.</string>
-    <string name="conn_error_code_5039"><![CDATA[Ingen bildskärm hittades ansluten till din PC. Se till att din bildskärm är påslagen eller ändra visningsläge till <b>Endast telefon</b>.]]></string>
-    <string name="conn_error_code_5040">Razer Virtual Display laddades inte korrekt. Starta om din värd-PC.</string>
+    <string name="conn_error_code_5031">Värdens gräns för samtidiga strömmar har nåtts. Stoppa en befintlig ström eller öka värdet för ”Kanaler” i användargränssnittet med inställningar för &hostlabel;.</string>
+    <string name="conn_error_code_5032">Initiering av videoinspelning/kodning misslyckades. Är en bildskärm ansluten och påslagen?</string>
+    <string name="conn_error_code_5033">Det finns Ingen pågående app att återuppta.</string>
+    <string name="conn_error_code_5034">Alla sessioner måste kopplas från innan du avslutar.</string>
+    <string name="conn_error_code_5037">Värddatorn kunde inte starta videokodaren. Se till att dina GPU- och CPU-drivrutiner är uppdaterade.</string>
+    <string name="conn_error_code_5038">Videokodaren kunde inte starta. Prova en annan video-codec eller starta om värddatorn.</string>
+    <string name="conn_error_code_5039"><![CDATA[Hittade ingen bildskärm ansluten till din dator. Se till att bildskärmen är påslagen eller ändra visningsläget till <b>Endast telefon</b>.]]></string>
+    <string name="conn_error_code_5040">Razer virtuell bildskärm lästes inte in korrekt. Starta om din värddator.</string>
 
     <string name="open_source_notice">Meddelande om programvara med öppen källkod</string>
     <string name="rn_fallback_display_mode_and_video_res_msg"><![CDATA[<br/><br/>Inställningen <b>Visningsläge</b> har återställts till <b>Duplicerad datorskärm</b> och 720p, så försök igen senare.]]></string>
     <string name="rn_fallback_video_res_msg"><![CDATA[<br/><br/>Videoupplösningen har ändrats till 720p, så försök igen senare.]]></string>
+
+    <string name="rn_setting_neuron_video_format_subtitle">Ange vilken video-codec som används för strömning.</string>
+    <string name="rn_settings_appearance">Utseende</string>
+    <string name="rn_theme_title">Tema</string>
+    <string name="rn_theme_light">Ljus</string>
+    <string name="rn_theme_dark">Mörk</string>
+    <string name="rn_theme_system">Systemets standard</string>
+    <string name="rn_theme_dialog_title">Välj ett tema</string>
+    <string name="rn_paired_computers">Parkopplad PC</string>
+    <string name="rn_unpaired_computers">Parkoppling borttagen från PC</string>
+    <string name="rn_manually_pair">Parkoppla manuellt</string>
+    <string name="rn_prompt_quit_existing_session_title">Strömningssession pågår</string>
+    <string name="rn_prompt_quit_existing_session_msg"><![CDATA[<b>%1$s</b> strömmas redan på <b>%2$s</b>. Vill du ersätta den nuvarande sessionen? Alla data som inte är sparade kommer att gå förlorade.]]></string>
+    <string name="rn_replace">Ersätt</string>
+    <string name="rn_reconnecting_to_x">Återansluter till %1$s \u2026</string>
+    <string name="rn_tap_to_cancel">Tryck för att avbryta</string>
+    <string name="rn_overlay_title">PC-tangenter</string>
+    <string name="rn_video_format_auto">Automatiskt</string>
+    <string name="rn_setting_neuron_video_format_title">Video-codec</string>
+    <string name="rn_warning_missing_address">IP-adress saknas.</string>
+    <string name="rn_warning_missing_port">Port saknas.</string>
+    <string name="rn_hint_input_pc_ip_address">IP-adress</string>
     <string name="rn_hint_input_pc_port">Port</string>
+    <string name="rn_invalid_ip_address_format">Ogiltig IP. Ange en giltig (t.ex. 192.168.0.1)</string>
+    <string name="rn_invalid_port_range">Ogiltig port. Ange en giltig (t.ex. 51337)</string>
+    <string name="rn_ip_helper_text">Ange IP-adress (t.ex. 192.168.0.1)</string>
+    <string name="rn_port_helper_text">Ange port (t.ex. 51337)</string>
 </resources>

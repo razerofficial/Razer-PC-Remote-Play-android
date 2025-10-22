@@ -119,3 +119,6 @@ if(NOT ENET_NO_INSTALL)
     install(DIRECTORY include/
             DESTINATION include)
 endif()
+
+target_link_options(enet PRIVATE "-Wl,-z,max-page-size=16384")
+target_link_options(enet PRIVATE "-Wl,-z,common-page-size=16384")

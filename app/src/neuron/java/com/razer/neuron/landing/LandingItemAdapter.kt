@@ -16,7 +16,10 @@ import com.limelight.databinding.RnItemNeuronSettingsActionBinding
 import com.limelight.databinding.RnItemNeuronSettingsGroupHeaderBinding
 import com.limelight.databinding.RnItemNeuronSettingsLoadingBinding
 import com.limelight.nvstream.http.ComputerDetails
+import com.razer.neuron.common.updateCorners
 import com.razer.neuron.extensions.dimenResToPx
+import com.razer.neuron.common.pillBackground
+import com.razer.neuron.extensions.setOnlyMargin
 import com.razer.neuron.extensions.visible
 import com.razer.neuron.extensions.visibleIf
 import com.razer.neuron.settings.devices.DeviceAction
@@ -105,7 +108,7 @@ class LandingItemAdapter :
         position: Int
     ) {
         when (holder.itemViewType) {
-            TYPE_COMPUTER_GROUP_HEADER -> (holder as GroupHeaderViewHolder).bind(getItem(position))
+            TYPE_COMPUTER_GROUP_HEADER -> (holder as GroupHeaderViewHolder).bind(position, getItem(position))
             TYPE_COMPUTER_LIST -> (holder as ComputerListViewHolder).bind(getItem(position))
             TYPE_LOADING -> (holder as LoadingViewHolder).bind(getItem(position))
             TYPE_ACTION -> (holder as ActionViewHolder).bind(getItem(position))
@@ -120,7 +123,8 @@ class LandingItemAdapter :
                 binding.layoutHeaderLoadingContainer.visibleIf { value }
             }
 
-        fun bind(data: LandingItem) {
+        fun bind(position: Int, data: LandingItem) {
+            binding.tvHeaderSubtitle.setOnlyMargin(top = if(position == 0) 0 else dimenResToPx(R.dimen.m3_sys_header_margin_top).roundToInt())
             when (data) {
                 is LandingItem.PairedGroupHeader -> data.bind()
                 is LandingItem.UnpairedGroupHeader -> data.bind()
@@ -164,9 +168,10 @@ class LandingItemAdapter :
 
     private inner class ActionViewHolder(val binding: RnItemNeuronSettingsActionBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        private val actionIcon by lazy { binding.ivActionIcon }
+        private val actionIcon by lazy { binding.ivActionStartIcon }
         fun bind(data: LandingItem) {
             if (data !is LandingItem.ActionItem) return
+            binding.pillBackground()?.updateCorners(0, 1)
             itemView.setOnClickListener {
                 when(data) {
                     is LandingItem.AddManually -> {
@@ -218,14 +223,12 @@ class LandingItemAdapter :
             val itemViewType = adapter.getItemViewType(position)
             when (itemViewType) {
                 TYPE_COMPUTER_LIST -> {
-                    outRect.bottom = dimenResToPx(R.dimen.margin_2x).roundToInt()
+                    outRect.bottom = dimenResToPx(R.dimen.margin_4x).roundToInt()
                     outRect.left = if(columnIndex == 0) dimenResToPx(R.dimen.margin_4x).roundToInt() else 0
                 }
                 TYPE_COMPUTER_GROUP_HEADER -> {
                     val verticalMargin = dimenResToPx(R.dimen.margin_2x).roundToInt()
-                    outRect.top = verticalMargin
-                    outRect.bottom = verticalMargin
-                    //outRect.bottom = dimenResToPx(R.dimen.margin_2x).roundToInt()
+                    outRect.top = if(position == 0) 0 else verticalMargin
                 }
                 else -> Unit
             }
@@ -248,4 +251,6 @@ class LandingItemAdapter :
         listener?.onComputerClicked(computerDetails, action)
     }
 }
+
+
 

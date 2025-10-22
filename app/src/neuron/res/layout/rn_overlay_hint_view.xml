@@ -16,7 +16,7 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:addStatesFromChildren="true"
-        android:background="@color/bg_overlay_hint_container_color">
+        android:background="@drawable/bg_overlay_hint_container_color">
 
         <ImageView
             android:importantForAccessibility="no"

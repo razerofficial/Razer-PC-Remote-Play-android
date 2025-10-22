@@ -3,11 +3,14 @@ package com.razer.neuron.game
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Color
+import android.graphics.Rect
+import android.os.Build
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.SurfaceHolder
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.core.view.ViewCompat
@@ -23,11 +26,20 @@ import com.limelight.utils.SpinnerDialog
 import com.razer.neuron.common.ComputerMeta
 import com.razer.neuron.common.GameOverlayView
 import com.razer.neuron.common.debugToast
+import com.razer.neuron.common.fitSystemWindows
+import com.razer.neuron.common.getSystemBarInsets
+import com.razer.neuron.common.hideStatusBar
+import com.razer.neuron.common.setStatusBarIconColor
+import com.razer.neuron.common.showNavigationBarsOnly
+import com.razer.neuron.common.showStatusBar
 import com.razer.neuron.di.GlobalCoroutineScope
 import com.razer.neuron.di.IoDispatcher
 import com.razer.neuron.extensions.applyTransition
+import com.razer.neuron.extensions.getContentRootView
 import com.razer.neuron.extensions.gone
+import com.razer.neuron.extensions.hideNavigationBarsOnly
 import com.razer.neuron.extensions.isStandardResolution
+import com.razer.neuron.extensions.mediaCodecDecoderRenderer
 import com.razer.neuron.extensions.setDrawIntoSafeArea
 import com.razer.neuron.extensions.visible
 import com.razer.neuron.extensions.visibleIf
@@ -38,7 +50,9 @@ import com.razer.neuron.game.helpers.RnGameIntentHelper
 import com.razer.neuron.game.helpers.RnGameView
 import com.razer.neuron.game.helpers.RnStreamError
 import com.razer.neuron.game.helpers.transformToStreamError
+import com.razer.neuron.managers.AnalyticsManager
 import com.razer.neuron.model.DynamicThemeActivity
+import com.razer.neuron.model.NeuronEvent
 import com.razer.neuron.model.OverlayHint
 import com.razer.neuron.model.OverlayHintState
 import com.razer.neuron.model.SessionStats
@@ -61,7 +75,6 @@ import kotlin.math.max
  */
 @AndroidEntryPoint
 class RnGame : Game(), GameOverlayView.OverlayHintActionInterface, DynamicThemeActivity {
-    override val isThemeFullscreen = true
     override fun getThemeId() = appThemeType.gameThemeId
     override val isUseWhiteSystemBarIcons = true
 
@@ -189,19 +202,33 @@ class RnGame : Game(), GameOverlayView.OverlayHintActionInterface, DynamicThemeA
         RnGameError.cancelPendingRestart()
         createCount++
         updateComputerMetaTimestamp()
+    }
 
-        gameOverlayView.setOverlayHintAction(this)
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if(hasFocus) updateSystemBarInsets()
+    }
 
-        // Show the overlay hint bar when the IME is showing
-        ViewCompat.setOnApplyWindowInsetsListener(window.decorView) { _: View?, insets: WindowInsetsCompat ->
-            if (insets.isVisible(WindowInsetsCompat.Type.ime())) {
-                gameOverlayView.visible()
-            } else {
-                gameOverlayView.resetState()
-                gameOverlayView.gone()
-            }
-            insets
+    private fun updateSystemBarInsets() {
+        Timber.v("updateSystemBarInsets: isCropToSafeArea=${isCropToSafeArea} displayMode=$displayMode,isUsesVirtualDisplay=${displayMode.isUsesVirtualDisplay}")
+        if(isCropToSafeArea) {
+            val rootView = getContentRootView() ?: return
+            val insets = rootView.getSystemBarInsets() ?: return
+            rootView.setPadding(insets.left, insets.top, insets.right, insets.bottom)
+            fitSystemWindows(isLayoutNoLimits = false)
+            showNavigationBarsOnly()
+            showStatusBar(true)
+            setStatusBarIconColor(window, true)
+        } else {
+            fitSystemWindows(isLayoutNoLimits = true)
+            hideNavigationBarsOnly()
+            hideStatusBar()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        setupGameOverlay()
     }
 
 
@@ -250,6 +277,7 @@ class RnGame : Game(), GameOverlayView.OverlayHintActionInterface, DynamicThemeA
         connectionStartedAt = now()
         lifecycleScope.launch { updateDebugStreamInfo() }
         view.hideLoadingProgress()
+        sendStreamStartedEvent()
     }
 
     private fun updateDebugStreamInfo(){
@@ -280,6 +308,9 @@ class RnGame : Game(), GameOverlayView.OverlayHintActionInterface, DynamicThemeA
             }
         }
         super.onStop()
+        Timber.v("onStop: maybeSendStreamEndedEvent")
+        maybeSendStreamEndedEvent()
+
         Timber.v("onStop: wasFinishing=$wasFinishing, isFinishing=${isFinishing}")
         Timber.v("onStop: connectionTerminatedAt=${connectionTerminatedAt?.toISO8601String(includeMilliseconds = true, short = true)}")
         Timber.v("onStop: surfaceDestroyedAt=${surfaceDestroyedAt?.toISO8601String(includeMilliseconds = true, short = true)}")
@@ -345,6 +376,55 @@ class RnGame : Game(), GameOverlayView.OverlayHintActionInterface, DynamicThemeA
         Timber.v("connectionTerminated: $errorCode (${errorCode.toString(2)})")
         connectionTerminatedAt = now()
         super.connectionTerminated(errorCode)
+        maybeSendStreamEndedEvent()
+    }
+
+
+    private var wasStreamEndSent = false
+    private var streamStartedAt : Long? = null
+
+    private fun sendStreamStartedEvent() {
+        streamStartedAt = now()
+        val negotiatedRes = "${conn.context.negotiatedWidth}x${conn.context.negotiatedHeight}"
+        val refreshRate = conn.context.streamConfig.refreshRate.toString()
+        val event = NeuronEvent.StreamStarted(
+            pcAppName = intent.getStringExtra(EXTRA_APP_NAME) ?: "",
+            negotiatedRes = negotiatedRes,
+            refreshRate = refreshRate,
+            displayMode = RemotePlaySettingsPref.displayMode.name)
+        AnalyticsManager.queueToSend(event)
+    }
+
+
+    @Synchronized
+    private fun maybeSendStreamEndedEvent() {
+        if(wasStreamEndSent) {
+            return
+        }
+        val startedAt = streamStartedAt
+        wasStreamEndSent = true
+        val negotiatedRes = "${conn.context.negotiatedWidth}x${conn.context.negotiatedHeight}"
+        val refreshRate = conn.context.streamConfig.refreshRate.toString()
+        val stats = SessionStats.lastSession?.takeIf { it.randomId == decoderRenderer.randomId }
+        val event = NeuronEvent.StreamEnded(
+            pcAppName = intent.getStringExtra(EXTRA_APP_NAME) ?: "",
+            totalDurationMs = startedAt?.let { now() - it },
+            negotiatedRes = negotiatedRes,
+            refreshRate = refreshRate,
+            displayMode = RemotePlaySettingsPref.displayMode.name,
+            decoderName = stats?.decoderName,
+            avgTotalFps = stats?.avgFps?.totalFps,
+            avgReceivedFps = stats?.avgFps?.receivedFps,
+            avgRenderedFps = stats?.avgFps?.renderedFps,
+            netDropsPercent = stats?.netDropsPercent,
+            avgNetLatencyMs = stats?.avgNetLatencyMs,
+            avgNetLatencyVarianceMs = stats?.avgNetLatencyVarianceMs,
+            minHostProcessingLatencyMs = stats?.minHostProcessingLatencyMs,
+            maxHostProcessingLatencyMs = stats?.maxHostProcessingLatencyMs,
+            avgHostProcessingLatencyMs = stats?.avgHostProcessingLatencyMs,
+            decodeTimeMs = stats?.decodeTimeMs
+        )
+        AnalyticsManager.queueToSend(event)
     }
 
     override fun finish() {
@@ -523,6 +603,44 @@ class RnGame : Game(), GameOverlayView.OverlayHintActionInterface, DynamicThemeA
             }
         }
         overlayButtonStateMap.clear()
+    }
+
+    private fun setupGameOverlay() {
+        gameOverlayView.setOverlayHintAction(this)
+        fun showGameOverlay() {
+            gameOverlayView.visible()
+        }
+        fun hideGameOverlay() {
+            gameOverlayView.resetState()
+            gameOverlayView.gone()
+        }
+
+        // Show the overlay hint bar when the IME is showing
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
+            ViewCompat.setOnApplyWindowInsetsListener(window.decorView) { _: View?, insets: WindowInsetsCompat ->
+                if (insets.isVisible(WindowInsetsCompat.Type.ime())) {
+                    showGameOverlay()
+                } else {
+                    hideGameOverlay()
+                }
+                insets
+            }
+        } else {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
+            window.decorView.viewTreeObserver.addOnGlobalLayoutListener {
+                val r = Rect()
+                window.decorView.getWindowVisibleDisplayFrame(r)
+                val screenHeight = window.decorView.getRootView()?.height
+                val keypadHeight = screenHeight?.minus(r.bottom) ?: 0
+                if (screenHeight != null) {
+                    if (keypadHeight > screenHeight * 0.15) { // 0.15 ratio is perhaps enough to determine keypad height.
+                        showGameOverlay()
+                    } else {
+                        hideGameOverlay()
+                    }
+                }
+            }
+        }
     }
 
     private fun updateSessionStats() {

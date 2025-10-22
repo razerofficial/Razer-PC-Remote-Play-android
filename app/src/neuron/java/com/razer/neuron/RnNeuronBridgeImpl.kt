@@ -1,7 +1,10 @@
 package com.razer.neuron
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.media.AudioAttributes
+import android.media.AudioFormat
 import android.media.MediaCodecInfo
 import android.preference.PreferenceManager
 import android.util.Size
@@ -30,6 +33,7 @@ import com.razer.neuron.extensions.getAllSupportedNativeFps
 import com.razer.neuron.extensions.getPPI
 import com.razer.neuron.extensions.getScreenResolution
 import com.razer.neuron.extensions.getUserFacingMessage
+import com.razer.neuron.extensions.isSystemAudioCaptioningEnabled
 import com.razer.neuron.extensions.parseServerCodecModeSupportFlags
 import com.razer.neuron.extensions.parseSupportedVideoFormat
 import com.razer.neuron.extensions.willStreamHdr
@@ -61,7 +65,14 @@ import kotlin.math.roundToInt
  */
 class RnNeuronBridgeImpl(val context: Context) : NeuronBridgeInterface {
 
-
+    /**
+     * See BAA-2656
+     */
+    override val isMatchStreamViewResolutionToCurrentWindow : Boolean
+        get() {
+            return (displayMode == DisplayModeOption.PhoneOnlyDisplay || displayMode == DisplayModeOption.SeparateDisplay)
+                    && RemotePlaySettingsPref.isOnlyUseCurrentNativeRes
+        }
 
     private val prefs by lazy { PreferenceManager.getDefaultSharedPreferences(context) }
 
@@ -152,7 +163,7 @@ class RnNeuronBridgeImpl(val context: Context) : NeuronBridgeInterface {
     /**
      * See [NeuronBridgeInterface.updatePreferenceConfiguration]
      */
-    override fun updatePreferenceConfiguration(window: Window, prefConfig: PreferenceConfiguration, intent : Intent) {
+    override fun updatePreferenceConfiguration(activity: Activity, prefConfig: PreferenceConfiguration, intent : Intent) {
         val activeDisplayMode = intent.getStringExtra(Game.EXTRA_HOST_ACTIVE_DISPLAY_MODE)?.let { DisplayMode.createDisplayMode(it) }
         val displayMode = displayMode ?: return
         val tag = "updateResolutionAndRefreshRate"
@@ -173,7 +184,8 @@ class RnNeuronBridgeImpl(val context: Context) : NeuronBridgeInterface {
                 prefConfig.fps = fallbackFps
             }
             displayMode == DisplayModeOption.PhoneOnlyDisplay || displayMode == DisplayModeOption.SeparateDisplay -> {
-                val virtualDisplayMode = calculateVirtualDisplayMode(context).getOrNull()
+
+                val virtualDisplayMode = activity.calculateVirtualDisplayMode().getOrNull()
                 Timber.v("$tag: virtualDisplayMode=$virtualDisplayMode")
                 if (virtualDisplayMode != null) {
                     prefConfig.width = virtualDisplayMode.widthInt ?: prefConfig.width
@@ -185,7 +197,7 @@ class RnNeuronBridgeImpl(val context: Context) : NeuronBridgeInterface {
                 // for cases when we had to fallback to use default resolution
                 if(activeDisplayMode != null) {
                     // NEUR-103
-                    val nativeRefreshRates = getAllSupportedNativeFps(window)
+                    val nativeRefreshRates = getAllSupportedNativeFps(activity.window)
                     val closestMatchingRefreshRate = nativeRefreshRates.minByOrNull { abs(it - (activeDisplayMode.refreshRateInt ?: 0)) } ?: context.getDefaultDisplayRefreshRateHz(true)
                     val (w, h) = activeDisplayMode.widthInt to activeDisplayMode.heightInt
                     Timber.v("$tag: w=$w, h=$h nativeRefreshRates=$nativeRefreshRates, closestMatchingRefreshRate=$closestMatchingRefreshRate")
@@ -278,11 +290,12 @@ class RnNeuronBridgeImpl(val context: Context) : NeuronBridgeInterface {
      *  will canonicalize the query internally)
      */
     override fun getLaunchUrlQueryParameters(connectionContext: ConnectionContext): String {
+        val activity = connectionContext.activity?.get() ?: RnApp.lastResumed
         val computerDetails = connectionContext.computerDetails
         val tag = "getLaunchUrlQueryParameters"
         val nvApp = connectionContext.streamConfig.app
         val deviceNickname = context.getDeviceNickName()
-        val virtualDisplayModeFormated = calculateVirtualDisplayMode(context).getOrNull()?.format()
+        val virtualDisplayModeFormated = activity?.calculateVirtualDisplayMode()?.getOrNull()?.format()
         val ppi = context.getPPI().roundToInt()
         val screenSize = context.getScreenResolution()
         val _displayMode = displayMode ?: DisplayModeOption.DuplicateDisplay
@@ -422,6 +435,20 @@ class RnNeuronBridgeImpl(val context: Context) : NeuronBridgeInterface {
         RnStreamError.ERROR_CODE_5040_HOST_MONITOR_OFF_IN_PHONE_ONLY_MODE -> context.getString(R.string.conn_error_code_5040)
         else -> "(error $errorCode)"
     }
+
+
+    override fun createAudioAttributesBuilder(): AudioAttributes.Builder? {
+        return if(context.isSystemAudioCaptioningEnabled()) {
+            AudioAttributes.Builder()
+                .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                .setUsage(AudioAttributes.USAGE_MEDIA)
+        } else {
+            // return null so that caller can create a standard AudioAttributes.Builder
+            null
+        }
+    }
+
+    override fun createAudioFormatBuilder(): AudioFormat.Builder? = null
 }
 
 

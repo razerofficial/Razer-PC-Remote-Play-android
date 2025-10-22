@@ -90,6 +90,12 @@ class RnRemotePlayViewModel
         _videoFormatOptionLiveData
     }
 
+    private val _onlyUseCurrentNativeRes = MutableLiveData<Boolean>()
+    val onlyUseCurrentNativeRes: LiveData<Boolean> by lazy {
+        _onlyUseCurrentNativeRes
+    }
+
+
 
     init {
         reinitLiveData()
@@ -108,6 +114,7 @@ class RnRemotePlayViewModel
             _gameOptimizationLiveData.value = remotePlaySettingsManager.getGameOptimization()
             _autoCloseGameCountDownLiveData.value = remotePlaySettingsManager.getAutoCloseGameCountDown()
             _videoFormatOptionLiveData.value = remotePlaySettingsManager.getVideoFormatOption()
+            _onlyUseCurrentNativeRes.value = remotePlaySettingsManager.isOnlyUseCurrentNativeRes()
         }
     }
 
@@ -137,6 +144,13 @@ class RnRemotePlayViewModel
             remotePlaySettingsManager.setLimitRefreshRate(isChecked)
             _limitRefreshRateLiveData.value = isChecked
             _displayModeLiveData.value = remotePlaySettingsManager.getDisplayMode()
+        }
+    }
+
+    fun setOnlyUseCurrentNativeRes(value: Boolean) {
+        viewModelScope.launch {
+            RemotePlaySettingsPref.isOnlyUseCurrentNativeRes = value
+            _onlyUseCurrentNativeRes.value = value
         }
     }
 

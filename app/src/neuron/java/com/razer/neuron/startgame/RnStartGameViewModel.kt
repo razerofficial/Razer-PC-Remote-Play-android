@@ -11,7 +11,7 @@ import com.limelight.nvstream.http.NvApp
 import com.limelight.nvstream.http.NvHTTP
 import com.razer.neuron.common.toast
 import com.razer.neuron.game.setReplaceSession
-import com.razer.neuron.main.findActiveAddress
+import com.razer.neuron.main.getActiveComputer
 import com.razer.neuron.model.isDesktop
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -25,7 +25,7 @@ import java.util.LinkedList
 import kotlin.jvm.Throws
 
 /**
- * A model to apply consistent logic in order to start [RnGame]
+ * A common view-model to apply consistent logic in order to start [com.razer.neuron.game.RnGame]
  */
 interface RnStartGameViewModel {
 
@@ -45,6 +45,12 @@ interface RnStartGameViewModel {
 
     fun RnStartGameModel.Navigation.emit() : Job
 
+    /**
+     * Return a [RnStartGameModel.Navigation] for the view model, applying all the necessary logic.
+     *
+     * It may or may not be a [RnStartGameModel.Navigation.Stream] that actually start streaming
+     * right away, but it should be part of the flow/checks needed.
+     */
     @Throws(IllegalArgumentException::class)
     suspend fun askBeforeStartStream(gameIntent : Intent) : RnStartGameModel.Navigation = wrapWithLoading {
         val tag = "askBeforeStartStream"
@@ -56,7 +62,7 @@ interface RnStartGameViewModel {
         }
         Timber.v("$tag: computerDetailsUuid $computerDetailsUuid")
         Timber.v("$tag: $appId ($appName)")
-        val result = computerDetails.findActiveAddress(appContext, isUpdateThis = true)
+        val result = computerDetails.getActiveComputer(tag, appContext)
         val activeAddress = computerDetails.activeAddress
         val serverCert = computerDetails.serverCert
         var runningGameId = computerDetails.runningGameId
@@ -64,15 +70,15 @@ interface RnStartGameViewModel {
         val httpsPort = computerDetails.httpsPort
         var runningGame : NvApp? = null
         var app : NvApp? = null
-        val http = NvHTTP(
-            activeAddress,
-            httpsPort,
-            null,
-            serverCert,
-            PlatformBinding.getCryptoProvider(appContext))
 
         if(activeAddress != null && httpsPort != 0) {
             runCatching {
+                val http = NvHTTP(
+                    activeAddress,
+                    httpsPort,
+                    null,
+                    serverCert,
+                    PlatformBinding.getCryptoProvider(appContext))
                 // call serverInfo to get latest
                 computerDetails = http.getComputerDetails(true)
                 computerDetails.activeAddress = activeAddress
@@ -132,6 +138,8 @@ interface RnStartGameViewModel {
 
     /**
      * For [RnStartGameModel.Navigation.StartSameGameOrQuit]
+     *
+     * (when user press "start")
      */
     fun onStartGame(gameIntent : Intent) = sessionViewModelScope.launch {
         Timber.v("onStartGame: gameIntent=${gameIntent}")
@@ -140,6 +148,8 @@ interface RnStartGameViewModel {
 
     /**
      * For [RnStartGameModel.Navigation.StartSameGameOrQuit]
+     *
+     * (when user press "quit")
      */
     fun onQuitGame(computerDetails: ComputerDetails) = sessionViewModelScope.launch {
         wrapWithLoading {
@@ -158,6 +168,8 @@ interface RnStartGameViewModel {
 
     /**
      * [RnStartGameModel.Navigation.ReplaceSessionOrQuit]
+     *
+     * (when user press "replace")
      */
     fun onReplaceSession(computerDetails : ComputerDetails, gameIntent : Intent, isIgnoreQuitAppError : Boolean = true) = sessionViewModelScope.launch {
         gameIntent.setReplaceSession(true)
@@ -167,12 +179,14 @@ interface RnStartGameViewModel {
     /**
      * For [RnStartGameModel.Navigation.ConfirmQuitThenStartDifferentGame]
      * or [RnStartGameModel.Navigation.ReplaceSessionOrQuit]
+     *
+     * (when user press "quit and start")
      */
     fun onQuitThenStart(computerDetails : ComputerDetails, gameIntent : Intent, isIgnoreQuitAppError : Boolean = true) = sessionViewModelScope.launch {
         wrapWithLoading {
             try {
                 /**
-                 * Calling Game (i.e [RnGame]) will quit the game automatically
+                 * Calling Game (i.e [com.razer.neuron.game.RnGame]) will quit the game automatically
                  * no need to call [ComputerDetails.quitApp]
                  */
                 //computerDetails.quitApp();
@@ -210,7 +224,7 @@ interface RnStartGameViewModel {
     private suspend fun <T> wrapWithLoading(task : suspend () -> T) : T{
         return try {
             RnStartGameModel.State.ShowLoading.emit()
-            task()
+            withContext(ioDispatcher) { task() }
         } finally {
             RnStartGameModel.State.HideLoading.emit()
         }

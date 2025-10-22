@@ -1,5 +1,6 @@
 package com.razer.neuron.utils
 
+import android.app.Activity
 import android.content.Context
 import android.hardware.display.DisplayManager
 import android.view.Display
@@ -36,9 +37,10 @@ fun Context.getDefaultDisplayRefreshRateHz(isCheckMoonlightSupported : Boolean =
 /**
  * Used to determine the [DisplayMode] used by virtual display (i.e. [DisplayModeOption.isUsesVirtualDisplay] is true)
  */
-fun calculateVirtualDisplayMode(context : Context, isLimitRefreshRate : Boolean = RemotePlaySettingsPref.isLimitRefreshRate, window : Window? = RnApp.lastResumed?.window) = runCatching {
+fun Activity.calculateVirtualDisplayMode(isLimitRefreshRate : Boolean = RemotePlaySettingsPref.isLimitRefreshRate) = runCatching {
     val tag = "calculateVirtualDisplayMode"
-    val currentRefreshRate = context.getDefaultDisplayRefreshRateHz()
+
+    val currentRefreshRate = getDefaultDisplayRefreshRateHz()
 
     val defaultFps = window?.let { getMaxNativeFps(it) } ?: PreferenceConfiguration.DEFAULT_FPS.toInt()
 

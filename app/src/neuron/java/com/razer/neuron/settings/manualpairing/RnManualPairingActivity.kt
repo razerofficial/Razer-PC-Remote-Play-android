@@ -23,10 +23,12 @@ import com.razer.neuron.common.BaseActivity
 import com.razer.neuron.common.ComputerServiceHelper
 import timber.log.Timber
 import com.razer.neuron.common.materialAlertDialogTheme
+import com.razer.neuron.common.setCancelableExt
 
 import com.razer.neuron.extensions.dismissSafely
 import com.razer.neuron.extensions.gone
 import com.razer.neuron.extensions.hideKeyboard
+import com.razer.neuron.extensions.isValidIpAddressFormat
 import com.razer.neuron.extensions.setHintOnlyWhenFocused
 import com.razer.neuron.extensions.visible
 import com.razer.neuron.model.DynamicThemeActivity
@@ -93,16 +95,22 @@ class RnManualPairingActivity : BaseActivity(), DynamicThemeActivity {
     private fun hasPort(port : Editable? = binding.etPort.text) = port?.toString()?.toIntOrNull() != null
 
     private fun setupUI() {
+        fun updateEtIpAddressState() {
+            val input = binding.etIpAddress.text?.toString()
+            binding.tilIpAddress.error = if(input.isNullOrEmpty() || input.isValidIpAddressFormat()) null else getString(R.string.rn_invalid_ip_address_format)
+        }
         binding.etIpAddress.requestFocus()
         binding.etIpAddress.setHintOnlyWhenFocused("192.168.x.x")
         binding.etIpAddress.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable) {
                 binding.tilIpAddress.error = null
                 enableAddButton(hasIpAddressAndPort(ipAddress = s))
+                updateEtIpAddressState()
             }
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) = Unit
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) = Unit
         })
+        updateEtIpAddressState()
         binding.etIpAddress.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 binding.btnAdd.performClick()
@@ -111,15 +119,22 @@ class RnManualPairingActivity : BaseActivity(), DynamicThemeActivity {
                 false
             }
         }
+        fun updateEtPortState() {
+            val input = binding.etPort.text?.toString()
+            val inputPort = input?.toIntOrNull() ?: 0
+            binding.tilPort.error = if(input.isNullOrEmpty() || inputPort in 1..65535) null else getString(R.string.rn_invalid_port_range)
+        }
         binding.etPort.setHintOnlyWhenFocused(RemotePlayConfig.default.defaultHttpPort.toString())
         binding.etPort.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable) {
                 binding.tilPort.error = null
                 enableAddButton(hasIpAddressAndPort(port = s))
+                updateEtPortState()
             }
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) = Unit
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) = Unit
         })
+        updateEtPortState()
         binding.etPort.filters = arrayOf(InputFilter { source, start, end, dest, dstart, dend ->
             var output = ""
             for (i in start until end) {
@@ -162,7 +177,6 @@ class RnManualPairingActivity : BaseActivity(), DynamicThemeActivity {
         val toolbar = binding.topToolBar
         toolbar.title = getString(R.string.title_add_pc)
         toolbar.navigationContentDescription = getString(R.string.title_add_pc)
-        toolbar.setNavigationIcon(R.drawable.ic_back)
         toolbar.setNavigationOnClickListener {
             finish()
         }
@@ -240,7 +254,7 @@ class RnManualPairingActivity : BaseActivity(), DynamicThemeActivity {
     private fun ManualPairingState.ShowPin.handle() {
         pinCodeDialog.dismissSafely()
         pinCodeDialog = MaterialAlertDialogBuilder(this@RnManualPairingActivity, materialAlertDialogTheme())
-            .setCancelable(true)
+            .setCancelableExt(false) // don't want user to accidentally cancelled this dialog
             .setTitle(getString(R.string.rn_pin_code_title, computerName))
             .setView(LayoutInflater.from(this@RnManualPairingActivity).inflate(R.layout.rn_layout_pin_code, null).apply {
                 findViewById<TextView>(R.id.tv_pin_code).text = pinCode

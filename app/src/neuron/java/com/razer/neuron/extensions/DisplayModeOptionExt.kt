@@ -11,6 +11,7 @@ import android.view.DisplayCutout
 import android.view.Window
 import android.view.WindowInsets
 import com.razer.neuron.RnApp
+import com.razer.neuron.pref.RemotePlaySettingsPref
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -18,6 +19,7 @@ import kotlin.math.roundToInt
 
 data class NativeResolution(val width: Int, val height: Int, val hasInsets: Boolean) {
     val pixelsCount = width * height
+    val isHigherThan4K get() = (width > 3840 || width > 2160)
 }
 
 
@@ -33,9 +35,25 @@ val standardResolutions by lazy {
 }
 
 /**
+ * See BAA-2656
+ *
+ * @return true if the current screen resolution is already the maximum that the device can support
+ */
+fun isCurrentNativeResolutionAlreadyMax(window: Window) : Boolean {
+    val display =
+        (window.context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager).getDisplay(Display.DEFAULT_DISPLAY)
+    val currentMode = display.mode ?: return false
+    val supportedModes = display.supportedModes.takeIf { it.isNotEmpty() } ?: return true
+    val maxSupportedMode = supportedModes.maxByOrNull { it.physicalWidth * it.physicalHeight } ?: return false
+    return currentMode.physicalWidth == maxSupportedMode.physicalWidth
+            && currentMode.physicalHeight == maxSupportedMode.physicalHeight
+}
+
+
+/**
  * See BAA-1887
  */
-fun getNativeResolutions(window: Window): Set<NativeResolution> {
+fun getNativeResolutions(window: Window, isOnlyUseCurrentNativeRes : Boolean = RemotePlaySettingsPref.isOnlyUseCurrentNativeRes): Set<NativeResolution> {
     val context = window.context
     val display =
         (context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager).getDisplay(Display.DEFAULT_DISPLAY)
@@ -66,17 +84,24 @@ fun getNativeResolutions(window: Window): Set<NativeResolution> {
         }
     }
 
-    for (supportedMode in display.supportedModes) {
+
+    val isTv = context.packageManager.hasSystemFeature(PackageManager.FEATURE_LEANBACK)
+
+    fun Display.Mode.toNativeResolution() : NativeResolution {
         // Some devices report their dimensions in the portrait orientation
         // where height > width. Normalize these to the conventional width > height
         // arrangement before we process them.
-        val width = max(supportedMode.physicalWidth, supportedMode.physicalHeight)
-        val height = min(supportedMode.physicalWidth, supportedMode.physicalHeight)
+        val width = max(physicalWidth, physicalHeight)
+        val height = min(physicalWidth, physicalHeight)
+        return NativeResolution(width, height, hasInsets)
+    }
 
+    val nativeResList = if(isOnlyUseCurrentNativeRes) listOf(display.mode.toNativeResolution()) else display.supportedModes.map { it.toNativeResolution() }
+    for (nativeRes in nativeResList) {
         // Some TVs report strange values here, so let's avoid native resolutions on a TV
         // unless they report greater than 4K resolutions.
-        if (!context.packageManager.hasSystemFeature(PackageManager.FEATURE_LEANBACK) || (width > 3840 || width > 2160)) {
-            nativeResolutions += NativeResolution(width, height, hasInsets)
+        if(!isTv || nativeRes.isHigherThan4K){
+            nativeResolutions += nativeRes
         }
     }
     return nativeResolutions

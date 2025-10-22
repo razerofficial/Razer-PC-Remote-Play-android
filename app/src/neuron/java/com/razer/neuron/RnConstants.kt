@@ -10,7 +10,7 @@ object RnConstants {
     /**
      * BAA-2405
      */
-    const val NEXUS_DOWNLOAD_URL = "https://rzr.to/nexus-app"
+    const val NEXUS_DOWNLOAD_URL = "https://rzr.to/nexus-app-android"
 }
 
 fun isShowVerboseErrorMessage() = BuildConfig.DEBUG || RemotePlaySettingsPref.isDevModeEnabled

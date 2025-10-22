@@ -5,6 +5,7 @@ import android.preference.PreferenceManager
 import com.limelight.computers.ComputerDatabaseManager
 import com.razer.neuron.provider.sources.NeuronAndroidCryptoSource
 import com.razer.neuron.provider.sources.NeuronComputerDetailsSource
+import com.razer.neuron.provider.sources.NeuronEventsSource
 import com.razer.neuron.provider.sources.NeuronMetaDataSource
 import com.razer.neuron.provider.sources.RemotePlaySettingsProviderSource
 import com.razer.neuron.settings.StreamingManager
@@ -41,6 +42,10 @@ object AppModule {
     @Provides
     fun provideMetaDataSource() =
         NeuronMetaDataSource()
+
+    @Singleton
+    @Provides
+    fun provideNeuronEventsSource() = NeuronEventsSource()
 
     @Singleton
     @Provides

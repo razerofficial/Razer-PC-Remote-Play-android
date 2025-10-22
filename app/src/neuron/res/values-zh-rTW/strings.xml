@@ -43,17 +43,11 @@
     <string name="conn_error_title">連線錯誤</string>
     <string name="rn_unsupported_native_resolution_title">不支援的解析度</string>
     <string name="rn_unsupported_native_resolution_msg"><![CDATA[不支援在此裝置上串流 %1$s 原生解析度。為了修正此問題，已將<b>串流顯示模式</b>設定變更為<b>複製 PC 顯示器畫面</b>。<br/><br/>如果想要嘗試其他解析度，你可以嘗試在 Android 裝置的設定中變更<b>顯示尺寸</b>比例。]]></string>
-    <string name="rn_settings_appearance">外觀</string>
     <string name="rn_add_computer_manually_subtitle">輸入主機電腦的 IP 位址。</string>
     <string name="rn_warning_unable_to_pair">無法配對</string>
     <string name="rn_settings">設定</string>
     <string name="rn_searching">正在搜尋...</string>
-    <string name="rn_theme_title">主題</string>
-    <string name="rn_theme_system">系統預設</string>
-    <string name="rn_theme_light">淺色</string>
-    <string name="rn_theme_dark">深色</string>
     <string name="rn_theme_razer">Razer</string>
-    <string name="rn_theme_dialog_title">選擇主題</string>
     <string name="rn_apply_and_restart">套用並重新啟動</string>
     <string name="rn_restarting">正在重新啟動應用程式</string>
     <string name="rn_dismiss">忽略</string>
@@ -70,10 +64,8 @@
     <string name="rn_all_computers">所有電腦</string>
     <string name="rn_settings_computers">電腦</string>
     <string name="rn_add">新增</string>
-    <string name="rn_hint_input_pc_ip_address">IP 位址</string>
     <string name="rn_discovery_state_pc_online">可用</string>
     <string name="rn_pair">配對</string>
-    <string name="rn_paired_computers">已配對的電腦</string>
     <string name="rn_nexus_content_provider_permission_name">正在配對</string>
     <string name="rn_pin_code_subtitle">PIN 碼：</string>
     <string name="rn_pin_code_title">在串流 PC 上輸入\n%1$s</string>
@@ -85,9 +77,10 @@
     <string name="rn_setting_neuron_display_mode">顯示模式</string>
     <string name="rn_setting_neuron_stretch_to_full_screen_desc">強制使電腦視訊串流符合裝置的全螢幕。</string>
     <string name="rn_setting_neuron_hdr_title">允許 HDR</string>
-    <string name="rn_setting_neuron_hdr_subtitle">需要連接至 PC 的顯示器啟用 HDR。</string>
+    <string name="rn_setting_neuron_hdr_subtitle_line1">要求电脑连接的显示器已启用 HDR。</string>
     <string name="rn_all_computers_subtitle">若要配對 PC，電腦必須與你的行動裝置處於相同的網路上。確定你的 PC 已安裝 &hostlabel; v11.0.+，並已使用你的 Razer ID 登入。</string>
     <string name="rn_setting_neuron_frame_pacing">畫格速度</string>
+    <string name="rn_setting_neuron_hdr_subtitle_line2">需要連接至 PC 的顯示器啟用 HDR。</string>
     <string name="rn_setting_neuron_general_settings">一般設定</string>
     <string name="rn_setting_neuron_advanced_settings">進階設定</string>
     <string name="rn_setting_neuron_mute_host_pc_title">在串流時靜音主機 PC 的喇叭</string>
@@ -101,6 +94,7 @@
     <string name="rn_settings_display_mode_duplicate_desc">會將連接至 PC 的顯示內容串流到你的行動裝置上。</string>
     <string name="rn_setting_neuron_limit_refresh_title">將更新率限制為 60Hz</string>
     <string name="rn_settings_display_mode_phone_only_desc_x_resolution_x_refresh_rate">你的 PC 將會建立一個符合你裝置解析度和更新率（%1$s @ %2$sHz）的虛擬顯示器，並串流至你的裝置。\n\n串流時，所有連接至 PC 的螢幕都將暫時停用。</string>
+    <string name="rn_settings_display_mode_separate_desc_x_resolution_x_refresh_rate">獨立顯示 %1$s @%2$sHz</string>
     <string name="rn_unpair">取消配對</string>
     <string name="rn_warning_could_not_connect_to_host">無法連線至主機</string>
     <string name="rn_setting_neuron_autoclose_countdown_title">自動退出遊戲</string>
@@ -111,9 +105,6 @@
     <string name="auto_close_never">永不</string>
     <string name="rn_settings_display_mode_phone_only_2_lines">裝置最佳化</string>
     <string name="rn_settings_display_mode_separate">個別顯示</string>
-    <string name="rn_unpaired_computers">未配對的電腦</string>
-    <string name="rn_settings_display_mode_separate_desc_x_resolution_x_refresh_rate">分離顯示 %1$s 在 %2$sHz</string>
-    <string name="rn_manually_pair">手動配對</string>
     <string name="rn_device_page_pc_pair">配對</string>
     <string name="rn_device_page_pc_unpair">取消配對</string>
     <string name="rn_download">下載</string>
@@ -144,17 +135,6 @@
     <string name="rn_remote_play_settings_localized">PC 遠端遊玩</string>
     <string name="rn_setting_neuron_video_settings">視訊設定</string>
     <string name="rn_pairing_hint">請確保 &hostlabel; 正在執行。</string>
-    <string name="rn_setting_neuron_video_format_title">視頻編解碼器</string>
-    <string name="rn_setting_neuron_video_format_subtitle">指定用於串流的視訊編解碼器。</string>
-    <string name="rn_video_format_auto">自動</string>
-    <string name="rn_prompt_quit_existing_session_title">串流會話進行中</string>
-    <string name="rn_prompt_quit_existing_session_msg"><![CDATA[<b>%1$s</b> 已在 <b>%2$s</b> 上進行串流播放，您要替換當前會話嗎？所有未保存的數據將丟失。]]></string>
-    <string name="rn_replace">替換</string>
-    <string name="rn_reconnecting_to_x">正在重新連接到 %1$s \u2026</string>
-    <string name="rn_tap_to_cancel">點擊取消</string>
-    <string name="rn_overlay_title">PC 鍵</string>
-    <string name="rn_warning_missing_address">缺少 IP 位址。</string>
-    <string name="rn_warning_missing_port">缺少連接埠。</string>
 
     <!-- Failed to start error message, part 1  -->
     <string name="failed_to_start_msg_with_param">無法開始%1$s。</string>
@@ -174,18 +154,44 @@
     <string name="conn_stage_input_stream_establishment">輸入流建立</string>
 
     <!-- Failed to start error message, part 3  -->
-    <string name="conn_error_code_5031">主機的同時串流限制已達上限。請停止現有的串流或在 &hostlabel; 設定 UI 中增加「通道」的值。</string>
-    <string name="conn_error_code_5032">無法初始化視訊擷取/編碼。顯示器是否已連接並開啟？</string>
-    <string name="conn_error_code_5033">沒有正在執行的應用程式可恢復。</string>
-    <string name="conn_error_code_5034">在結束前必須斷開所有連線。</string>
-    <string name="conn_error_code_5037">主機PC無法啟動視頻編碼器。請確保您的GPU和CPU驅動程式已更新。</string>
-    <string name="conn_error_code_5038">視頻編碼器啟動失敗。請嘗試使用不同的視頻編解碼器，或重新啟動主機PC。</string>
-    <string name="conn_error_code_5039"><![CDATA[未檢測到連接到您的PC的顯示器。請確保您的顯示器已開啟，或將顯示模式更改為<b>僅限手機</b>。]]></string>
-    <string name="conn_error_code_5040">Razer虛擬顯示未正確加載。請重新啟動您的主機PC。</string>
+    <string name="conn_error_code_5031">已達到主機的同時串流上限。停止目前的串流，或是在 &hostlabel; 設定使用者介面中增加「頻道」的值。</string>
+    <string name="conn_error_code_5032">無法初始化視訊擷取/編碼。是否已連線並開啟顯示器？</string>
+    <string name="conn_error_code_5033">沒有執行中的應用程式可繼續。</string>
+    <string name="conn_error_code_5034">結束前，必須中斷連線所有工作階段。</string>
+    <string name="conn_error_code_5037">主機 PC 無法啟動視訊編碼器。請確定是否已更新 GPU 和 CPU 驅動程式。</string>
+    <string name="conn_error_code_5038">視訊編碼器無法啟動。請嘗試使用不同的視訊編碼器，或是重新啟動主機 PC。</string>
+    <string name="conn_error_code_5039"><![CDATA[找不到連線至 PC 的顯示器。請確定顯示器已經開啟，或是將顯示模式變更為<b>僅限手機</b>。]]></string>
+    <string name="conn_error_code_5040">未正確載入 Razer 虛擬顯示器。請重新啟動主機 PC。</string>
 
     <string name="open_source_notice">開放原始碼軟體注意事項</string>
 
     <string name="rn_fallback_display_mode_and_video_res_msg"><![CDATA[<br/><br/>設定<b>顯示模式</b>已還原為<b>複製電腦顯示器</b>和 720p，請稍後再試。]]></string>
     <string name="rn_fallback_video_res_msg"><![CDATA[<br/><br/>影片解析度已變更為 720p，請稍後再試。]]></string>
+
+    <string name="rn_setting_neuron_video_format_subtitle">指定用於串流的視訊編碼器。</string>
+    <string name="rn_settings_appearance">外觀</string>
+    <string name="rn_theme_title">主題</string>
+    <string name="rn_theme_light">淺色</string>
+    <string name="rn_theme_dark">深色</string>
+    <string name="rn_theme_system">系統預設</string>
+    <string name="rn_theme_dialog_title">選擇主題</string>
+    <string name="rn_paired_computers">已配對 PC</string>
+    <string name="rn_unpaired_computers">未配對的 PC</string>
+    <string name="rn_manually_pair">手動配對</string>
+    <string name="rn_prompt_quit_existing_session_title">串流工作階段正在進行中</string>
+    <string name="rn_prompt_quit_existing_session_msg"><![CDATA[<b>%1$s</b> 正在 <b>%2$s</b> 上串流，你要取代目前的工作階段嗎？將會遺失所有未儲存的資料。]]></string>
+    <string name="rn_replace">取代</string>
+    <string name="rn_reconnecting_to_x">正在重新連線至 %1$s\u2026</string>
+    <string name="rn_tap_to_cancel">點選以取消</string>
+    <string name="rn_overlay_title">PC 鍵</string>
+    <string name="rn_video_format_auto">自動</string>
+    <string name="rn_setting_neuron_video_format_title">視訊編碼器</string>
+    <string name="rn_warning_missing_address">缺少 IP 位址。</string>
+    <string name="rn_warning_missing_port">缺少連接埠。</string>
+    <string name="rn_hint_input_pc_ip_address">IP 位址</string>
     <string name="rn_hint_input_pc_port">連接埠</string>
+    <string name="rn_invalid_ip_address_format">無效 IP。請輸入有效 IP（例如：192.168.0.1）</string>
+    <string name="rn_invalid_port_range">無效埠號。請輸入有效埠號（例如：51337）</string>
+    <string name="rn_ip_helper_text">輸入 IP 位址（例如：192.168.0.1）</string>
+    <string name="rn_port_helper_text">輸入埠號（例如：51337）</string>
 </resources>

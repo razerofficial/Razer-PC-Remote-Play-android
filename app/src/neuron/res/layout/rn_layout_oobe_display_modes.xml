@@ -14,20 +14,28 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.45" />
 
-
-    <ImageView
-        android:importantForAccessibility="no"
-        android:id="@+id/iv_left_image"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="@dimen/margin_14x"
-        android:layout_marginEnd="@dimen/margin_14x"
-        tools:background="@drawable/bg_duplicate_screen"
+        android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintDimensionRatio="297:167"
         app:layout_constraintEnd_toStartOf="@+id/mid_line"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/iv_left_image"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintWidth_percent="0.75"
+            android:importantForAccessibility="no"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="297:167"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:background="@drawable/bg_duplicate_screen" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 
     <ScrollView
@@ -67,35 +75,36 @@
                     android:textStyle="bold" />
 
                 <HorizontalScrollView
-                    android:defaultFocusHighlightEnabled="false"
-                    android:background="@drawable/bg_transparent"
-                    android:scrollbarThumbHorizontal="@null"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/margin_1x"
                     android:layout_marginBottom="@dimen/margin_1x"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:background="@drawable/bg_transparent"
+                    android:defaultFocusHighlightEnabled="false"
+                    android:scrollbarThumbHorizontal="@null">
 
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:orientation="horizontal">
+
                         <com.razer.neuron.common.ImageRadioButton
-                            android:layout_marginEnd="@dimen/margin_3x"
                             android:id="@+id/irb_phone_only"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" />
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="@dimen/margin_3x" />
 
                         <com.razer.neuron.common.ImageRadioButton
-                            android:layout_marginEnd="@dimen/margin_3x"
                             android:id="@+id/irb_duplicate_screen"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" />
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="@dimen/margin_3x" />
 
                         <com.razer.neuron.common.ImageRadioButton
-                            android:layout_marginEnd="@dimen/margin_3x"
                             android:id="@+id/irb_separate_screen"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" />
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="@dimen/margin_3x" />
 
 
                     </LinearLayout>
@@ -111,7 +120,7 @@
                     android:layout_marginEnd="75dp"
                     android:ellipsize="end"
                     android:fontFamily="@string/sans_serif_regular"
-                    android:lines="6"
+                    android:minLines="6"
                     android:text="@string/placeholder_paragraph_long"
                     android:textSize="12sp" />
 

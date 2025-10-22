@@ -171,7 +171,7 @@ private fun Context.isNexusVersionValid(appPackageName : String) : Boolean {
     return runCatching {
         val packageInfo = packageManager.getPackageInfo(appPackageName,
             PackageManager.GET_PROVIDERS or PackageManager.GET_PERMISSIONS) ?: return false
-        packageInfo.providers.toList().any {
+        packageInfo.providers?.toList()?.any {
             it.readPermission == SHARED_CONTENT_PROVIDER_DATA_ACCESS_PERMISSION
         }
     }.getOrNull() ?: false

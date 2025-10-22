@@ -8,89 +8,88 @@
     tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout"
     tools:theme="@style/AppTheme">
 
-    <com.google.android.material.card.MaterialCardView
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/irb_focus_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/bg_transparent"
         android:clickable="true"
         android:focusable="true"
+        android:foreground="@drawable/bg_transparent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:strokeColor="@color/transparent"
-        app:strokeWidth="0dp">
+        app:layout_constraintTop_toTopOf="parent">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+        <include
+            layout="@layout/m3_ex_pill_background_layout" />
 
-            <ImageView
-                android:importantForAccessibility="no"
-                android:id="@+id/irb_iv_icon"
-                android:layout_width="74dp"
-                android:layout_height="74dp"
-                android:layout_marginHorizontal="32dp"
-                android:layout_marginVertical="4dp"
-                android:duplicateParentState="true"
-                android:padding="6dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:src="@drawable/ic_display_mode_duplicate" />
+        <ImageView
+            android:id="@+id/irb_iv_icon"
+            android:layout_width="74dp"
+            android:layout_height="74dp"
+            android:layout_marginHorizontal="36dp"
+            android:layout_marginVertical="4dp"
+            android:duplicateParentState="true"
+            android:importantForAccessibility="no"
+            android:padding="6dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@drawable/ic_display_mode_duplicate" />
 
-            <TextView
-                android:id="@+id/irb_tv_title"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:includeFontPadding="false"
-                android:gravity="top|center_horizontal"
-                android:lines="2"
-                android:paddingHorizontal="@dimen/margin_1x"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="16sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/irb_iv_icon"
-                tools:text="@string/rn_settings_display_mode_phone_only_2_lines" />
+        <TextView
+            android:id="@+id/irb_tv_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:gravity="top|center_horizontal"
+            android:includeFontPadding="false"
+            android:lines="2"
+            android:paddingHorizontal="@dimen/margin_4x"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/irb_iv_icon"
+            tools:text="@string/rn_settings_display_mode_phone_only_2_lines" />
 
-            <TextView
-                android:id="@+id/irb_tv_subtitle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:gravity="center_horizontal|top"
-                android:lineSpacingMultiplier="0.9"
-                android:includeFontPadding="false"
-                android:lines="2"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="13sp"
-                android:paddingHorizontal="@dimen/margin_1x"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/irb_tv_title"
-                tools:text="@string/placeholder_medium" />
+        <TextView
+            android:id="@+id/irb_tv_subtitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:gravity="center_horizontal|top"
+            android:includeFontPadding="false"
+            android:lineSpacingMultiplier="0.9"
+            android:lines="2"
+            android:paddingHorizontal="@dimen/margin_2x"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="13sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/irb_tv_title"
+            tools:text="@string/placeholder_medium" />
 
-            <com.google.android.material.radiobutton.MaterialRadioButton
-                android:id="@+id/irb_radio_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="4dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                android:clickable="false"
-                android:focusable="false"
-                android:minWidth="0dp"
-                android:minHeight="0dp"
-                android:background="@null"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/irb_tv_subtitle" />
+        <com.google.android.material.radiobutton.MaterialRadioButton
+            android:id="@+id/irb_radio_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="8dp"
+            android:background="@null"
+            android:clickable="false"
+            android:focusable="false"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/irb_tv_subtitle" />
 
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-
-    </com.google.android.material.card.MaterialCardView>
 
 </merge>
 

@@ -15,7 +15,6 @@ import com.razer.neuron.extensions.dimenResToPx
 import com.razer.neuron.extensions.gone
 import com.razer.neuron.extensions.requestFocus
 import com.razer.neuron.extensions.visible
-import com.razer.neuron.model.getHostVariant
 import com.razer.neuron.settings.devices.DeviceAction
 import timber.log.Timber
 import kotlin.math.roundToInt

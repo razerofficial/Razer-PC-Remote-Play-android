@@ -1,19 +1,26 @@
 package com.razer.neuron.common
 
 import android.app.Activity
-import android.os.Build
+import android.content.Context
+import android.os.Bundle
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.ViewTreeObserver
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
-import android.view.WindowInsets
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.graphics.Insets
+import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.window.layout.FoldingFeature
+import androidx.window.layout.WindowInfoTracker
+import androidx.window.layout.WindowLayoutInfo
 import com.razer.neuron.extensions.getContentRootView
+import com.razer.neuron.extensions.getScreenResolution
 import com.razer.neuron.extensions.globalOnUnexpectedError
+import com.razer.neuron.extensions.height
+import com.razer.neuron.extensions.width
 import com.razer.neuron.utils.PermissionChecker
 import com.razer.neuron.utils.RequestMultiplePermissions
 import com.razer.neuron.utils.checkSelfSinglePermission
@@ -22,78 +29,23 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import timber.log.Timber
+import kotlin.math.abs
 
+/**
+ * Your [Activity] should always define as with android:fitsSystemWindows="true"
+ */
 @AndroidEntryPoint
 open class BaseActivity : AppCompatActivity() {
-
-    sealed interface ActivityWindowInsets {
-        val boundingRectLeftWidth: Int?
-        val boundingRectRightWidth: Int?
-        val boundingRectTopHeight: Int?
-        val boundingRectBottomHeight: Int?
-
-        @RequiresApi(Build.VERSION_CODES.Q)
-        class DetailInsets(val windowInset: WindowInsets) : ActivityWindowInsets {
-            override val boundingRectLeftWidth get() = windowInset.displayCutout?.boundingRectLeft?.width()
-            override val boundingRectRightWidth get() = windowInset.displayCutout?.boundingRectRight?.width()
-            override val boundingRectTopHeight get() = windowInset.displayCutout?.boundingRectTop?.height()
-            override val boundingRectBottomHeight get() = windowInset.displayCutout?.boundingRectBottom?.height()
-            override fun toString() =
-                "DetailInsets($boundingRectLeftWidth,$boundingRectTopHeight,$boundingRectRightWidth,$boundingRectBottomHeight)"
-        }
-
-        class BasicInsets(val windowInset: WindowInsetsCompat) : ActivityWindowInsets {
-            override val boundingRectLeftWidth get() = windowInset.systemWindowInsets.left
-            override val boundingRectRightWidth get() = windowInset.systemWindowInsets.right
-            override val boundingRectTopHeight get() = windowInset.systemWindowInsets.top
-            override val boundingRectBottomHeight get() = windowInset.systemWindowInsets.bottom
-            override fun toString() =
-                "BasicInsets($boundingRectLeftWidth,$boundingRectTopHeight,$boundingRectRightWidth,$boundingRectBottomHeight)"
-        }
-    }
+    /**
+     * If true [onSystemBarInsetsChanged] will be called.
+     * If false, the system should draw everything within the system window
+     */
+    open val isRegisterSystemBarInsetsChange : Boolean = false
 
     open val onUnexpectedError = globalOnUnexpectedError
 
     private val requestMultiplePermissions = RequestMultiplePermissions(this)
-
-    private var onGlobalLayoutListener: InnerOnGlobalLayoutListener? = null
-
-    inner class InnerOnGlobalLayoutListener : OnGlobalLayoutListener {
-        override fun onGlobalLayout() {
-            val rootView = getContentRootView() ?: return
-            val windowInsets = rootView.rootWindowInsets
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                windowInsets?.let { onInsetsChange(ActivityWindowInsets.DetailInsets(it)) }
-            } else {
-                val windowInsetsCompat = WindowInsetsCompat.toWindowInsetsCompat(windowInsets)
-                onInsetsChange(ActivityWindowInsets.BasicInsets(windowInsetsCompat))
-            }
-            if (onGlobalLayoutListener == this) {
-                rootView.viewTreeObserver?.removeOnGlobalLayoutListenerSafely(this)
-                onGlobalLayoutListener = null
-            }
-        }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        onGlobalLayoutListener = InnerOnGlobalLayoutListener().apply {
-            getContentRootView()?.viewTreeObserver?.addOnGlobalLayoutListener(this)
-        }
-    }
-
-    override fun onStop() {
-        super.onStop()
-        onGlobalLayoutListener?.let {
-            getContentRootView()?.viewTreeObserver?.removeOnGlobalLayoutListenerSafely(it)
-            onGlobalLayoutListener = null
-        }
-    }
-
-    /**
-     * When the [ActivityWindowInsets] is first calculated or when there is a change
-     */
-    open fun onInsetsChange(insets: ActivityWindowInsets) = Unit
 
 
     /**
@@ -167,6 +119,36 @@ open class BaseActivity : AppCompatActivity() {
         return super.dispatchTouchEvent(ev)
     }
 
+
+    private var lastSystemBarInsetsApplied : Insets? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val rootView = getContentRootView() ?: return
+        if(isRegisterSystemBarInsetsChange) {
+            ViewCompat.setOnApplyWindowInsetsListener(rootView) { v, insets ->
+                val systemBarInsets = insets.toSystemBarInsets()
+                if (lastSystemBarInsetsApplied != systemBarInsets) {
+                    lastSystemBarInsetsApplied = systemBarInsets
+                    Timber.v("onSystemBarInsetsChanged: ${insets.toSystemBarInsets()}")
+                    onSystemBarInsetsChanged(systemBarInsets)
+                }
+                WindowInsetsCompat.CONSUMED
+            }
+        }
+    }
+
+    /**
+     * Called when [com.razer.neuron.common.getSystemBarInsets] which is expected to change in:
+     * - Size
+     * - Position
+     * - Color?
+     * Also called on initial start of the [Activity]
+     *
+     * Will not be called if [isRegisterSystemBarInsetsChange] is false at the time of [onCreate]
+     */
+    open fun onSystemBarInsetsChanged(insets: Insets) = Unit
+
     override fun onResume() {
         isPaused = false
         startReviewTimer()
@@ -178,6 +160,7 @@ open class BaseActivity : AppCompatActivity() {
         reviewTimerJob?.cancel()
         isPaused = true
     }
+
 }
 
 fun Activity.viewTreeObserver() = window?.decorView?.viewTreeObserver
@@ -189,3 +172,24 @@ fun ViewTreeObserver.removeOnGlobalLayoutListenerSafely(victim: OnGlobalLayoutLi
     runCatching {
         removeOnGlobalLayoutListener(victim)
     }
+
+
+const val defaultMidLinePercent = 0.363f
+const val flatFoldableMidLinePercent = 0.5f
+
+/**
+ * Get the percentage of screen width that [com.razer.neuron.settings.RnNavigationView3] should take.
+ *
+ * Normally, in Pixel tablet this should be 36%. In Samsung this percent is not the same as
+ * Pixel, so there is no point in customizing it for Samsung.
+ *
+ * However, in foldable (once opened) the percent should be 50%.
+ */
+fun Context.getMidLinePercent(defaultPercent : Float = defaultMidLinePercent) : Float {
+    val screenRes = getScreenResolution().takeIf { it.width() > 0 && it.height() > 0} ?: return defaultPercent
+    val ratioWH = 1f * screenRes.width() / screenRes.height()
+    return when {
+        abs(1f - ratioWH) < 0.25 -> flatFoldableMidLinePercent
+        else -> defaultPercent
+    }
+}

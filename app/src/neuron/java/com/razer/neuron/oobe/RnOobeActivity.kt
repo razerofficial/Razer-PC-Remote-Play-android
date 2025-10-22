@@ -5,10 +5,12 @@ import android.animation.AnimatorSet
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.text.method.LinkMovementMethod
 import android.view.KeyEvent
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
+import androidx.core.graphics.Insets
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
@@ -19,16 +21,21 @@ import com.limelight.databinding.RnLayoutLoadingBinding
 import com.razer.neuron.RnConstants
 import com.razer.neuron.common.BaseControllerActivity
 import com.razer.neuron.common.debugToast
+import com.razer.neuron.common.fitSystemWindows
+import com.razer.neuron.common.getSystemBarInsets
 import com.razer.neuron.common.materialAlertDialogTheme
+import com.razer.neuron.common.setCancelableExt
+import com.razer.neuron.common.showStatusBar
 import com.razer.neuron.extensions.applyTransition
 import com.razer.neuron.extensions.dismissSafely
+import com.razer.neuron.extensions.dpToPx
 import com.razer.neuron.extensions.fadeOnStart
 import com.razer.neuron.extensions.gone
-import com.razer.neuron.extensions.hasGenericController
+import com.razer.neuron.extensions.hideNavigationBarsOnly
 import com.razer.neuron.extensions.openInBrowser
+import com.razer.neuron.extensions.setSizePx
 import com.razer.neuron.extensions.toUriOrNull
 import com.razer.neuron.extensions.visible
-import com.razer.neuron.extensions.visibleIf
 import com.razer.neuron.main.RnMainActivity
 import com.razer.neuron.model.ButtonHint
 import com.razer.neuron.model.ControllerInput
@@ -41,9 +48,13 @@ import com.razer.neuron.utils.Web
 import com.razer.neuron.utils.openInAppBrowser
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.math.max
 
 class RnOobeActivity : BaseControllerActivity(), RnLayoutOobePermissionsBindingHelper, ButtonHintsBarHelper,
     RnLayoutOobeTosBindingHelper, RnLayoutOobeDisplayModesBindingHelper, DynamicThemeActivity {
+
+    override val activity get() = this
+        override val isRegisterSystemBarInsetsChange = true
     override fun getThemeId() = appThemeType.settingsThemeId
 
     companion object {
@@ -53,6 +64,7 @@ class RnOobeActivity : BaseControllerActivity(), RnLayoutOobePermissionsBindingH
             })
         }
     }
+
 
     private var transitionAnimator: Animator? = null
     private var loadingAnimator: Animator? = null
@@ -92,7 +104,22 @@ class RnOobeActivity : BaseControllerActivity(), RnLayoutOobePermissionsBindingH
         observe()
         viewModel.onCreate(intent)
         buttonHintsBar.visible() // always visible
+        with(binding.layoutTos.tvIntroSubtitle) {
+            movementMethod  = LinkMovementMethod.getInstance()
+            setBackgroundResource(R.drawable.bg_transparent)
+        }
     }
+
+
+    override fun onSystemBarInsetsChanged(insets : Insets) {
+        with(binding.systemBarStart) {
+            setSizePx(widthPx = max(dpToPx(1f).toInt(), insets.left))
+        }
+        fitSystemWindows(isLayoutNoLimits = true)
+        hideNavigationBarsOnly()
+        showStatusBar(transparent = true)
+    }
+
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         val controllerInput = ControllerInput.entries.firstOrNull { it.keyCode == event?.keyCode }
@@ -187,16 +214,15 @@ class RnOobeActivity : BaseControllerActivity(), RnLayoutOobePermissionsBindingH
                                     getString(R.string.rn_update)
                                 )
                             }
-
-                            it.nexusPackageStatus == NexusPackageStatus.NotInstalled -> {
+                            it.reason == RnOobeModel.DownloadNexusReason.NexusContentProvider
+                                    && it.nexusPackageStatus == NexusPackageStatus.NotInstalled -> {
                                 showGetNexusDialog(
                                     getString(R.string.rn_download_razer_nexus),
                                     getString(R.string.rn_razer_nexus_required_message),
                                     getString(R.string.rn_download)
                                 )
                             }
-
-                            it.isUserTriggered -> {
+                            else -> {
                                 redirectToRazerNexusPlayStore()
                             }
                         }
@@ -244,27 +270,10 @@ class RnOobeActivity : BaseControllerActivity(), RnLayoutOobePermissionsBindingH
 
     private var alertDialog: AlertDialog? = null
 
-
-    @Deprecated("Remove this")
-    private fun showTestDialog(title: String) {
-        alertDialog.dismissSafely()
-        alertDialog = MaterialAlertDialogBuilder(this, materialAlertDialogTheme())
-            .setCancelable(false)
-            .setTitle(title)
-            .setMessage(getString(R.string.placeholder_long))
-            .setPositiveButton(R.string.placeholder_short) { _, p ->
-
-            }
-            .setNegativeButton(R.string.rn_cancel) { _, p ->
-
-            }
-            .show()
-    }
-
     private fun showGetNexusDialog(title: String, message: String, buttonText : String = getString(R.string.rn_download)) {
         alertDialog.dismissSafely()
         alertDialog = MaterialAlertDialogBuilder(this, materialAlertDialogTheme())
-            .setCancelable(false)
+            .setCancelableExt(true) // just information related dialog
             .setTitle(title)
             .setMessage(message)
             .setPositiveButton(buttonText) { _, p ->

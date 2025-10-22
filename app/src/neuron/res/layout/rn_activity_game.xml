@@ -4,8 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/rn_black"
+    android:fitsSystemWindows="false"
     tools:context=".Game">
+
+    <View
+        android:id="@+id/game_view_background"
+        android:background="@color/rn_black"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 
     <include layout="@layout/activity_game" />
 

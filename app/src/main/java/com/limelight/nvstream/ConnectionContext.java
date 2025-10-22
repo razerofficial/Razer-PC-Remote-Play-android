@@ -1,8 +1,11 @@
 package com.limelight.nvstream;
 
+import android.app.Activity;
+
 import com.limelight.nvstream.http.ComputerDetails;
 import com.limelight.preferences.PreferenceConfiguration;
 
+import java.lang.ref.WeakReference;
 import java.security.cert.X509Certificate;
 
 import javax.annotation.Nullable;
@@ -37,4 +40,7 @@ public class ConnectionContext {
 
     @Nullable
     public ComputerDetails computerDetails;
+
+    @Nullable
+    public WeakReference<Activity> activity;
 }

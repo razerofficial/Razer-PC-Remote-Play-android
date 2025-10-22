@@ -2,6 +2,7 @@ package com.razer.neuron.shared
 
 import com.limelight.preferences.PreferenceConfiguration
 import com.razer.neuron.extensions.toUriOrNull
+import com.razer.neuron.model.NeuronEventFields
 
 
 object SharedConstants {
@@ -26,6 +27,9 @@ object SharedConstants {
     const val KEY_CLIENT_CRT = CLIENT_CRT
     const val KEY_CLIENT_KEY = CLIENT_KEY
 
+    // Neuron events
+    const val NEURON_EVENTS = NeuronEventFields.EVENT_TABLE_NAME
+
     // ComputerDetails
     const val COMPUTER_DETAILS = "ComputerDetails"
     const val COMPUTER_DETAILS_UUID = "uuid"
@@ -36,8 +40,6 @@ object SharedConstants {
     // neuron Metadata
     const val NEURON_META_DATA = "MetaData"
     const val VIDEO_FORMAT_JSON = "video_format_json"
-
-
 
     // nexus Metadata
     const val NEXUS_META_DATA = "MetaData"
@@ -61,6 +63,8 @@ object SharedConstants {
 
     const val DEFAULT_LIST_FPS = "60" // must match preferences.xml
     const val DEFAULT_LIST_RESOLUTION = "1280x720" // must match preferences.xml
+
+    const val KEY_IS_NEURON_INSTALLED_EVENT_SENT = "key_is_neuron_installed_event_sent"
 }
 
 object RazerRemotePlaySettingsKey {

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.razer.neuron.common.CheckableConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:background="#000000"
+    android:background="@drawable/bg_transparent"
+    android:paddingStart="@dimen/m3_sys_nav_padding_start"
+    android:paddingEnd="@dimen/m3_sys_nav_padding_end"
+    style="@style/RnSettingsItem">
+
+    <include layout="@layout/m3_ex_pill_background_layout"/>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:background="@drawable/bg_transparent"
+        android:foreground="@drawable/bg_transparent"
+        android:duplicateParentState="true"
+        android:id="@+id/menu_item_start_layout"
+        android:layout_marginStart="@dimen/m3_sys_item_padding_start"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/pill_background"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <FrameLayout
+            android:duplicateParentState="true"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <!--
+                large image view 40dp x 40dp
+                40dp + 12dp = 52dp
+            -->
+            <ImageView
+                app:tint="@color/rn_navigation_view_item_foreground_color"
+                android:duplicateParentState="true"
+                android:layout_marginEnd="@dimen/margin_3x"
+                android:importantForAccessibility="no"
+                android:id="@+id/iv_menu_item_icon_large"
+                android:layout_width="@dimen/m3_sys_item_large_image_size"
+                android:layout_height="@dimen/m3_sys_item_large_image_size"
+                android:visibility="gone"
+                tools:visibility="visible"/>
+
+            <!--large image view 28dp x 28dp-->
+            <!--
+                To match the large image
+                (6dp + 28dp + 6dp) + 12dp = 40dp + 12dp
+                6dp + 28dp + 18dp = 40dp + 12dp
+            -->
+            <ImageView
+                app:tint="@color/rn_navigation_view_item_foreground_color"
+                android:duplicateParentState="true"
+                android:visibility="gone"
+                tools:visibility="visible"
+                android:importantForAccessibility="no"
+                android:id="@+id/iv_menu_item_icon_small"
+                android:layout_width="@dimen/m3_sys_item_icon_size"
+                android:layout_height="@dimen/m3_sys_item_icon_size"
+                style="@style/RnSettingsIcon"
+                android:layout_marginVertical="6dp"
+                android:layout_marginStart="6dp"
+                android:layout_marginEnd="18dp"
+                android:src="@drawable/ic_settings_add"/>
+        </FrameLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <LinearLayout
+        android:paddingVertical="@dimen/m3_sys_nav_padding_vertical"
+        android:duplicateParentState="true"
+        android:orientation="vertical"
+        android:layout_marginEnd="@dimen/margin_4x"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/menu_item_start_layout"
+        app:layout_constraintEnd_toEndOf="@+id/pill_background"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:importantForAccessibility="no"
+            android:id="@+id/tv_menu_item_title"
+            android:duplicateParentState="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:textAppearance="@style/TextAppearance.Material3.MenuItem.Title"
+            android:textColor="@color/m3_navigation_view3_item_title"
+            tools:text="@string/placeholder_short" />
+
+        <TextView
+            android:importantForAccessibility="no"
+            android:id="@+id/tv_menu_item_subtitle"
+            android:duplicateParentState="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="2"
+            android:visibility="gone"
+            tools:visibility="gone"
+            android:ellipsize="end"
+            android:textAppearance="@style/TextAppearance.Material3.MenuItem.Subtitle"
+            android:textColor="@color/m3_navigation_view3_item_subtitle"
+            tools:text="@string/placeholder_long" />
+
+    </LinearLayout>
+
+</com.razer.neuron.common.CheckableConstraintLayout>

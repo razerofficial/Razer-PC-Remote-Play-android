@@ -81,3 +81,6 @@ target_include_directories(moonlight-common-c PRIVATE
 )
 
 target_compile_definitions(moonlight-common-c PRIVATE HAS_SOCKLEN_T)
+
+target_link_options(moonlight-common-c PRIVATE "-Wl,-z,max-page-size=16384")
+target_link_options(moonlight-common-c PRIVATE "-Wl,-z,common-page-size=16384")

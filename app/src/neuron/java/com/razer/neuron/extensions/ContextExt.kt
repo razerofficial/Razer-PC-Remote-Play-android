@@ -71,7 +71,7 @@ fun Context.getAppVersion(appPackageName: String) = try {
     ) {
         val versionCode =
             (if (isAboveOrEqual(API_LEVEL28)) longVersionCode else versionCode).toLong()
-        AppVersion(versionCode, versionName)
+        AppVersion(versionCode, versionName ?: "unknown")
     }
 } catch (t: Throwable) {
     null

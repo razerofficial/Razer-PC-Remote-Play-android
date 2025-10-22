@@ -2,6 +2,7 @@ package com.razer.neuron.game.helpers
 
 import android.animation.Animator
 import android.app.Activity
+import android.graphics.Color
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
@@ -9,21 +10,23 @@ import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.appcompat.app.AlertDialog
 import androidx.core.text.HtmlCompat
+import androidx.core.view.descendants
 import androidx.core.view.isGone
+import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.limelight.BuildConfig
 import com.limelight.R
 import com.razer.neuron.game.RnGame
 import timber.log.Timber
 import com.razer.neuron.common.materialAlertDialogTheme
+import com.razer.neuron.common.setCancelableExt
 import com.razer.neuron.common.toast
 
 import com.razer.neuron.extensions.dismissSafely
 import com.razer.neuron.extensions.fadeOnStart
+import com.razer.neuron.extensions.getContentRootView
 import com.razer.neuron.extensions.gone
 import com.razer.neuron.extensions.visible
-import com.razer.neuron.extensions.visibleIf
 import kotlinx.coroutines.launch
 
 /**
@@ -39,7 +42,6 @@ class RnGameView(private val activity: ComponentActivity) {
     private val notificationOverlayView: TextView by lazy { activity.findViewById(R.id.notificationOverlay) }
 
     private var alertDialog: AlertDialog? = null
-    private var loadingLayoutAnimator: Animator? = null
 
 
 
@@ -52,6 +54,17 @@ class RnGameView(private val activity: ComponentActivity) {
     }
 
     /**
+     * When we fix the issue NEUR-17, it is possible (as a side effect) that the [loadingLayout] will no longer
+     * matches the current screen size for a brief moment, so we need to fix this by setting the
+     * [Activity.getContentRootView] to the [loadingLayout] color.
+     */
+    private fun updateActivityBackgroundColor() {
+        with(activity) {
+            getContentRootView()?.setBackgroundColor(getColor(if(loadingLayout.isVisible) R.color.rn_razer_green else R.color.rn_black))
+        }
+    }
+
+    /**
      * Use [com.razer.neuron.game.RnGameError.createAlertIntent] if possible.
      * If the activity [Activity.isFinishing] or if it is due to [Activity.finish]
      * then even showing an [AlertDialog] will not guarentee the user to see it.
@@ -61,15 +74,11 @@ class RnGameView(private val activity: ComponentActivity) {
     fun showError(title: String, message: String?) {
         message ?: return
         lifecycleScope.launch {
-            loadingLayoutAnimator?.cancel()
             if (loadingLayout.isGone) {
-                loadingLayoutAnimator = loadingLayout.fadeOnStart(1f, endVisibility = View.VISIBLE)
-                    .apply {
-                        duration = 500
-                        start()
-                    }
+                loadingLayout.visible()
+                updateActivityBackgroundColor()
             }
-            showAlert(title, message)
+            showAlert(title, message, isCancelable = true)
         }
     }
 
@@ -83,7 +92,7 @@ class RnGameView(private val activity: ComponentActivity) {
         Timber.v("showLoadingMessage: ${message}")
         lifecycleScope.launch {
             loadingLayout.visible()
-            loadingLayout.alpha = 1f
+            updateActivityBackgroundColor()
             loadingText.text = message
         }
     }
@@ -106,12 +115,8 @@ class RnGameView(private val activity: ComponentActivity) {
         if (loadingLayout.isGone) return
         lifecycleScope.launch {
             hideButton()
-            loadingLayoutAnimator?.cancel()
-            loadingLayoutAnimator = loadingLayout.fadeOnStart(0f, endVisibility = View.GONE)
-                .apply {
-                    duration = 500
-                    start()
-                }
+            loadingLayout.gone()
+            updateActivityBackgroundColor()
         }
     }
 
@@ -123,16 +128,15 @@ class RnGameView(private val activity: ComponentActivity) {
 
     fun onDestroy() {
         alertDialog.dismissSafely()
-        loadingLayoutAnimator?.cancel()
     }
 
     /**
      * Show a alert dialog on the UI
      */
-    fun showAlert(title: String, message: String, posBtnText : String = activity.getString(R.string.rn_dismiss), onPosClicked : (() -> Unit)? = null, negBtnText : String? = null, onNegClicked : (() -> Unit)? = null) {
+    fun showAlert(title: String, message: String, isCancelable: Boolean, posBtnText : String = activity.getString(R.string.rn_dismiss), onPosClicked : (() -> Unit)? = null, negBtnText : String? = null, onNegClicked : (() -> Unit)? = null, onCancel: (() -> Unit)? = null) {
         alertDialog.dismissSafely()
         alertDialog = MaterialAlertDialogBuilder(this.activity,  materialAlertDialogTheme())
-            .setCancelable(false)
+            .setCancelableExt(isCancelable)
             .setTitle(title)
             .setMessage(HtmlCompat.fromHtml(message, HtmlCompat.FROM_HTML_MODE_LEGACY))
             .apply {
@@ -143,6 +147,12 @@ class RnGameView(private val activity: ComponentActivity) {
                 if(negBtnText != null) {
                     setNegativeButton(negBtnText) { _, p ->
                         onNegClicked?.invoke() ?: activity.finish()
+                    }
+                }
+
+                if(isCancelable) {
+                    setOnCancelListener { _ ->
+                        onCancel?.invoke() ?: activity.finish()
                     }
                 }
             }

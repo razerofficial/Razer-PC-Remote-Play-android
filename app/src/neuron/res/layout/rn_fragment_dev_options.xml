@@ -32,7 +32,7 @@
                     android:layout_weight="1"
                     style="?attr/materialButtonOutlinedStyle"
                     android:id="@+id/btn_toggle_left"
-                    app:icon="@drawable/ic_tick_22dp"
+                    app:icon="@drawable/ic_tick_22dp_padding"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingVertical="0dp"
@@ -41,7 +41,7 @@
                     />
 
                 <Button
-                    app:icon="@drawable/ic_tick_22dp"
+                    app:icon="@drawable/ic_tick_22dp_padding"
                     android:layout_weight="1"
                     style="?attr/materialButtonOutlinedStyle"
                     android:id="@+id/btn_toggle_right"
@@ -50,6 +50,7 @@
                     android:text="Right"
                     />
             </com.google.android.material.button.MaterialButtonToggleGroup>
+
 
             <TextView
                 android:id="@+id/tv_dev_info"
@@ -77,6 +78,19 @@
                     android:id="@+id/btn_test_action2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"/>
+                <com.google.android.material.button.MaterialButton
+                    android:visibility="gone"
+                    android:layout_marginEnd="@dimen/margin_4x"
+                    android:id="@+id/btn_test_action3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+                <com.google.android.material.button.MaterialButton
+                    android:visibility="gone"
+                    android:layout_marginEnd="@dimen/margin_4x"
+                    android:id="@+id/btn_test_action4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
             </LinearLayout>
             <include
                 android:id="@+id/row_export_last_session_stats"
@@ -101,6 +115,49 @@
                 layout="@layout/rn_item_neuron_settings_action"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
+
+
+            <LinearLayout
+                android:id="@+id/ll_color_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_weight="1"
+                    android:id="@+id/ll_color_container_row1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+
+                <LinearLayout
+                    android:layout_weight="1"
+                    android:id="@+id/ll_color_container_row2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+
+                <LinearLayout
+                    android:layout_weight="1"
+                    android:id="@+id/ll_color_container_row3"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical" />
+
+                <LinearLayout
+                    android:layout_weight="1"
+                    android:id="@+id/ll_color_container_row4"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical" />
+
+                <LinearLayout
+                    android:layout_weight="1"
+                    android:id="@+id/ll_color_container_row5"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical" />
+            </LinearLayout>
 
         </LinearLayout>
 

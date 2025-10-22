@@ -471,7 +471,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</b><p>]]></string>
     <string name="rn_setting_neuron_balanced">Balanced</string>
     <string name="rn_setting_neuron_smoothest_video">Smoothest video</string>
     <string name="rn_setting_neuron_hdr_title">Allow HDR</string>
-    <string name="rn_setting_neuron_hdr_subtitle">Requires your PC\'s connected display to hear HDR enabled.</string>
+    <string name="rn_setting_neuron_hdr_subtitle_line1">Enhances visuals with better contrast, brightness and color range.</string>
+    <string name="rn_setting_neuron_hdr_subtitle_line2">Requires your PC\'s connected display to have HDR enabled.</string>
     <string name="rn_setting_neuron_general_settings">General settings</string>
     <string name="rn_setting_neuron_advanced_settings">Advanced settings</string>
     <string name="rn_setting_neuron_mute_host_pc_title">Mute host PC’s speakers while streaming</string>
@@ -484,6 +485,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</b><p>]]></string>
     <string name="rn_setting_neuron_autoclose_countdown_subtitle">Attempt to automatically close games when finished streaming.</string>
     <string name="rn_setting_neuron_video_format_title">Video codec</string>
     <string name="rn_setting_neuron_video_format_subtitle">Specify the video codec used for streaming.</string>
+    <string name="rn_setting_neuron_only_use_current_native_resolution">Limit screen resolution to current system settings</string>
     <!--endregion-->
 
     <!-- region About Page -->
@@ -495,8 +497,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</b><p>]]></string>
     <string name="rn_device_page_pc_unpair">Unpair</string>
     <string name="rn_device_page_pc_start_play">Start play</string>
     <string name="rn_discovery_state_pc_online">Available</string>
-    <string name="rn_paired_computers">Paired computers</string>
-    <string name="rn_unpaired_computers">Unpaired computers</string>
+    <string name="rn_paired_computers">Paired PC</string>
+    <string name="rn_unpaired_computers">Unpaired PC</string>
     <string name="rn_pairing_hint">Please ensure &hostlabel; is running.</string>
     <string name="rn_all_computers">All computers</string>
     <string name="rn_all_computers_subtitle">To pair a PC, it must be on the same network as your device. Ensure your PC has &hostlabel; v11.0.+ installed and signed in with your Razer ID.</string>
@@ -518,6 +520,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</b><p>]]></string>
     <string name="rn_warning_unable_to_pair">Unable to pair</string>
     <string name="rn_warning_missing_address">Missing IP address.</string>
     <string name="rn_warning_missing_port">Missing port.</string>
+    <string name="rn_invalid_ip_address_format">Invalid IP. Enter a valid one (e.g., 192.168.0.1)</string>
+    <string name="rn_invalid_port_range">Invalid port. Enter a valid one (e.g., 51337)</string>
+    <string name="rn_ip_helper_text">Enter IP address (e.g., 192.168.0.1)</string>
+    <string name="rn_port_helper_text">Enter port (e.g., 51337)</string>
     <!--endregion-->
 
     <!-- region general -->
@@ -570,4 +576,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</b><p>]]></string>
     <string name="settings_dev_options" translatable="false">Dev Options</string>
     <string name="neuron_dev_authority" translatable="false">com.razer.neuron.dev</string>
     <!--- endregion-->
+
+    <!-- Accessibility -->
+    <string name="x_of_y">%1$s of %2$S</string>
+    <string name="talkback_switch_on">%1$s on</string>
+    <string name="talkback_switch_off">%1$s off</string>
+
+
+    <!--A special tag for view that should always be treated as visible when checking for pill background logic -->
+    <string name="skip_pill_visibility_check" translatable="false">force_true_pill_visibility</string>
 </resources>

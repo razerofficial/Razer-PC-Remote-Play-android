@@ -37,11 +37,51 @@ val Context.colorOnSurface
         R.color.md_theme_onSurface
     )
 
+val Context.colorSurfaceDim
+    get() = getMaterialColor(
+        com.google.android.material.R.attr.colorSurfaceDim,
+        R.color.md_theme_surfaceDim
+    )
+
 val Context.colorSurface
     get() = getMaterialColor(
         com.google.android.material.R.attr.colorSurface,
         R.color.md_theme_surface
     )
+
+
+val Context.colorSurfaceContainerHighest
+    get() = getMaterialColor(
+        com.google.android.material.R.attr.colorSurfaceContainerHighest,
+        R.color.md_theme_surfaceContainerHighest
+    )
+
+val Context.colorSurfaceContainerHigh
+    get() = getMaterialColor(
+        com.google.android.material.R.attr.colorSurfaceContainerHigh,
+        R.color.md_theme_surfaceContainerHigh
+    )
+
+val Context.colorSurfaceContainer
+    get() = getMaterialColor(
+        com.google.android.material.R.attr.colorSurfaceContainer,
+        R.color.md_theme_surfaceContainer
+    )
+
+
+val Context.colorSurfaceContainerLow
+    get() = getMaterialColor(
+        com.google.android.material.R.attr.colorSurfaceContainerLow,
+        R.color.md_theme_surfaceContainerLow
+    )
+
+val Context.colorSurfaceContainerLowest
+    get() = getMaterialColor(
+        com.google.android.material.R.attr.colorSurfaceContainerLowest,
+        R.color.md_theme_surfaceContainerLowest
+    )
+
+
 
 val Context.colorOnPrimaryContainer
     get() = getMaterialColor(
@@ -63,7 +103,7 @@ val Context.colorOnPrimary
 
 val Context.colorPrimary
     get() = getMaterialColor(
-        com.google.android.material.R.attr.colorPrimary,
+        androidx.appcompat.R.attr.colorPrimary,
         R.color.md_theme_primary
     )
 

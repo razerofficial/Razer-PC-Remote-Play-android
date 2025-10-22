@@ -110,14 +110,12 @@ class RnMainViewModel
                 if(!wasSyncCompleted && appContext.hasNexusContentProviderPermission()) {
                     appContext.sync()
                 }
-                withContext(ioDispatcher) {
-                    val gameIntent = createStartStreamIntent(appContext, intent)
-                    try {
-                        askBeforeStartStream(gameIntent)
-                    } catch (t : Throwable) {
-                        logAndRecordException(t)
-                        RnStartGameModel.Navigation.Error(t)
-                    }
+                val gameIntent = createStartStreamIntent(appContext, intent)
+                try {
+                    askBeforeStartStream(gameIntent)
+                } catch (t : Throwable) {
+                    logAndRecordException(t)
+                    RnStartGameModel.Navigation.Error(t)
                 }
             }
         }
@@ -150,7 +148,7 @@ class RnMainViewModel
     private suspend fun <T> wrapWithLoading(task : suspend () -> T) : T{
         return try {
             RnMainModel.State.ShowLoading.emit()
-            task()
+            withContext(ioDispatcher) { task() }
         } finally {
             RnMainModel.State.HideLoading.emit()
         }

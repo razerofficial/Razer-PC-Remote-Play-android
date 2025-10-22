@@ -4,8 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingStart="@dimen/m3_sys_item_padding_start"
-    android:paddingEnd="@dimen/m3_sys_item_padding_end"
+    android:layout_marginStart="@dimen/m3_sys_header_margin_start"
+    android:layout_marginEnd="@dimen/m3_sys_header_margin_end"
+    android:paddingStart="@dimen/m3_sys_header_padding_start"
+    android:paddingEnd="@dimen/m3_sys_header_padding_end"
     android:background="@drawable/bg_transparent">
 
     <LinearLayout
@@ -20,7 +22,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="@style/TextAppearance.Material3.Item.Header"
-            style="@style/RnDeviceSettingsTitle"
+            style="@style/RnSettingsTitle"
             tools:text="@string/placeholder_short" />
 
         <TextView
@@ -29,7 +31,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/margin_1x"
             android:textAppearance="@style/TextAppearance.Material3.Item.Subtitle"
-            style="@style/RnDeviceSettingsSubtitle"
+            style="@style/RnSettingsSubtitle"
             android:includeFontPadding="false"
             tools:text="@string/placeholder_long" />
     </LinearLayout>

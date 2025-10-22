@@ -10,8 +10,11 @@ import android.media.audiofx.AudioEffect;
 import android.os.Build;
 
 import com.limelight.LimeLog;
+import com.limelight.NeuronBridge;
 import com.limelight.nvstream.av.audio.AudioRenderer;
 import com.limelight.nvstream.jni.MoonBridge;
+
+import java.util.Optional;
 
 public class AndroidAudioRenderer implements AudioRenderer {
 
@@ -26,9 +29,10 @@ public class AndroidAudioRenderer implements AudioRenderer {
     }
 
     private AudioTrack createAudioTrack(int channelConfig, int sampleRate, int bufferSize, boolean lowLatency) {
-        AudioAttributes.Builder attributesBuilder = new AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_GAME);
-        AudioFormat format = new AudioFormat.Builder()
+        AudioAttributes.Builder attributesBuilder = Optional.ofNullable(NeuronBridge.createAudioAttributesBuilder())
+                .orElse(new AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_GAME));
+        AudioFormat format = Optional.ofNullable(NeuronBridge.createAudioFormatBuilder()).orElse(new AudioFormat.Builder())
                 .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
                 .setSampleRate(sampleRate)
                 .setChannelMask(channelConfig)

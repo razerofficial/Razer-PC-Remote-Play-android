@@ -7,7 +7,6 @@
     tools:background="?attr/colorSurface">
 
 
-
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/mid_line"
         android:layout_width="1dp"
@@ -15,26 +14,34 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.5" />
 
-
-    <ImageView
-        android:importantForAccessibility="no"
-        android:id="@+id/iv_left_image"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="@dimen/margin_14x"
-        android:layout_marginEnd="@dimen/margin_24x"
-        android:background="@drawable/bg_neuron_nexus_streaming"
+        android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintDimensionRatio="298:170"
         app:layout_constraintEnd_toStartOf="@+id/mid_line"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/iv_left_image"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/bg_neuron_nexus_streaming"
+            android:importantForAccessibility="no"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="298:170"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.75" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 
     <ScrollView
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/margin_17x"
+        android:layout_marginBottom="@dimen/margin_6x"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/mid_line"
@@ -45,17 +52,17 @@
             android:layout_height="wrap_content">
 
             <ImageView
-                android:importantForAccessibility="no"
                 android:id="@+id/iv_app_icon"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:background="@drawable/circle_primary"
+                android:importantForAccessibility="no"
                 android:src="@drawable/ic_launcher_neuron_default_padding"
-                app:tint="@color/rn_black"
                 app:backgroundTint="@color/rn_razer_green"
-                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintBottom_toBottomOf="@+id/tv_intro_subtitle"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/rn_black" />
 
             <TextView
                 android:id="@+id/tv_intro_title"
@@ -78,45 +85,64 @@
                 android:text="@string/rn_welcome_subtitle"
                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                 app:layout_constraintEnd_toEndOf="@+id/tv_intro_title"
+                app:layout_constraintHeight_max="144dp"
                 app:layout_constraintStart_toStartOf="@+id/tv_intro_title"
                 app:layout_constraintTop_toBottomOf="@+id/tv_intro_title" />
 
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_tos"
-                android:focusable="false"
-                style="@style/RnTextButtonStyle"
-                android:layout_width="wrap_content"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/margin_1x"
-                android:text="@string/tos"
-                android:layout_marginStart="@dimen/margin_1x"
                 app:layout_constraintStart_toEndOf="@+id/iv_app_icon"
-                app:layout_constraintTop_toBottomOf="@+id/tv_intro_subtitle" />
+                app:layout_constraintTop_toBottomOf="@+id/tv_intro_subtitle">
 
-            <View
-                android:layout_marginStart="@dimen/margin_1x"
-                android:id="@+id/divider"
-                style="@style/RnOobeButtonDividerOnBackground"
-                android:layout_width="2dp"
-                android:layout_height="10dp"
-                app:layout_constraintBottom_toBottomOf="@id/btn_tos"
-                app:layout_constraintStart_toEndOf="@+id/btn_tos"
-                app:layout_constraintTop_toTopOf="@id/btn_tos" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_tos"
+                    style="@style/RnTextButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/margin_1x"
+                    android:layout_marginTop="@dimen/margin_1x"
+                    android:focusable="false"
+                    android:text="@string/tos"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-            <com.google.android.material.button.MaterialButton
-                android:layout_marginStart="@dimen/margin_1x"
-                android:id="@+id/btn_pp"
-                android:focusable="false"
-                app:layout_constraintBottom_toBottomOf="@id/btn_tos"
-                style="@style/RnTextButtonStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/pp"
-                app:layout_constraintStart_toEndOf="@+id/divider"
-                app:layout_constraintTop_toTopOf="@+id/btn_tos" />
+                <View
+                    android:id="@+id/divider"
+                    style="@style/RnOobeButtonDividerOnBackground"
+                    android:layout_width="2dp"
+                    android:layout_height="10dp"
+                    android:layout_marginStart="@dimen/margin_1x"
+                    app:layout_constraintBottom_toBottomOf="@id/btn_tos"
+                    app:layout_constraintStart_toEndOf="@+id/btn_tos"
+                    app:layout_constraintTop_toTopOf="@id/btn_tos" />
 
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_pp"
+                    style="@style/RnTextButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/margin_1x"
+                    android:focusable="false"
+                    android:text="@string/pp"
+                    app:layout_constraintBottom_toBottomOf="@id/btn_tos"
+                    app:layout_constraintStart_toEndOf="@+id/divider"
+                    app:layout_constraintTop_toTopOf="@+id/btn_tos" />
 
+                <androidx.constraintlayout.helper.widget.Flow
+                    android:id="@+id/flowView"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    app:constraint_referenced_ids="btn_tos, divider, btn_pp"
+                    app:flow_horizontalGap="0dp"
+                    app:flow_verticalStyle="packed"
+                    app:flow_wrapMode="chain"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 

@@ -1,5 +1,6 @@
 package com.razer.neuron.oobe
 
+import android.app.Activity
 import android.content.Context
 import android.view.View
 import android.widget.CompoundButton
@@ -16,7 +17,7 @@ import timber.log.Timber
 
 interface RnLayoutOobeDisplayModesBindingHelper {
 
-    val context: Context
+    val activity: Activity
 
     val layoutDisplayModesBinding: RnLayoutOobeDisplayModesBinding
 
@@ -66,7 +67,7 @@ interface RnLayoutOobeDisplayModesBindingHelper {
     private fun RnOobeModel.State.DisplayModes.setup(selected: DisplayModeOption) {
         val tag = "DisplayModes.setup(selected=$selected)"
         Timber.v("$tag: ")
-        val virtualDisplayMode = calculateVirtualDisplayMode(context, isLimitRefreshRate = RemotePlaySettingsPref.isLimitRefreshRate).getOrNull()
+        val virtualDisplayMode = activity.calculateVirtualDisplayMode(isLimitRefreshRate = RemotePlaySettingsPref.isLimitRefreshRate).getOrNull()
         val virtualResolution = virtualDisplayMode?.let { "${it.width}x${it.height}" } ?: ""
         val virtualRefreshRate = virtualDisplayMode?.refreshRate ?: ""
         layoutDisplayModesBinding.irbDuplicateScreen.setup(
@@ -83,7 +84,7 @@ interface RnLayoutOobeDisplayModesBindingHelper {
             isChecked = selected == DisplayModeOption.SeparateDisplay,
             title = getStringExt(R.string.rn_settings_display_mode_separate),
             iconRes = R.drawable.ic_display_mode_separate,
-            description = context.getString(R.string.rn_settings_display_mode_separate_desc_x_resolution_x_refresh_rate, virtualResolution, virtualRefreshRate),
+            description = activity.getString(R.string.rn_settings_display_mode_separate_desc_x_resolution_x_refresh_rate, virtualResolution, virtualRefreshRate),
             leftImageRes = R.drawable.bg_separate_screen
         )
 
@@ -92,7 +93,7 @@ interface RnLayoutOobeDisplayModesBindingHelper {
             isChecked = selected == DisplayModeOption.PhoneOnlyDisplay,
             title = getStringExt(R.string.rn_settings_display_mode_phone_only_2_lines),
             iconRes = R.drawable.ic_display_mode_phone_only,
-            description = context.getString(R.string.rn_settings_display_mode_phone_only_desc_x_resolution_x_refresh_rate, virtualResolution, virtualRefreshRate),
+            description = activity.getString(R.string.rn_settings_display_mode_phone_only_desc_x_resolution_x_refresh_rate, virtualResolution, virtualRefreshRate),
             leftImageRes = R.drawable.bg_phone_only
         )
         layoutDisplayModesBinding.irbSeparateScreen.visibleIf {

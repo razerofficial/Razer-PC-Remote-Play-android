@@ -6,7 +6,9 @@
     style="@style/RnSettingsScrollbar"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:background="#000000"
+    tools:paddingStart="320dp">
 
     <LinearLayout
         android:id="@+id/group_video_settings"
@@ -18,24 +20,24 @@
         tools:visibility="visible">
 
         <TextView
+            android:layout_marginTop="0dp"
             android:id="@+id/tv_video_setting"
-            android:textAppearance="@style/TextAppearance.Material3.Group.Title"
             style="@style/RnRemotePlayGroupTitle"
-            android:layout_marginTop="@dimen/margin_2x"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@string/sans_serif_bold"
-            android:text="@string/rn_setting_neuron_video_settings" />
+            android:text="@string/rn_setting_neuron_video_settings"
+            android:textAppearance="@style/TextAppearance.Material3.Group.Title" />
 
         <TextView
+            style="@style/RnSettingsTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="@style/RnDeviceSettingsTitle"
-            android:paddingStart="@dimen/m3_sys_item_padding_start"
-            android:layout_marginBottom="@dimen/margin_4x"
-            android:paddingEnd="@dimen/m3_sys_item_padding_end"
-            android:textAppearance="@style/TextAppearance.Material3.Item.Title"
-            android:text="@string/rn_setting_neuron_display_mode"/>
+            android:layout_marginStart="@dimen/m3_sys_header_margin_start"
+            android:layout_marginBottom="@dimen/margin_2x"
+            android:paddingStart="@dimen/m3_sys_header_padding_start"
+            android:text="@string/rn_setting_neuron_display_mode"
+            android:textAppearance="@style/TextAppearance.Material3.Item.Title" />
 
         <HorizontalScrollView
             android:id="@+id/hsv_display_mode"
@@ -45,121 +47,95 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:paddingHorizontal="@dimen/m3_sys_item_padding_start"
-                android:orientation="horizontal">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:paddingHorizontal="@dimen/m3_sys_item_padding_start">
 
-                <com.razer.neuron.common.ImageRadioButton
-                    android:layout_marginEnd="@dimen/margin_3x"
-                    android:id="@+id/irb_phone_only"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+            <com.razer.neuron.common.ImageRadioButton
+                android:id="@+id/irb_phone_only"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
 
-                <com.razer.neuron.common.ImageRadioButton
-                    android:layout_marginEnd="@dimen/margin_3x"
-                    android:id="@+id/irb_duplicate_screen"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+            <com.razer.neuron.common.ImageRadioButton
+                android:id="@+id/irb_duplicate_screen"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_4x"
+                android:layout_weight="1" />
 
-                <com.razer.neuron.common.ImageRadioButton
-                    android:layout_marginEnd="@dimen/margin_3x"
-                    android:id="@+id/irb_separate_screen"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+            <com.razer.neuron.common.ImageRadioButton
+                android:id="@+id/irb_separate_screen"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_4x"
+                android:layout_weight="1"
+                tools:visibility="gone" />
 
-            </LinearLayout>
-
+        </LinearLayout>
         </HorizontalScrollView>
 
         <TextView
-            android:paddingTop="@dimen/margin_1x"
-            android:paddingStart="@dimen/margin_6x"
-            android:paddingEnd="@dimen/margin_6x"
             android:id="@+id/tv_display_mode_description"
-            tools:text="@string/placeholder_paragraph"
-            android:textAppearance="@style/TextAppearance.Material3.Item.Subtitle"
-            style="@style/RnDeviceSettingsSubtitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-
-
-        <LinearLayout
-            android:paddingTop="@dimen/margin_4x"
-            android:id="@+id/layout_bitrate"
+            style="@style/RnSettingsSubtitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                style="@style/RnSliderTitle">
-
-                <TextView
-                    android:id="@+id/tv_bitrate"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    style="@style/RnDeviceSettingsTitle"
-                    android:textAppearance="@style/TextAppearance.Material3.Item.Title"
-                    android:text="@string/rn_setting_neuron_video_bitrate"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <com.google.android.material.slider.Slider
-                android:id="@+id/bitrate_slider"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                style="@style/RnSlider"
-                android:layout_marginTop="@dimen/margin_2x"
-                android:layout_marginStart="@dimen/margin_3x"
-                android:layout_marginEnd="@dimen/margin_1x"
-                android:splitTrack="false"
-                app:haloColor="@color/m3_system_highlight"
-                app:labelBehavior="floating" />
-        </LinearLayout>
+            android:paddingStart="@dimen/margin_6x"
+            android:paddingTop="@dimen/margin_2x"
+            android:paddingEnd="@dimen/margin_6x"
+            android:paddingBottom="@dimen/margin_4x"
+            android:textAppearance="@style/TextAppearance.Material3.Item.Subtitle"
+            tools:text="@string/placeholder_paragraph" />
 
 
         <include
+            android:id="@+id/row_bitrate"
+            layout="@layout/rn_item_neuron_settings_slider" />
+
+        <include
             android:id="@+id/row_hdr"
-            layout="@layout/rn_item_neuron_settings_action"/>
+            layout="@layout/rn_item_neuron_settings_action" />
 
 
         <TextView
-            android:layout_marginTop="@dimen/margin_2x"
             android:id="@+id/tv_general_settings"
-            android:textAppearance="@style/TextAppearance.Material3.Group.Title"
             style="@style/RnRemotePlayGroupTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@string/sans_serif_bold"
-            android:text="@string/rn_setting_neuron_general_settings"/>
+            android:text="@string/rn_setting_neuron_general_settings"
+            android:textAppearance="@style/TextAppearance.Material3.Group.Title" />
 
         <include
             android:id="@+id/row_mute_host_pc"
-            layout="@layout/rn_item_neuron_settings_action"/>
+            layout="@layout/rn_item_neuron_settings_action" />
+
+
+        <include
+            android:id="@+id/row_touch_screen"
+            layout="@layout/rn_item_neuron_settings_action" />
 
         <TextView
-            android:layout_marginTop="@dimen/margin_4x"
-            android:layout_marginBottom="@dimen/margin_1x"
-            android:layout_marginStart="@dimen/m3_sys_item_padding_start"
             android:id="@+id/tv_touch_screen"
-            android:textAppearance="@style/TextAppearance.Material3.Item.Title"
-            style="@style/RnDeviceSettingsTitle"
+            style="@style/RnSettingsTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/rn_setting_neuron_touch_screen"/>
+            android:layout_marginStart="@dimen/m3_sys_item_padding_start"
+            android:layout_marginTop="@dimen/margin_4x"
+            android:layout_marginBottom="@dimen/margin_1x"
+            android:text="@string/rn_setting_neuron_touch_screen"
+            android:textAppearance="@style/TextAppearance.Material3.Item.Title"
+            android:visibility="gone" />
 
         <RadioGroup
             android:id="@+id/rg_touch_screen"
-            android:checkedButton="@+id/enabled_selected"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="-5dp">
+            android:layout_marginStart="-5dp"
+            android:checkedButton="@+id/enabled_selected"
+            android:visibility="gone">
 
             <com.razer.neuron.common.RnRadioButton
                 android:id="@+id/direct_touch_option"
@@ -176,51 +152,60 @@
 
 
         <TextView
-            android:layout_marginTop="@dimen/margin_2x"
             android:id="@+id/tv_advanced_settings"
-            android:textAppearance="@style/TextAppearance.Material3.Group.Title"
             style="@style/RnRemotePlayGroupTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@string/sans_serif_bold"
-            android:text="@string/rn_setting_neuron_advanced_settings"/>
+            android:text="@string/rn_setting_neuron_advanced_settings"
+            android:textAppearance="@style/TextAppearance.Material3.Group.Title" />
 
         <include
             android:id="@+id/row_auto_close_game_countdown_dropdown"
-            layout="@layout/rn_item_neuron_settings_dropdown_m3"
+            layout="@layout/rn_item_neuron_settings_action"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
 
         <include
             android:id="@+id/row_limit_refresh_rate"
-            layout="@layout/rn_item_neuron_settings_action"/>
+            layout="@layout/rn_item_neuron_settings_action" />
+
+        <include
+            android:id="@+id/row_only_use_current_native_res"
+            layout="@layout/rn_item_neuron_settings_action" />
 
         <include
             android:id="@+id/row_limit_to_safe_area"
-            layout="@layout/rn_item_neuron_settings_action"/>
+            layout="@layout/rn_item_neuron_settings_action" />
 
         <include
             android:id="@+id/row_stretch_to_full_screen"
-            layout="@layout/rn_item_neuron_settings_action"/>
+            layout="@layout/rn_item_neuron_settings_action" />
+
+        <include
+            android:id="@+id/row_frame_pacing"
+            layout="@layout/rn_item_neuron_settings_action" />
 
         <TextView
-            android:layout_marginTop="@dimen/margin_4x"
-            android:layout_marginBottom="@dimen/margin_1x"
             android:id="@+id/tv_frame_pacing"
-            android:layout_marginStart="@dimen/m3_sys_item_padding_start"
-            android:textAppearance="@style/TextAppearance.Material3.Item.Title"
-            style="@style/RnDeviceSettingsTitle"
+            style="@style/RnSettingsTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/rn_setting_neuron_frame_pacing"/>
+            android:layout_marginStart="@dimen/m3_sys_item_padding_start"
+            android:layout_marginTop="@dimen/margin_4x"
+            android:layout_marginBottom="@dimen/margin_1x"
+            android:text="@string/rn_setting_neuron_frame_pacing"
+            android:textAppearance="@style/TextAppearance.Material3.Item.Title"
+            android:visibility="gone" />
 
         <RadioGroup
             android:id="@+id/rg_frame_pacing"
-            android:checkedButton="@+id/enabled_selected"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="-5dp">
+            android:layout_marginStart="-5dp"
+            android:checkedButton="@+id/enabled_selected"
+            android:visibility="gone">
 
             <com.razer.neuron.common.RnRadioButton
                 android:id="@+id/low_latency_option"
@@ -242,9 +227,12 @@
 
         <include
             android:id="@+id/row_video_format_dropdown"
-            layout="@layout/rn_item_neuron_settings_dropdown_m3"
+            layout="@layout/rn_item_neuron_settings_action"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <View
+            android:layout_width="1dp"
+            android:layout_height="@dimen/margin_4x" />
     </LinearLayout>
 </ScrollView>

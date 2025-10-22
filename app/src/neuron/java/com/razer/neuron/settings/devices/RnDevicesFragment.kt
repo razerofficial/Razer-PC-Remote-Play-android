@@ -23,6 +23,7 @@ import com.razer.neuron.common.ComputerServiceHelper
 import com.razer.neuron.common.RnThemeManager
 import com.razer.neuron.common.debugToast
 import com.razer.neuron.common.materialAlertDialogTheme
+import com.razer.neuron.common.setCancelableExt
 import com.razer.neuron.common.showSingleChoiceItemsDialog
 import com.razer.neuron.common.toast
 import com.razer.neuron.di.IoDispatcher
@@ -32,6 +33,7 @@ import com.razer.neuron.extensions.gone
 import com.razer.neuron.extensions.visible
 import com.razer.neuron.extensions.vv
 import com.razer.neuron.model.AppThemeType
+import com.razer.neuron.settings.SettingsStackFragment
 import com.razer.neuron.settings.manualpairing.RnManualPairingActivity
 import com.razer.neuron.startgame.RnStartGameView
 import dagger.hilt.android.AndroidEntryPoint
@@ -43,7 +45,8 @@ import javax.inject.Inject
 
 
 @AndroidEntryPoint
-class RnDevicesFragment : Fragment(), DeviceItemAdapter.Listener, RnStartGameView {
+class RnDevicesFragment : Fragment(), DeviceItemAdapter.Listener, RnStartGameView, SettingsStackFragment {
+    override val fragmentTitle get() = getString(R.string.rn_settings_computers)
 
     private lateinit var binding: RnFragmentDevicesBinding
 
@@ -265,7 +268,7 @@ class RnDevicesFragment : Fragment(), DeviceItemAdapter.Listener, RnStartGameVie
     private fun Activity.showPinDialog(pinCode: String, computerName : String) {
         pinCodeDialog.dismissSafely()
         pinCodeDialog = MaterialAlertDialogBuilder(this, materialAlertDialogTheme())
-            .setCancelable(true)
+            .setCancelableExt(false) // don't want user to accidentally cancelled this dialog
             .setTitle(getString(R.string.rn_pin_code_title, computerName))
             .setView(LayoutInflater.from(this).inflate(R.layout.rn_layout_pin_code, null).apply {
                 findViewById<TextView>(R.id.tv_pin_code).text = pinCode

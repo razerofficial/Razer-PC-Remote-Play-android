@@ -1,8 +1,10 @@
 package com.limelight
 
+import android.app.Activity
 import android.content.Intent
+import android.media.AudioAttributes
+import android.media.AudioFormat
 import android.util.Size
-import android.view.Window
 import com.limelight.binding.video.MediaCodecDecoderRenderer
 import com.limelight.binding.video.VideoStats
 import com.limelight.nvstream.ConnectionContext
@@ -17,6 +19,12 @@ import java.util.concurrent.CompletableFuture
  * Put the code in [RnNeuronBridgeImpl] instead
  */
 interface NeuronBridgeInterface {
+
+
+    /**
+     * true if we should stick with current resolution during stream
+     */
+    val isMatchStreamViewResolutionToCurrentWindow : Boolean
 
     /**
      * See NEUR-59
@@ -45,7 +53,7 @@ interface NeuronBridgeInterface {
      * Called right after [com.limelight.preferences.PreferenceConfiguration] is created
      * in [Game] (Stage 1)
      */
-    fun updatePreferenceConfiguration(window: Window, prefConfig: PreferenceConfiguration, intent : Intent)
+    fun updatePreferenceConfiguration(activity: Activity, prefConfig: PreferenceConfiguration, intent : Intent)
 
 
     /**
@@ -128,6 +136,18 @@ interface NeuronBridgeInterface {
      * Transform custom error code to string
      */
     fun getLocalizedStringFromErrorCode(errorCode : Int) : String
+
+    /**
+     * Return a non-null build to customize the [AudioAttributes]
+     * used by [com.limelight.binding.audio.AndroidAudioRenderer]
+     */
+    fun createAudioAttributesBuilder() : AudioAttributes.Builder?
+
+    /**
+     * Return a non-null build to customize the [AudioFormat]
+     * used by [com.limelight.binding.audio.AndroidAudioRenderer]
+     */
+    fun createAudioFormatBuilder() : AudioFormat.Builder?
 }
 
 
@@ -142,6 +162,10 @@ object NeuronBridge {
     @JvmStatic
     val isLaunchWithVirtualDisplay get() = implementation.isLaunchWithVirtualDisplay
 
+    @JvmStatic
+    val isMatchStreamViewResolutionToCurrentWindow get() = implementation.isMatchStreamViewResolutionToCurrentWindow
+
+
     fun setImplementation(implementation: NeuronBridgeInterface) {
         this.implementation = implementation
     }
@@ -153,7 +177,7 @@ object NeuronBridge {
      * Used to update the [prefConfig] object before [Game] has a chance to use the values
      */
     @JvmStatic
-    fun updatePreferenceConfiguration(window: Window, prefConfig: PreferenceConfiguration, intent : Intent) = implementation.updatePreferenceConfiguration(window, prefConfig, intent)
+    fun updatePreferenceConfiguration(activity: Activity, prefConfig: PreferenceConfiguration, intent : Intent) = implementation.updatePreferenceConfiguration(activity, prefConfig, intent)
 
     /**
      * Used to update the [ConnectionContext.streamConfig] object before [Game] has a chance to use the values
@@ -238,6 +262,13 @@ object NeuronBridge {
 
 
     fun getLocalizedStringFromErrorCode(errorCode : Int) = implementation.getLocalizedStringFromErrorCode(errorCode)
+
+    @JvmStatic
+    fun createAudioAttributesBuilder() = implementation.createAudioAttributesBuilder()
+
+    @JvmStatic
+    fun createAudioFormatBuilder() = implementation.createAudioFormatBuilder()
+
 }
 
 
@@ -247,6 +278,8 @@ object NeuronBridge {
  * Put the code in [RnNeuronBridgeImpl] instead
  */
 object NoNeuronBridge : NeuronBridgeInterface {
+    override val isMatchStreamViewResolutionToCurrentWindow = false
+
     override fun getLaunchUrlQueryParameters(connectionContext: ConnectionContext) = ""
 
     override fun getPairQueryParameters() = ""
@@ -293,10 +326,14 @@ object NoNeuronBridge : NeuronBridgeInterface {
      */
     override fun onStopNeuronGame() = Unit
 
-    override fun updatePreferenceConfiguration(window: Window, prefConfig: PreferenceConfiguration, intent : Intent) = Unit
+    override fun updatePreferenceConfiguration(activity: Activity, prefConfig: PreferenceConfiguration, intent : Intent) = Unit
 
     override fun getLocalizedStageName(stage: String) = stage
 
     override fun getLocalizedStringFromErrorCode(errorCode : Int) = "(error $errorCode)"
+
+    override fun createAudioAttributesBuilder() = null
+
+    override fun createAudioFormatBuilder() = null
 }
 
